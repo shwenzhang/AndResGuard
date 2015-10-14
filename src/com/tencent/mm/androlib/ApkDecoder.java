@@ -72,7 +72,11 @@ public class ApkDecoder {
 		dealWithCompressConfig();
 
 		//将res混淆成r
-		mOutResFile = new File(mOutDir.getAbsolutePath() + File.separator + TypedValue.RES_FILE_PATH);
+		if (!getClient().isUseKeeproot())
+			mOutResFile = new File(mOutDir.getAbsolutePath() + File.separator + TypedValue.RES_FILE_PATH);
+		else
+			mOutResFile = new File(mOutDir.getAbsolutePath() + File.separator + "res");
+
 		//这个需要混淆各个文件夹
 		mRawResFile = new File(mOutDir.getAbsoluteFile().getAbsolutePath() + File.separator + TypedValue.UNZIP_FILE_PATH + File.separator+"res");
 		mOutTempDir = new File(mOutDir.getAbsoluteFile().getAbsolutePath() + File.separator + TypedValue.UNZIP_FILE_PATH);

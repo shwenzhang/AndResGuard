@@ -232,8 +232,13 @@ public class ResourceApkBuilder {
 			collectFiles.add(f);
 		}
 		
+		File destResDir = new File(mOutDir.getAbsolutePath() + File.separator + "res");
+
 		//添加修改后的res文件
-		File destResDir = new File(mOutDir.getAbsolutePath() + File.separator + TypedValue.RES_FILE_PATH);
+		if (!mClient.isUseKeeproot())
+			destResDir = new File(mOutDir.getAbsolutePath() + File.separator + TypedValue.RES_FILE_PATH);
+		
+
 //		System.err.printf("destpath count=%d\n", FileOperation.getlist(rawResDir));
 		
 		//!!!文件数量应该是一样的，如果不一样肯定有问题

@@ -85,8 +85,10 @@ public class ARSCDecoder {
 		mProguardBuilder = new ProguardStringBuilder();
 		mProguardBuilder.reset();
 		
+		final Main client = mApkDecoder.getClient();
+		
 		File rawResFile = mApkDecoder.getRawResFile();
-
+		
 		File[] resFiles = rawResFile.listFiles();
 		
 		//需要看看哪些类型是要混淆文件路径的
@@ -100,46 +102,48 @@ public class ARSCDecoder {
 			mShouldProguardTypeSet.add(raw);
 		}
 		
-		final Main client = mApkDecoder.getClient();
-		//需要保持之前的命名方式
-		if (client.isUseKeepMapping()) {
-			HashMap<String, String> fileMapping = client.getOldFileMapping();
-//    		System.out.printf("use file mapping %d\n", fileMapping.size());
-    		List<String> keepFileNames = new ArrayList<String>();
-    		//这里面为了兼容以前，也需要用以前的文件名前缀，即res混淆成什么
-    		String resRoot = null;
-    		for (String name : fileMapping.values()) {
-    			int dot = name.indexOf("/");
-    			if (dot == -1) {
-    				throw new IOException(
-							String.format(
-									"the old mapping res file path should be like r/a, yours %s\n",
-									name));
-    			}
-    			resRoot = name.substring(0, dot);
-    			keepFileNames.add(name.substring(dot + 1));
-//        		System.out.printf("resRoot %s, name %s\n", resRoot, name.substring(dot + 1));
-    		}
-			//去掉所有之前保留的命名，为了简单操作，mapping里面有的都去掉
-			mProguardBuilder.removeStrings(keepFileNames);
-			
-			for (File resFile : resFiles) {
-				String raw = "res"+"/" + resFile.getName();
-				if (fileMapping.containsKey(raw)) {
-					mOldFileName.put(raw, fileMapping.get(raw));
-				} else {
-            		System.out.printf("can not find the file mapping %s\n", raw);
-            		mOldFileName.put(raw, resRoot + "/" + mProguardBuilder.getReplaceString());
+		if (!client.isUseKeeproot()) {
+						
+			//需要保持之前的命名方式
+			if (client.isUseKeepMapping()) {
+				HashMap<String, String> fileMapping = client.getOldFileMapping();
+	//    		System.out.printf("use file mapping %d\n", fileMapping.size());
+	    		List<String> keepFileNames = new ArrayList<String>();
+	    		//这里面为了兼容以前，也需要用以前的文件名前缀，即res混淆成什么
+	    		String resRoot = null;
+	    		for (String name : fileMapping.values()) {
+	    			int dot = name.indexOf("/");
+	    			if (dot == -1) {
+	    				throw new IOException(
+								String.format(
+										"the old mapping res file path should be like r/a, yours %s\n",
+										name));
+	    			}
+	    			resRoot = name.substring(0, dot);
+	    			keepFileNames.add(name.substring(dot + 1));
+	//        		System.out.printf("resRoot %s, name %s\n", resRoot, name.substring(dot + 1));
+	    		}
+				//去掉所有之前保留的命名，为了简单操作，mapping里面有的都去掉
+				mProguardBuilder.removeStrings(keepFileNames);
+				
+				for (File resFile : resFiles) {
+					String raw = "res"+"/" + resFile.getName();
+					if (fileMapping.containsKey(raw)) {
+						mOldFileName.put(raw, fileMapping.get(raw));
+					} else {
+	            		System.out.printf("can not find the file mapping %s\n", raw);
+	            		mOldFileName.put(raw, resRoot + "/" + mProguardBuilder.getReplaceString());
+					}
+				}
+			} else {
+				for (int i = 0; i < resFiles.length; i++) {
+					//这里也要用linux的分隔符,如果普通的话，就是r
+					mOldFileName.put("res"+"/" + resFiles[i].getName(), TypedValue.RES_FILE_PATH + "/" + mProguardBuilder.getReplaceString());
 				}
 			}
-		} else {
-			for (int i = 0; i < resFiles.length; i++) {
-				//这里也要用linux的分隔符,如果普通的话，就是r
-				mOldFileName.put("res"+"/" + resFiles[i].getName(), TypedValue.RES_FILE_PATH + "/" + mProguardBuilder.getReplaceString());
-			}
-		}
-		
-		generalFileResMapping();
+			
+			generalFileResMapping();
+		} 
  		
  		File destResDir = mApkDecoder.getOutResFile();
 		FileOperation.deleteDir(destResDir);
@@ -750,8 +754,11 @@ public class ARSCDecoder {
 							raw));
 				}
 				
-				String newFilePath = mOldFileName.get(raw.substring(0, secondSlash));
-				
+				String newFilePath = raw.substring(0, secondSlash);
+						
+				if (!mApkDecoder.getClient().isUseKeeproot()) {
+					newFilePath = mOldFileName.get(raw.substring(0, secondSlash));
+				} 
 				if (newFilePath == null) {
 //					throw new AndrolibException(String.format(
 //							"can not found new res path, raw=%s",

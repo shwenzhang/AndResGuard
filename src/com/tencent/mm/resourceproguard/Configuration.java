@@ -47,6 +47,9 @@ public class Configuration {
     protected static final String SIGN_ISSUE = "sign"; 
 
     protected static final String ATTR_7ZIP = "seventzip"; 
+    
+    protected static final String ATTR_KEEPROOT = "keeproot"; 
+
     protected static final String ATTR_SIGNFILE = "metaname"; 
     protected static final String ATTR_SIGNFILE_PATH = "path"; 
     protected static final String ATTR_SIGNFILE_KEYPASS = "keypass"; 
@@ -62,6 +65,8 @@ public class Configuration {
 	private final File mConfigFile;
 
 	public boolean mUse7zip = true;
+	public boolean mKeepRoot = false;
+
 	public String mMetaName = "META-INF";
 
 	public boolean mUseSignAPk ;
@@ -115,6 +120,10 @@ public class Configuration {
                  	 if (tagName.equals(ATTR_7ZIP)) {
                  		 mUse7zip = vaule != null ? vaule.equals("true"): false;
 //                     	 System.out.println("mUse7zip "+mUse7zip);
+
+                     } else if (tagName.equals(ATTR_KEEPROOT)) {
+                 		 mKeepRoot = vaule != null ? vaule.equals("true"): false;
+                     	 System.out.println("mKeepRoot "+mKeepRoot);
 
                      } else if (tagName.equals(ATTR_SIGNFILE)) {
                     	 mMetaName = vaule;

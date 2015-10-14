@@ -410,6 +410,10 @@ public class Main {
 		return mConfiguration.mUse7zip;
 	}
 	
+	public boolean isUseKeeproot() {
+		return mConfiguration.mKeepRoot;
+	}
+	
 	public boolean isUseKeepMapping() {
 		return mConfiguration.mUseKeepMapping;
 	}

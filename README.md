@@ -28,6 +28,13 @@
 -mapping,       指定旧的mapping文件，保证同一资源文件在不同版本混淆后的名称保持一致。若在命令行设置会覆盖config.xml中的信息。
  
 -7zip,          指定7zip的路径，若已添加到环境变量不需要设置。应是全路径例如linux: /shwenzhang/tool/7za, Window需要加上.exe      结尾。
+
+> window：
+> 对于window应下载命名行版本，若将7za指定到环境变量，即无须设置。地址：[http://sparanoid.com/lab/7z/download.html](http://sparanoid.com/lab/7z/download.html)
+> 
+> linux：sudo apt-get install p7zip-full
+> 
+> mac:sudo brew install p7zip
  
 -zipalign,      指定zipalign的路径，若已添加到环境变量不需要设置。应是全路径例如linux: /shwenzhang/sdk/tools/zipalign, Window需要加上.exe结尾。 
 
