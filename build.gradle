@@ -1,0 +1,46 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+apply plugin: 'java'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+jar {
+    manifest {
+        attributes 'Main-Class': new File('MANIFEST.MF').getText('UTF-8').split('\n')[1].split(": ")[1]
+    }
+}
+archivesBaseName = 'resourcesproguard'
+
+// 把jar包复制到目标目录
+task buildJar(type: Copy, dependsOn: [build, jar]) {
+    from('build/libs') { // 复制jar包
+        include '*.jar'
+    }
+    into ('work')
+}

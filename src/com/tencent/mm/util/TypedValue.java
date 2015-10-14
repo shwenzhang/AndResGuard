@@ -24,7 +24,7 @@ import java.util.zip.ZipEntry;
  */
 public class TypedValue {
 	public static final String UNZIP_FILE_PATH = "temp";
-	public static final String COMMAND_7ZIP = "7za";
+	public static final String COMMAND_7ZIP = System.getProperty("os.name").toLowerCase().contains("windows") ? "7z" : "7za";
 
 	public static final String OUT_7ZIP_FILE_PATH = "out_7zip";
 
