@@ -1141,7 +1141,8 @@ public class ARSCDecoder {
 		//对于某种类型用过的mapping，全部不能再用了
 		public void removeStrings(Collection<String> collection) {
 //    		System.out.printf("size %d\n", mReplaceStringBuffer.size());
-
+			if (collection == null)
+				return;
     		mReplaceStringBuffer.removeAll(collection);
 //    		System.out.printf("after size %d\n", mReplaceStringBuffer.size());
 
