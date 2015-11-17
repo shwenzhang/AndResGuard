@@ -18,7 +18,7 @@ AndResGuard is a command-line tool, it supports Window、Linux and Mac. We sugge
 
 ## How to use ##
 
-**1.how to use**
+###1.how to use###
 ```
     java -jar andresguard.jar -h
 ```
@@ -45,9 +45,12 @@ we can see the help description, The easiest way is : `java -jar andresguard.jar
 
 - -repackage,      usually, when we build the channeles apk, it may destroy the 7zip. so you may need to use 7zip to repackage the apk
 
+
+
 ![](http://i.imgur.com/xOYPpKE.jpg)
 
-**2.samples**
+
+###2. Examples###
 
 	java -jar resourceproguard.jar input.apk
 
@@ -86,7 +89,7 @@ During the process, we can see the cost time and  the reduce size.
 
 There are five main configurations:property, whitelist, keepmapping, compress, sign。
 
-**1. Property**
+###1. Property###
 
 Common properties：
 
@@ -98,7 +101,7 @@ Common properties：
 
 ![](http://i.imgur.com/JfkZ09e.gif)
 
-**2. Whitelist**
+###2. Whitelist###
 
 Whitelist property is used for keeping the resource you want. Because some resource id you can not proguard, such as throug method getIdentifier.
 
@@ -110,7 +113,7 @@ Warning:1. donot write the file format name,  such com.tencent.mm.R.drawable.emo
 
 ![](http://i.imgur.com/VZ4fOa2.gif)
 
-**3. Keepmapping**
+###3. Keepmapping###
 
 sometimes if we want to keep the last way of obfuscation, we can use keepmapping mode. It is just like applymapping in ProGuard.
 
@@ -120,7 +123,7 @@ sometimes if we want to keep the last way of obfuscation, we can use keepmapping
 
 ![](http://i.imgur.com/y2LZRe9.gif)
 
-**4. Compress**
+###4. Compress###
 
 Compress can specify the compression method for each file(Stored or Deflate). Generally, 1. blow 2.3 version, if the source file is larger than 1M, then is can not be compressed; 2, streaming media can not be compressed, such as .wav, .mpg.
 
@@ -137,7 +140,7 @@ The maximum confusion will be：
 ![](http://i.imgur.com/9lTPiPA.gif)
 
 
-**5. Sign**
+###5. Sign###
 
 if you want to sign the apk, you should input following data, but if you want to use 7zip, you must fill them
 
