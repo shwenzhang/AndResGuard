@@ -18,7 +18,7 @@ AndResGuard is a command-line tool, it supports Window、Linux and Mac. We sugge
 
 ## How to use ##
 
-###1.how to use###
+**1.how to use**
 ```
     java -jar andresguard.jar -h
 ```
@@ -45,12 +45,9 @@ we can see the help description, The easiest way is : `java -jar andresguard.jar
 
 - -repackage,      usually, when we build the channeles apk, it may destroy the 7zip. so you may need to use 7zip to repackage the apk
 
-
-
 ![](http://i.imgur.com/xOYPpKE.jpg)
 
-
-###2. Examples###
+**2.samples**
 
 	java -jar resourceproguard.jar input.apk
 
@@ -89,7 +86,7 @@ During the process, we can see the cost time and  the reduce size.
 
 There are five main configurations:property, whitelist, keepmapping, compress, sign。
 
-###1. Property###
+**1. Property**
 
 Common properties：
 
@@ -101,7 +98,7 @@ Common properties：
 
 ![](http://i.imgur.com/JfkZ09e.gif)
 
-###2. Whitelist###
+**2. Whitelist**
 
 Whitelist property is used for keeping the resource you want. Because some resource id you can not proguard, such as throug method getIdentifier.
 
@@ -113,7 +110,7 @@ Warning:1. donot write the file format name,  such com.tencent.mm.R.drawable.emo
 
 ![](http://i.imgur.com/VZ4fOa2.gif)
 
-###3. Keepmapping###
+**3. Keepmapping**
 
 sometimes if we want to keep the last way of obfuscation, we can use keepmapping mode. It is just like applymapping in ProGuard.
 
@@ -123,7 +120,7 @@ sometimes if we want to keep the last way of obfuscation, we can use keepmapping
 
 ![](http://i.imgur.com/y2LZRe9.gif)
 
-###4. Compress###
+**4. Compress**
 
 Compress can specify the compression method for each file(Stored or Deflate). Generally, 1. blow 2.3 version, if the source file is larger than 1M, then is can not be compressed; 2, streaming media can not be compressed, such as .wav, .mpg.
 
@@ -140,7 +137,7 @@ The maximum confusion will be：
 ![](http://i.imgur.com/9lTPiPA.gif)
 
 
-###5. Sign###
+**5. Sign**
 
 if you want to sign the apk, you should input following data, but if you want to use 7zip, you must fill them
 
@@ -161,22 +158,22 @@ Warning： if you use -signature mode。these setting in config.xml will be over
 ## FQA ##
 
 1. How to use compress flag
-若指定compess 参数.png、.gif以及*.jpg，resources.arsc会大大减少安装包体积。若要支持2.2，resources.arsc需保证压缩前小于1M。
+If you use compess flag with .png、.gif以及*.jpg，it will help you decrease the size of file `resources.arsc`
+NOTE: If your app support Android2.2 and below, the size of file `resources.arsc` should be below 1M.
 
-2. 操作系统对7z的影响
-实验证明，linux与mac的7z效果更好
+2. keepmapping flag impact on the size of increasing package
+keepmapping will help to keep your coherence in different version
 
-3. keepmapping方式对增量包大小的影响
-影响并不大，但使用keepmapping方式有利于保持所有版本混淆的一致性
+3. packages for different channel
+Repackage will make 7zip invalid，you should repackage all channel apk.
 
-4. 渠道包的问题(**建议通过修改zip摘要的方式生产渠道包**)
-在出渠道包的时候，解压重压缩会破坏7zip的效果，通过repackage命令可用7zip重压缩。
+4. wanna get resource with `getIdentifier`
+You should add these resources to whitelist.
+NOTE: *You should add your icon to whitelist, because of some launchers' special implementation*
 
-5. 若想通过getIdentifier方式获得资源，需要放置白名单中。
-部分手机桌面快捷图标的实现有问题，务必将程序桌面icon加入白名单。
-
-6. 对于一些第三方sdk,例如友盟，可能需要将部分资源添加到白名单中。
-
+5. Use umeng
+You should add umeng resource to whitelist
+```xml
 		<issue id="whitelist" isactive="true">
 			<path value ="yourpackagename.R.string.umeng*" />   
 			<path value ="yourpackagename.R.layout.umeng*" />
@@ -187,3 +184,4 @@ Warning： if you use -signature mode。these setting in config.xml will be over
 			<path value ="yourpackagename.R.style.umeng*" />
 			<path value ="yourpackagename.R.id.umeng*" />
 		</issue>
+```
