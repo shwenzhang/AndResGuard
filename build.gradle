@@ -30,17 +30,24 @@ sourceSets {
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+version = 1.1
+
 jar {
     manifest {
-        attributes 'Main-Class': new File('MANIFEST.MF').getText('UTF-8').split('\n')[1].split(": ")[1]
+        attributes 'Main-Class': 'com.tencent.mm.resourceproguard.Main'
+        attributes 'Manifest-Version': version
+
     }
 }
-archivesBaseName = 'resourcesproguard'
 
-// 把jar包复制到目标目录
+archivesBaseName = 'andresguard'
+
+// copy the jar to work directory
 task buildJar(type: Copy, dependsOn: [build, jar]) {
-    from('build/libs') { // 复制jar包
+    from('build/libs') {
         include '*.jar'
     }
-    into ('work')
+    into ('tool_output')
 }
+
+defaultTasks 'buildJar'

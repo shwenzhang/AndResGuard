@@ -421,7 +421,7 @@ public class Main {
 	public HashMap<String, String> getOldFileMapping() {
 		return mConfiguration.mOldFileMapping;
 	}
-	
+
 	public HashMap<String, HashMap<String, HashMap<String, String>>> getOldResMapping() {
 		return mConfiguration.mOldResMapping;
 	}
@@ -432,7 +432,7 @@ public class Main {
 	
 	 private static void printUsage(PrintStream out) {
 	        // TODO: Look up launcher script name!
-	    	String command = "resousceproguard.jar"; //$NON-NLS-1$
+	    	String command = "andresguard.jar"; //$NON-NLS-1$
 	    	out.println();
 	    	out.println();
 	        out.println("Usage: java -jar " + command + " input.apk");
@@ -443,12 +443,12 @@ public class Main {
 	        		ARG_SIGNATURE + " signature_file_path storepass keypass storealias " + ARG_KEEPMAPPING + " mapping_file_path");
 	        
 	        out.println("if you want to special 7za or zipalign path, you can input:");
-	        out.println("Such as: java -jar " + command + " " +"input.apk "+ ARG_7ZIP + " /home/shwenzhang/tools/7za " + ARG_ZIPALIGN+ "/home/shwenzhang/sdk/tools/zipalign");
+	        out.println("Such as: java -jar " + command + " " +"input.apk "+ ARG_7ZIP + " /home/shwenzhang/tools/7za " + ARG_ZIPALIGN+ " /home/shwenzhang/sdk/tools/zipalign");
 	       
 	        out.println("if you just want to repackage an apk compress with 7z:");   
 	        out.println("Such as: java -jar " + command + " "  + ARG_REPACKAGE+ " input.apk");
 	        out.println("if you want to special the output path, 7za or zipalign path, you can input:");   
-	        out.println("Such as: java -jar " + command + " "  + ARG_REPACKAGE+ " input.apk" + ARG_OUT + " output_directory "+ ARG_7ZIP + " /home/shwenzhang/tools/7za "+ARG_ZIPALIGN+ "/home/shwenzhang/sdk/tools/zipalign");
+	        out.println("Such as: java -jar " + command + " "  + ARG_REPACKAGE+ " input.apk" + ARG_OUT + " output_directory "+ ARG_7ZIP + " /home/shwenzhang/tools/7za "+ARG_ZIPALIGN+ " /home/shwenzhang/sdk/tools/zipalign");
 	        out.println();
 	        out.println("Flags:\n");
 

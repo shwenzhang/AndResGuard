@@ -45,7 +45,7 @@ we can see the help description, The easiest way is : `java -jar andresguard.jar
 
 - -repackage,      usually, when we build the channeles apk, it may destroy the 7zip. so you may need to use 7zip to repackage the apk
 
-![](http://i.imgur.com/xOYPpKE.jpg)
+![](http://i.imgur.com/FssA59a.jpg)
 
 **2.samples**
 
@@ -158,7 +158,7 @@ Warning： if you use -signature mode。these setting in config.xml will be over
 ## FQA ##
 
 1. How to use compress flag
-If you use compess flag with .png、.gif以及*.jpg，it will help you decrease the size of file `resources.arsc`
+If you use compess flag with *.png、*.gif、*.jpg，it will help you decrease the size of file `resources.arsc`
 NOTE: If your app support Android2.2 and below, the size of file `resources.arsc` should be below 1M.
 
 2. keepmapping flag impact on the size of increasing package
@@ -171,7 +171,7 @@ Repackage will make 7zip invalid，you should repackage all channel apk.
 You should add these resources to whitelist.
 NOTE: *You should add your icon to whitelist, because of some launchers' special implementation*
 
-5. Use umeng
+5. Use umeng or other sdk
 You should add umeng resource to whitelist
 ```xml
 		<issue id="whitelist" isactive="true">
