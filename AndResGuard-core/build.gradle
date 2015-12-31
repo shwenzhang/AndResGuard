@@ -14,18 +14,16 @@ sourceSets {
     }
 }
 
-
-
 jar {
     manifest {
         attributes 'Main-Class': new File('MANIFEST.MF').getText('UTF-8').split('\n')[1].split(": ")[1]
     }
 }
-archivesBaseName = 'resourcesproguard'
+archivesBaseName = 'AndResGuard'
 
 task buildJar(type: Copy, dependsOn: [build, jar]) {
     from('build/libs') { // 复制jar包
         include '*.jar'
     }
-    into ('work')
+    into ('../example/')
 }

@@ -1,12 +1,13 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    repositories {
-        jcenter()
-    }
+task taskX(dependsOn: 'taskY') << {
+    println 'taskX'
 }
-
-allprojects {
-    repositories {
-        jcenter()
+task taskY << {
+    println 'taskY'
+}
+task hello(type: GreetingTask)
+class GreetingTask extends DefaultTask {
+    @TaskAction
+    def greet() {
+        println 'hello from GreetingTask'
     }
 }
