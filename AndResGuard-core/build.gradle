@@ -1,0 +1,31 @@
+apply plugin: 'java'
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+
+
+jar {
+    manifest {
+        attributes 'Main-Class': new File('MANIFEST.MF').getText('UTF-8').split('\n')[1].split(": ")[1]
+    }
+}
+archivesBaseName = 'resourcesproguard'
+
+task buildJar(type: Copy, dependsOn: [build, jar]) {
+    from('build/libs') { // 复制jar包
+        include '*.jar'
+    }
+    into ('work')
+}

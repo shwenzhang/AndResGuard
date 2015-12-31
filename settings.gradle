@@ -1,1 +1,1 @@
-include ':'
+include ':AndroidResGuard-core', ':AndroidResGuard-gradle-plugin'

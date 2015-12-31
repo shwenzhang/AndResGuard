@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: com.tencent.mm.resourceproguard.Main
+Main-Class: main.com.tencent.mm.resourceproguard.Main
 
