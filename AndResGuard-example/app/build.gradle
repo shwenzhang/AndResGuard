@@ -16,6 +16,19 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
+    signingConfigs {
+        release {
+            storeFile file("../keystore/release.keystore")
+            storePassword "testres"
+            keyAlias "testres"
+            keyPassword "testres"
+        }
+
+        debug {
+            storeFile file("../keystore/debug.keystore")
+        }
+    }
+
     defaultConfig {
         applicationId "andresguard.tencent.com.andresguard_example"
         minSdkVersion 14
@@ -25,8 +38,12 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            shrinkResources true
+            zipAlignEnabled true
+            pseudoLocalesEnabled true
+            signingConfig signingConfigs.release
         }
     }
 }
