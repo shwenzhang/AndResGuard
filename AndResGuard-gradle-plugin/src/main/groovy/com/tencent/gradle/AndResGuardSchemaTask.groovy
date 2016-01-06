@@ -14,7 +14,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
 
     AndResGuardSchemaTask() {
         description = 'Assemble Proguard APK'
-        group = 'Assemble'
+        group = 'andresguard'
 
         outputs.upToDateWhen { false }
 
@@ -39,6 +39,6 @@ public class AndResGuardSchemaTask extends DefaultTask {
 
     @TaskAction
     def generate() {
-        logger.info 'Using this configuration:\n{}', configuration
+        println "Using this configuration:\n $configuration"
     }
 }

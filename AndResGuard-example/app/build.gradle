@@ -31,6 +31,11 @@ android {
     }
 }
 
+andResGuard {
+    targetVersion = "1.2"
+    targetDirectory = "test"
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
