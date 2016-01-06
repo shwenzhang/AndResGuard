@@ -9,11 +9,32 @@ import org.gradle.api.tasks.TaskAction
  *
  * @author Sim Sun (sunsj1231@gmail.com)
  */
-public class AndResGuardTask extends DefaultTask {
+public class AndResGuardSchemaTask extends DefaultTask {
     def configuration
 
-    public AndResGuardExtension() {
+    AssembleARGApkTask() {
+        description = 'Assemble Proguard APK'
+        group = 'Assemble'
 
+        outputs.upToDateWhen { false }
+
+        project.afterEvaluate {
+            configuration = project.jsonSchema2Pojo
+            configuration.targetDirectory = configuration.targetDirectory ?:
+                    project.file("${project.buildDir}/generated-apk/ARG")
+
+            if (project.plugins.hasPlugin('com.android.application')) {
+                configureEnv()
+            } else {
+                throw new GradleException('generateARGApk: Android Application plugin required')
+            }
+            outputs.dir configuration.targetDirectory
+        }
+    }
+
+    def configureEnv() {
+        def android = project.extensions.android
+        android.sourceSets.main.java.srcDirs += [ configuration.targetDirectory ]
     }
 
     @TaskAction
