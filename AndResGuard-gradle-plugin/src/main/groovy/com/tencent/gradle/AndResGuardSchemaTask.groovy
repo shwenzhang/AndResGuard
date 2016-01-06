@@ -19,9 +19,16 @@ public class AndResGuardSchemaTask extends DefaultTask {
         outputs.upToDateWhen { false }
 
         project.afterEvaluate {
+            def android = project.extensions.android
             configuration = project.andResGuard
-            configuration.targetDirectory = configuration.targetDirectory ?:
-                    project.file("${project.buildDir}/generated-apk/ARG")
+            configuration.targetDirectory = configuration.targetDirectory ?: project.file("${project.buildDir}/ARG-apk")
+
+            android.applicationVariants.all { variant ->
+                println variant.buildType.name
+                if (variant.buildType.name == 'release') {
+                    this.dependsOn variant.assemble
+                }
+            }
 
             if (project.plugins.hasPlugin('com.android.application')) {
                 configureEnv()
@@ -33,8 +40,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
     }
 
     def configureEnv() {
-        def android = project.extensions.android
-        android.sourceSets.main.java.srcDirs += [ configuration.targetDirectory ]
+
     }
 
     @TaskAction
