@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
  *
  * @author Sim Sun (sunsj1231@gmail.com)
  */
-public class AndResGuardTask implements DefaultTask {
+public class AndResGuardTask extends DefaultTask {
     def configuration
 
     public AndResGuardExtension() {

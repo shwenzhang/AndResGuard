@@ -32,3 +32,5 @@ proguard/
 
 .DS_Store
 work/outapk/*
+local_repo
+

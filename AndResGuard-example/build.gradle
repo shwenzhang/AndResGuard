@@ -1,0 +1,11 @@
+buildscript {
+    repositories {
+        maven {
+            url uri('../local_repo')
+        }
+    }
+    dependencies {
+        classpath group: 'com.tencent.gradle', name: 'AndResGuard', version: '1.0-SNAPSHOT'
+    }
+}
+apply plugin: 'AndResGuard'

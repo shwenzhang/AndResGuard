@@ -14,11 +14,6 @@ sourceSets {
     }
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': new File('MANIFEST.MF').getText('UTF-8').split('\n')[1].split(": ")[1]
-    }
-}
 archivesBaseName = 'AndResGuard'
 
 task buildJar(type: Copy, dependsOn: [build, jar]) {
@@ -26,4 +21,23 @@ task buildJar(type: Copy, dependsOn: [build, jar]) {
         include '*.jar'
     }
     into ('../example/')
+}
+
+task ok
+
+task broken(dependsOn: ok) << {
+    throw new RuntimeException('broken')
+}
+
+gradle.taskGraph.beforeTask { Task task ->
+    println "executing $task ..."
+}
+
+gradle.taskGraph.afterTask { Task task, TaskState state ->
+    if (state.failure) {
+        println "FAILED"
+    }
+    else {
+        println "done"
+    }
 }

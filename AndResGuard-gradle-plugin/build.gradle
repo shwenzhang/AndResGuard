@@ -1,5 +1,25 @@
-task hello {
-    doLast {
-        println 'Hello world!'
+apply plugin: 'groovy'
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+}
+
+apply plugin: 'maven'
+
+repositories {
+    mavenCentral()
+    //mavenLocal()
+}
+
+group = 'com.tencent.gradle'
+version = '1.0-SNAPSHOT'
+archivesBaseName = 'AndResGuard'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../local_repo'))
+        }
     }
 }
