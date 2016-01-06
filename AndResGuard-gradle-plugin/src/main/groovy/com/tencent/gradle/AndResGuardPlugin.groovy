@@ -13,8 +13,7 @@ class AndResGuardPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.task("hello") << {
-            println "Hello from AndResGuard Plugin"
-        }
+        project.extensions.create('andResGuard', AndResGuardExtension)
+        project.tasks.create('assembleARGApk', AndResGuardSchemaTask)
     }
 }

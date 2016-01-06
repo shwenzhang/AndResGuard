@@ -12,14 +12,14 @@ import org.gradle.api.tasks.TaskAction
 public class AndResGuardSchemaTask extends DefaultTask {
     def configuration
 
-    AssembleARGApkTask() {
+    AndResGuardSchemaTask() {
         description = 'Assemble Proguard APK'
         group = 'Assemble'
 
         outputs.upToDateWhen { false }
 
         project.afterEvaluate {
-            configuration = project.jsonSchema2Pojo
+            configuration = project.andResGuard
             configuration.targetDirectory = configuration.targetDirectory ?:
                     project.file("${project.buildDir}/generated-apk/ARG")
 
@@ -40,6 +40,5 @@ public class AndResGuardSchemaTask extends DefaultTask {
     @TaskAction
     def generate() {
         logger.info 'Using this configuration:\n{}', configuration
-        Jsonschema2Pojo.generate(configuration)
     }
 }
