@@ -316,23 +316,20 @@ public class Configuration {
      * @param keypass
      * @param storealias
      * @param storepass
-     * @param SigntureFile
+     * @param signtureFile
      * @param signApk
      * @throws IOException
      */
-    public void setSignData(File SigntureFile, String keypass, String storealias, String storepass, boolean signApk) throws IOException {
+    public void setSignData(File signtureFile, String keypass, String storealias, String storepass, boolean signApk) throws IOException {
         mUseSignAPk = signApk;
         if (mUseSignAPk) {
-            mSignatureFile = SigntureFile;
+            mSignatureFile = signtureFile;
 
             if (!mSignatureFile.exists()) {
                 throw new IOException(
-                    String.format(
-                        "the signature file do not exit, raw path= %s\n",
-                        mSignatureFile.getAbsolutePath()));
-                // System.exit(-1);
+                    String.format("the signature file do not exit, raw path= %s\n", mSignatureFile.getAbsolutePath())
+                );
             }
-
             mKeyPass = keypass;
             mStoreAlias = storealias;
             mStorePass = storepass;
