@@ -12,7 +12,7 @@
         <!--if keep root, res/drawable will be kept, it won't be changed to such as r/s-->
         <keeproot value="true"/>
     </issue>
-    
+
     <!--whitelist, some resource id you can not proguard, such as getIdentifier-->
     <!--isactive, whether to use whitelist, you can set false to close it simply-->
     <issue id="whitelist" isactive="false">

@@ -8,18 +8,18 @@
 
 public class AndResGuardExtension {
 
-    String targetVersion;
-    String targetDirectory;
+    String configFilePath;
+    String outputFileDir;
 
     public AndResGuardExtension() {
-        targetVersion = '1.0'
-        targetDirectory = ''
+        configFilePath = 'config.xml'
+        outputFileDir = './'
     }
 
     @Override
     public String toString() {
-        """|targetVersion = ${targetVersion}
-           |targetDirectory = ${targetDirectory}
+        """|configFilePath = ${configFilePath}
+           |outputFileDir = ${outputFileDir}
         """.stripMargin()
     }
 }
