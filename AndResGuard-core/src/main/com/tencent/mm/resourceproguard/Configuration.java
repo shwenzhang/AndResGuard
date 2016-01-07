@@ -114,7 +114,7 @@ public class Configuration {
                                 "Invalid config file: Missing required attribute %s\n",
                                 ATTR_VALUE));
                     }
-//                 	 System.out.println("tag "+check.getTagName());
+//                  System.out.println("tag "+check.getTagName());
 
                     if (tagName.equals(ATTR_7ZIP)) {
                         mUse7zip = vaule != null ? vaule.equals("true") : false;
@@ -174,8 +174,8 @@ public class Configuration {
     }
 
     private void processOldMappingFile() throws IOException {
-        mOldResMapping = new HashMap<String, HashMap<String, HashMap<String, String>>>();
-        mOldFileMapping = new HashMap<String, String>();
+        mOldResMapping = new HashMap<>();
+        mOldFileMapping = new HashMap<>();
         mOldResMapping.clear();
         mOldFileMapping.clear();
 
@@ -214,28 +214,28 @@ public class Configuration {
                                         nameBefore));
                             }
                             String packageName = nameBefore.substring(0, packagePos);
-//                    		System.out.println("packageName "+packageName);
+//                          System.out.println("packageName "+packageName);
                             int nextDot = nameBefore.indexOf(".", packagePos + 3);
                             String typeName = nameBefore.substring(packagePos + 3, nextDot);
-//                    		System.out.println("typeName "+typeName);
+//                          System.out.println("typeName "+typeName);
 
                             String beforename = nameBefore.substring(nextDot + 1);
                             String aftername = nameAfter.substring(nameAfter.indexOf(".", packagePos + 3) + 1);
-//                    		System.out.printf("beforename %s, aftername %s\n", beforename, aftername);
+//                          System.out.printf("beforename %s, aftername %s\n", beforename, aftername);
 
                             HashMap<String, HashMap<String, String>> typeMap;
 
                             if (mOldResMapping.containsKey(packageName)) {
                                 typeMap = mOldResMapping.get(packageName);
                             } else {
-                                typeMap = new HashMap<String, HashMap<String, String>>();
+                                typeMap = new HashMap<>();
                             }
 
                             HashMap<String, String> namesMap;
                             if (typeMap.containsKey(typeName)) {
                                 namesMap = typeMap.get(typeName);
                             } else {
-                                namesMap = new HashMap<String, String>();
+                                namesMap = new HashMap<>();
                             }
                             namesMap.put(beforename, aftername);
 
@@ -280,50 +280,29 @@ public class Configuration {
                     String vaule = check.getAttribute(ATTR_VALUE);
                     if (vaule.length() == 0) {
                         throw new IOException(
-                            String.format(
-                                "Invalid config file: Missing required attribute %s\n",
-                                ATTR_VALUE));
-
+                            String.format("Invalid config file: Missing required attribute %s\n", ATTR_VALUE)
+                        );
                     }
-//                	 System.out.println("tag "+check.getTagName());
+//                  System.out.println("tag "+check.getTagName());
 
                     if (tagName.equals(ATTR_SIGNFILE_PATH)) {
                         mSignatureFile = new File(vaule);
                         if (!mSignatureFile.exists()) {
                             throw new IOException(
-                                String.format(
-                                    "the signature file do not exit, raw path= %s\n",
-                                    mSignatureFile.getAbsolutePath()));
-                            // System.exit(-1);
+                                String.format("the signature file do not exit, raw path= %s\n", mSignatureFile.getAbsolutePath())
+                            );
                         }
-//                    	 System.out.println("mSignatureFile "+mSignatureFile);
-
                     } else if (tagName.equals(ATTR_SIGNFILE_STOREPASS)) {
                         mStorePass = vaule;
                         mStorePass = mStorePass.trim();
-//                		 System.out.println("mStorePass "+mStorePass);
                     } else if (tagName.equals(ATTR_SIGNFILE_KEYPASS)) {
                         mKeyPass = vaule;
                         mKeyPass = mKeyPass.trim();
-//                		 System.out.println("mKeyPass "+mKeyPass);
                     } else if (tagName.equals(ATTR_SIGNFILE_ALIAS)) {
                         mStoreAlias = vaule;
                         mStoreAlias = mStoreAlias.trim();
-//                		 System.out.println("mStoreAlias "+mStoreAlias);
-
-//                	 } 
-//                	 else if (tagName.equals(ATTR_ZIPALIGN)) {
-//                		 mZipAlignFile = new File(vaule);
-//                		 if (!mZipAlignFile.exists()) {
-// 							throw new IOException(
-// 									String.format(
-// 											"the zipalign file do not exit, raw path= %s\n",
-// 											mZipAlignFile.getAbsolutePath()));
-// 							// System.exit(-1);
-// 						}
                     } else {
                         System.err.println("unknown tag " + tagName);
-
                     }
                 }
             }
@@ -387,8 +366,7 @@ public class Configuration {
 
     private void readWhiteList(Node node) throws IOException {
         NodeList childNodes = node.getChildNodes();
-        mWhiteList = new HashMap<String, HashMap<String, HashSet<Pattern>>>();
-//        System.out.println("readWhiteList childNodes length: "+childNodes.getLength());
+        mWhiteList = new HashMap<>();
         if (childNodes.getLength() > 0) {
             for (int j = 0, n = childNodes.getLength(); j < n; j++) {
                 Node child = childNodes.item(j);
@@ -396,11 +374,8 @@ public class Configuration {
                     Element check = (Element) child;
                     String vaule = check.getAttribute(ATTR_VALUE);
                     if (vaule.length() == 0) {
-
                         throw new IOException("Invalid config file: Missing required attribute " + ATTR_VALUE);
-//						continue;
                     }
-//                	 System.out.println("vaule "+vaule);
 
                     int packagePos = vaule.indexOf(".R.");
                     if (packagePos == -1) {
@@ -413,15 +388,10 @@ public class Configuration {
                     //先去掉空格
                     vaule = vaule.trim();
                     String packageName = vaule.substring(0, packagePos);
-//               	 	System.out.println("packageName "+packageName);
                     //不能通过lastDot
                     int nextDot = vaule.indexOf(".", packagePos + 3);
                     String typeName = vaule.substring(packagePos + 3, nextDot);
-//               	 	System.out.println("typeName "+typeName);
-
                     String name = vaule.substring(nextDot + 1);
-//               	 	System.out.println("name "+name);
-
                     HashMap<String, HashSet<Pattern>> typeMap;
 
                     if (mWhiteList.containsKey(packageName)) {
@@ -438,16 +408,7 @@ public class Configuration {
                     }
 
                     name = convetToPatternString(name);
-//               	 	System.out.println("after name "+name);
-//
                     Pattern pattern = Pattern.compile(name);
-//               	 	String test1= "dfdf";
-//               	 	String test2= "adfdfa";
-//               	 	String test3= "dfdfaaaaaaaaaa";
-//               	 	System.out.println("test1 "+pattern.matcher(test1).matches());
-//               	 	System.out.println("test2 "+pattern.matcher(test2).matches());
-//               	 	System.out.println("test3 "+pattern.matcher(test3).matches());
-
                     patterns.add(pattern);
                     typeMap.put(typeName, patterns);
                     mWhiteList.put(packageName, typeMap);
@@ -490,29 +451,15 @@ public class Configuration {
                                 "Invalid config file: Missing required attribute %s\n",
                                 ATTR_VALUE));
                     }
-//                	System.out.println("vaule "+vaule);
-
                     vaule = convetToPatternString(vaule);
-//               	 	//将？换成.,将*换成.*
-//               	 	if (vaule.contains("?")) {
-//               	 		vaule = vaule.replaceAll("\\?", ".");
-//               	 	} 
-//               	 	if (vaule.contains("*")) {
-//               	 		vaule = vaule.replace("*", ".+");
-//               	 	}
-//               	 	System.out.println("after name "+name);
-//
                     Pattern pattern = Pattern.compile(vaule);
-
                     mCompressPatterns.add(pattern);
-
                 }
             }
         }
     }
 
     public void readConfig() throws IOException, ParserConfigurationException, SAXException {
-//		System.out.println(configFile.getAbsolutePath());
         if (!mConfigFile.exists()) {
             return;
         }
@@ -528,7 +475,6 @@ public class Configuration {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(source);
             NodeList issues = document.getElementsByTagName(TAG_ISSUE);
-//            System.out.println(issues.getLength());
             for (int i = 0, count = issues.getLength(); i < count; i++) {
                 Node node = issues.item(i);
 
@@ -573,17 +519,12 @@ public class Configuration {
                 } else {
                     System.err.println("unknown issue " + id);
                 }
-
-//                System.out.printf(" id %s, isactive %b\n", id, active);
-
             }
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
-//					e.printStackTrace();
                     System.exit(-1);
                 }
             }

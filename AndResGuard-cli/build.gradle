@@ -1,0 +1,24 @@
+apply plugin: 'java'
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+archivesBaseName = 'AndResGuard'
+
+task buildJar(type: Copy, dependsOn: [build, jar]) {
+    from('build/libs') { // 复制jar包
+        include '*.jar'
+    }
+    into ('../example/')
+}
