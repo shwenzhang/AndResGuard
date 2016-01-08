@@ -55,10 +55,8 @@ public class Main {
     public String m7zipPath     = null;
     public String mZipalignPath = null;
 
-
     public static void main(String[] args) {
         mBeginTime = System.currentTimeMillis();
-
         Main m = new Main();
         getRunningLocation(m);
         m.run(args);
@@ -112,58 +110,45 @@ public class Main {
             return;
         }
         System.out.printf("resourceprpguard begin\n");
+        resourceProguard(outputFile, apkFileName);
+        System.out.printf("resources proguard done, total time cost: %fs\n", diffTimeFromBegin());
+        System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+    }
+
+    public void resourceProguard(File outputFile, String apkFilePath) {
         ApkDecoder decoder = new ApkDecoder(mConfiguration);
-        File apkFile = new File(apkFileName);
+        File apkFile = new File(apkFilePath);
         if (!apkFile.exists()) {
             System.err.printf("the input apk %s does not exit", apkFile.getAbsolutePath());
             goToError();
         }
         mRawApkSize = FileOperation.getFileSizes(apkFile);
+        try {
+            decodeResource(outputFile, decoder, apkFile);
+            buildApk(decoder, apkFile);
+        } catch (AndrolibException | IOException | DirectoryException | InterruptedException e) {
+            e.printStackTrace();
+            goToError();
+        }
+    }
+
+    private void decodeResource(File outputFile, ApkDecoder decoder, File apkFile) throws AndrolibException, IOException, DirectoryException {
         decoder.setApkFile(apkFile);
         if (outputFile == null) {
             mOutDir = new File(mRunningLocation, apkFile.getName().substring(0, apkFile.getName().indexOf(".apk")));
         } else {
             mOutDir = outputFile;
         }
+        decoder.setOutDir(mOutDir.getAbsoluteFile());
+        decoder.decode();
+    }
 
-        try {
-            decoder.setOutDir(mOutDir.getAbsoluteFile());
-            decoder.decode();
-        } catch (AndrolibException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            goToError();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            goToError();
-        } catch (DirectoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            goToError();
-        }
-
+    private void buildApk(ApkDecoder decoder, File apkFile) throws AndrolibException, IOException, InterruptedException {
         ResourceApkBuilder builder = new ResourceApkBuilder(mConfiguration);
         String apkBasename = apkFile.getName();
         apkBasename = apkBasename.substring(0, apkBasename.indexOf(".apk"));
-
-        try {
-            builder.setOutDir(mOutDir, apkBasename);
-            builder.buildApk(decoder.getCompressData());
-        } catch (AndrolibException e) {
-            e.printStackTrace();
-            goToError();
-        } catch (IOException e) {
-            e.printStackTrace();
-            goToError();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            goToError();
-        }
-
-        System.out.printf("resources proguard done, total time cost: %fs\n", diffTimeFromBegin());
-        System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+        builder.setOutDir(mOutDir, apkBasename);
+        builder.buildApk(decoder.getCompressData());
     }
 
     private void loadConfig(File configFile, File signatureFile, File mappingFile, String keypass, String storealias, String storepass) {
@@ -181,12 +166,10 @@ public class Main {
 
         try {
             mConfiguration.readConfig();
-
             //需要检查命令行的设置
             if (mSetSignThroughCmd) {
                 mConfiguration.setSignData(signatureFile, keypass, storealias, storepass, true);
             }
-
             if (mSetMappingThroughCmd) {
                 mConfiguration.setKeepMappingData(mappingFile, true);
             }

@@ -45,7 +45,6 @@ public class ResourceApkBuilder {
         signApk();
         use7zApk(compressData);
         alignApk();
-
     }
 
     private void insureFileName() {
@@ -55,20 +54,16 @@ public class ResourceApkBuilder {
         mSignedApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_signed.apk");
         mAlignedApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_signed_aligned.apk");
         mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_signed_7zip_aligned.apk");
-
         m7zipOutPutDir = new File(mOutDir.getAbsolutePath() + File.separator + TypedValue.OUT_7ZIP_FILE_PATH);
-
     }
 
     private void use7zApk(HashMap<String, Integer> compressData) throws IOException, InterruptedException {
         if (!config.mUse7zip) {
             return;
         }
-
         if (!config.mUseSignAPk) {
             throw new IOException("if you want to use 7z, you must set the sign issue to active in the config file first");
         }
-
         if (!mSignedApk.exists()) {
             throw new IOException(
                 String.format("can not found the signed apk file to 7z, if you want to use 7z, " +

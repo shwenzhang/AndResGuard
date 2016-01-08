@@ -59,7 +59,7 @@ public class ApkDecoder {
         mOutDir = outDir;
     }
 
-    public void ensureFilePath() throws IOException {
+    private void ensureFilePath() throws IOException {
         String destDirectory = mOutDir.getAbsolutePath();
         if (mOutDir.exists()) {
             FileOperation.deleteDir(mOutDir);
