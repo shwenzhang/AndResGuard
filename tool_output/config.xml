@@ -15,12 +15,19 @@
     
     <!--whitelist, some resource id you can not proguard, such as getIdentifier-->
     <!--isactive, whether to use whitelist, you can set false to close it simply-->
-    <issue id="whitelist" isactive="false">
+    <issue id="whitelist" isactive="true">
          <!--you must write the full package name, such as com.tencent.mm.R -->
          <!--for some reason, we should keep our icon better-->
          <!--and it support *, ?, such as com.tencent.mm.R.drawable.emoji_*, com.tencent.mm.R.drawable.emoji_?-->
-    <path value ="com.tencent.mm.R.drawable.icon" />	
-        <path value ="com.tencent.mm.R.drawable.emoji_*" />
+        <path value ="com.xmonster.letsgo.R.drawable.icon" />
+        <path value ="com.xmonster.letsgo.R.string.umeng*" />
+        <path value ="com.xmonster.letsgo.R.layout.umeng*" />
+        <path value ="com.xmonster.letsgo.R.drawable.umeng*" />
+        <path value ="com.xmonster.letsgo.R.anim.umeng*" />
+        <path value ="com.xmonster.letsgo.R.color.umeng*" />
+        <path value ="com.xmonster.letsgo.R.style.*UM*" />
+        <path value ="com.xmonster.letsgo.R.style.umeng*" />
+        <path value ="com.xmonster.letsgo.R.id.umeng*" />
     </issue>
     
     <!--keepmapping, sometimes if we need to support incremental upgrade, we should keep the old mapping-->
