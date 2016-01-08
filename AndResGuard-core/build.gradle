@@ -14,11 +14,11 @@ sourceSets {
     }
 }
 
-archivesBaseName = 'AndResGuard'
+archivesBaseName = 'andresguard'
 
 task buildJar(type: Copy, dependsOn: [build, jar]) {
     from('build/libs') { // 复制jar包
         include '*.jar'
     }
-    into ('../example/')
+    into ('../AndResGuard-gradle-plugin/bin')
 }

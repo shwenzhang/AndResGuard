@@ -16,6 +16,7 @@ import main.com.tencent.mm.androlib.res.decoder.ARSCDecoder;
 import main.com.tencent.mm.androlib.res.decoder.RawARSCDecoder;
 import main.com.tencent.mm.androlib.res.util.ExtFile;
 import main.com.tencent.mm.directory.DirectoryException;
+import main.com.tencent.mm.resourceproguard.Configuration;
 import main.com.tencent.mm.resourceproguard.Main;
 import main.com.tencent.mm.util.FileOperation;
 import main.com.tencent.mm.util.TypedValue;
@@ -24,12 +25,8 @@ import main.com.tencent.mm.util.TypedValue;
  * @author shwenzhang
  */
 public class ApkDecoder {
-    public ApkDecoder(Main m) {
-        mClient = m;
-    }
 
-
-    private Main    mClient;
+    private final Configuration config;
     private ExtFile mApkFile;
     private File    mOutDir;
     private File    mOutTempARSCFile;
@@ -38,8 +35,15 @@ public class ApkDecoder {
     private File    mRawResFile;
     private File    mOutTempDir;
     private File    mResMappingFile;
-
     private HashMap<String, Integer> mCompressData;
+
+    public ApkDecoder(Configuration config) {
+        this.config = config;
+    }
+
+    public Configuration getConfig() {
+        return config;
+    }
 
     public boolean hasResources() throws AndrolibException {
         try {
@@ -59,8 +63,6 @@ public class ApkDecoder {
 
     public void ensureFilePath() throws IOException {
         String destDirectory = mOutDir.getAbsolutePath();
-
-//		mOutDir = new File(destDirectory);
         if (mOutDir.exists()) {
             FileOperation.deleteDir(mOutDir);
             mOutDir.mkdirs();
@@ -71,15 +73,15 @@ public class ApkDecoder {
         dealWithCompressConfig();
 
         //将res混淆成r
-        if (!getClient().isUseKeeproot())
+        if (!config.mKeepRoot) {
             mOutResFile = new File(mOutDir.getAbsolutePath() + File.separator + TypedValue.RES_FILE_PATH);
-        else
+        } else {
             mOutResFile = new File(mOutDir.getAbsolutePath() + File.separator + "res");
+        }
 
         //这个需要混淆各个文件夹
         mRawResFile = new File(mOutDir.getAbsoluteFile().getAbsolutePath() + File.separator + TypedValue.UNZIP_FILE_PATH + File.separator + "res");
         mOutTempDir = new File(mOutDir.getAbsoluteFile().getAbsolutePath() + File.separator + TypedValue.UNZIP_FILE_PATH);
-//		System.out.printf("outResFile path %s\n",outResFile.getAbsolutePath());
 
         if (!mRawResFile.exists() || !mRawResFile.isDirectory()) {
             throw new IOException("can not found res dir in the apk or it is not a dir");
@@ -97,18 +99,14 @@ public class ApkDecoder {
      * 根据config来修改压缩的值
      */
     private void dealWithCompressConfig() {
-        if (mClient.isUseCompress()) {
-            HashSet<Pattern> patterns = mClient.getCompressPatterns();
+        if (config.mUseCompress) {
+            HashSet<Pattern> patterns = config.mCompressPatterns;
             if (!patterns.isEmpty()) {
                 for (Entry<String, Integer> entry : mCompressData.entrySet()) {
-//					int compressMethod = entry.getValue();
                     String name = entry.getKey();
-
-                    //				System.out.println(entry.getKey()+"="+entry.getValue());
                     for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
                         Pattern p = it.next();
                         if (p.matcher(name).matches()) {
-//							System.out.printf("name %s\n", name);
                             mCompressData.put(name, TypedValue.ZIP_DEFLATED);
                         }
                     }
@@ -116,10 +114,6 @@ public class ApkDecoder {
                 }
             }
         }
-    }
-
-    public Main getClient() {
-        return mClient;
     }
 
     public HashMap<String, Integer> getCompressData() {
@@ -155,50 +149,15 @@ public class ApkDecoder {
     }
 
 
-    //add log
     public void decode() throws AndrolibException, IOException, DirectoryException {
-
         if (hasResources()) {
             ensureFilePath();
-
-            // read the resources.arsc checking for STORED vs DEFLATE
-            // compression
+            // read the resources.arsc checking for STORED vs DEFLATE compression
             // this will determine whether we compress on rebuild or not.
-
-
             System.out.printf("decoding resources.arsc\n");
-
             RawARSCDecoder.decode(mApkFile.getDirectory().getFileInput("resources.arsc"));
-
             ResPackage[] pkgs = ARSCDecoder.decode(mApkFile.getDirectory().getFileInput("resources.arsc"), this);
             ARSCDecoder.write(mApkFile.getDirectory().getFileInput("resources.arsc"), this, pkgs);
-
-//			ResPackage[] pkgs = ARSCDecoder.decode(new FileInputStream(parent  + File.separator +"resources.arsc"), mOutDir);
-
-
-//			diffTwoFile(new File(parent  + File.separator +"resources_bak.arsc"), new File(parent  + File.separator +"resources.arsc"));
-
-//			diffTwoFile(new File(mOutDir+ File.separator +"resources.arsc"), new File(parent  + File.separator +"resources.arsc"));
-//			generalUnsignApk();
         }
-
-
     }
-
-//	private void diffTwoFile(File one, File two) throws IOException {
-//		FileInputStream input1 = new FileInputStream(one);
-//		FileInputStream input2 = new FileInputStream(two);
-//        byte buffer1[] = new byte[1];
-//        byte buffer2[] = new byte[1];
-//        int pos = 0;
-//        while (input2.read(buffer2, 0, 1) != -1) {
-//        	input1.read(buffer1, 0, 1);
-////        	if (buffer1[0] != buffer2[0]) {
-//        		System.out.printf("diff pos %d:first %d, second %d\n", pos, buffer1[0], buffer2[0]);
-////        	}
-//        	pos++;
-//        }
-////        System.out.printf("diff pos %d:first %d, second %d", pos, buffer1[0], buffer2[0]);
-//		
-//	}
 }

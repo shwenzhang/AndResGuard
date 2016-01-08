@@ -83,8 +83,7 @@ public class Main {
     }
 
     private static void getRunningLocation(Main m) {
-        mRunningLocation = m.getClass().getProtectionDomain().getCodeSource()
-            .getLocation().getPath();
+        mRunningLocation = m.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         try {
             mRunningLocation = URLDecoder.decode(mRunningLocation, "utf-8");
         } catch (UnsupportedEncodingException e) {
@@ -92,8 +91,7 @@ public class Main {
             e.printStackTrace();
         }
         if (mRunningLocation.endsWith(".jar")) {
-            mRunningLocation = mRunningLocation.substring(0,
-                mRunningLocation.lastIndexOf(File.separator) + 1);
+            mRunningLocation = mRunningLocation.substring(0, mRunningLocation.lastIndexOf(File.separator) + 1);
         }
         File f = new File(mRunningLocation);
         mRunningLocation = f.getAbsolutePath();
@@ -279,11 +277,7 @@ public class Main {
             e1.printStackTrace();
             goToError();
         }
-
-
-        ApkDecoder decoder = new ApkDecoder(this);
-
-
+        ApkDecoder decoder = new ApkDecoder(mConfiguration);
         File apkFile = new File(apkFileName);
         if (!apkFile.exists()) {
             System.err.printf("the input apk %s does not exit", apkFile.getAbsolutePath());
@@ -292,7 +286,7 @@ public class Main {
         mRawApkSize = FileOperation.getFileSizes(apkFile);
         decoder.setApkFile(apkFile);
         if (outputFile == null) {
-            mOutDir = new File(mRunningLocation + File.separator + apkFile.getName().substring(0, apkFile.getName().indexOf(".apk")));
+            mOutDir = new File(mRunningLocation, apkFile.getName().substring(0, apkFile.getName().indexOf(".apk")));
         } else {
             mOutDir = outputFile;
         }
@@ -314,9 +308,7 @@ public class Main {
             goToError();
         }
 
-
         ResourceApkBuilder builder = new ResourceApkBuilder(this);
-
         String apkBasename = apkFile.getName();
         apkBasename = apkBasename.substring(0, apkBasename.indexOf(".apk"));
 
@@ -324,13 +316,9 @@ public class Main {
             builder.setOutDir(mOutDir, apkBasename);
             builder.buildApk(decoder.getCompressData());
         } catch (AndrolibException e) {
-            // TODO Auto-generated catch block
-
             e.printStackTrace();
             goToError();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-
             e.printStackTrace();
             goToError();
         } catch (InterruptedException e) {
@@ -356,78 +344,6 @@ public class Main {
         printUsage(System.err);
         System.exit(ERRNO_USAGE);
     }
-
-    public String getRunningLocation() {
-        return mRunningLocation;
-    }
-
-    public String getMetaName() {
-        return mConfiguration.mMetaName;
-    }
-
-    public File getConfigFile() {
-        return mConfiguration != null ? mConfiguration.getConfigFile() : null;
-    }
-
-    public boolean isUseWhiteList() {
-        return mConfiguration.mUseWhiteList;
-    }
-
-    public HashMap<String, HashMap<String, HashSet<Pattern>>> getWhiteList() {
-        return mConfiguration.mWhiteList;
-    }
-
-    public boolean isUseCompress() {
-        return mConfiguration.mUseCompress;
-    }
-
-    public HashSet<Pattern> getCompressPatterns() {
-        return mConfiguration.mCompressPatterns;
-    }
-
-    public boolean isUseSignAPk() {
-        return mConfiguration.mUseSignAPk;
-    }
-
-    public File getSignatureFile() {
-        return mConfiguration.mSignatureFile;
-    }
-
-    public String getKeyPass() {
-        return mConfiguration.mKeyPass;
-    }
-
-    public String getStorePass() {
-        return mConfiguration.mStorePass;
-    }
-
-    public String getStoreAlias() {
-        return mConfiguration.mStoreAlias;
-    }
-
-    public boolean isUse7zip() {
-        return mConfiguration.mUse7zip;
-    }
-
-    public boolean isUseKeeproot() {
-        return mConfiguration.mKeepRoot;
-    }
-
-    public boolean isUseKeepMapping() {
-        return mConfiguration.mUseKeepMapping;
-    }
-
-    public HashMap<String, String> getOldFileMapping() {
-        return mConfiguration.mOldFileMapping;
-    }
-
-    public HashMap<String, HashMap<String, HashMap<String, String>>> getOldResMapping() {
-        return mConfiguration.mOldResMapping;
-    }
-
-//	public File getZipAlignFile() {
-//		return mConfiguration.mZipAlignFile;
-//	}
 
     private static void printUsage(PrintStream out) {
         // TODO: Look up launcher script name!
