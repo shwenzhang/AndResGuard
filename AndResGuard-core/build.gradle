@@ -13,12 +13,26 @@ sourceSets {
         }
     }
 }
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+version = 1.1
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.tencent.mm.resourceproguard.Main'
+        attributes 'Manifest-Version': version
+    }
+}
 
 archivesBaseName = 'andresguard'
 
+// copy the jar to work directory
 task buildJar(type: Copy, dependsOn: [build, jar]) {
-    from('build/libs') { // 复制jar包
+    from('build/libs') {
         include '*.jar'
     }
-    into ('../AndResGuard-gradle-plugin/bin')
+    into ('../tool_output')
 }
+
+defaultTasks 'buildJar'
+
+
