@@ -453,8 +453,8 @@ public class Main {
                             + " signature_file_path storepass keypass storealias");
                         goToError();
                     }
-
                     storealias = args[++index];
+                    mSetSignThroughCmd = true;
                 } else if (arg.equals(ARG_KEEPMAPPING)) {
                     if (index == args.length - 1) {
                         System.err.println("Missing mapping file argument");
@@ -462,9 +462,7 @@ public class Main {
                     }
                     //在后面设置的时候会检查文件是否存在
                     mappingFile = new File(args[++index]);
-
                     mSetMappingThroughCmd = true;
-
                 } else if (arg.equals(ARG_7ZIP)) {
                     if (index == args.length - 1) {
                         System.err.println("Missing 7zip path argument");
