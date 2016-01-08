@@ -1,13 +1,53 @@
-task taskX(dependsOn: 'taskY') << {
-    println 'taskX'
-}
-task taskY << {
-    println 'taskY'
-}
-task hello(type: GreetingTask)
-class GreetingTask extends DefaultTask {
-    @TaskAction
-    def greet() {
-        println 'hello from GreetingTask'
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.2.3'
     }
 }
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+apply plugin: 'java'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+    }
+}
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+version = 1.1
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.tencent.mm.resourceproguard.Main'
+        attributes 'Manifest-Version': version
+
+    }
+}
+
+archivesBaseName = 'andresguard'
+
+// copy the jar to work directory
+task buildJar(type: Copy, dependsOn: [build, jar]) {
+    from('build/libs') {
+        include '*.jar'
+    }
+    into ('tool_output')
+}
+
+defaultTasks 'buildJar'
