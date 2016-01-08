@@ -34,3 +34,5 @@ proguard/
 work/outapk/*
 local_repo
 
+tool_output/outapk
+
