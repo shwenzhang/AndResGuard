@@ -28,7 +28,7 @@
     <!--if you use -mapping to set keepmapping property in cammand line, these setting will be overlayed-->
     <issue id="keepmapping" isactive="false">
          <!--the old mapping path, in window use \, in linux use /, and the default path is the running location-->
-        <path value ="/home/shwenzhang/workspace/ResourceProguard/resource_mapping_weixin50android.txt" />
+        <path value ="{your_mapping_path}" />
     </issue>
 
     <!--compress, if you want to compress the file, the name is relative path, such as resources.arsc, res/drawable-hdpi/welcome.png-->
@@ -46,15 +46,15 @@
     <!--sign, if you want to sign the apk, and if you want to use 7zip, you must fill in the following data-->
     <!--isactive, whether to use sign, you can set false to close it simply-->
     <!--if you use -signature to set sign property in cammand line, these setting will be overlayed-->
-    <issue id="sign" isactive="false">
+    <issue id="sign" isactive="true">
         <!--the signature file path, in window use \, in linux use /, and the default path is the running location-->
-        <path value ="/home/shwenzhang/workspace/ResourceProguard/signature.keystore" />
+        <path value ="release.keystore" />
         <!--storepass-->
-        <storepass value="storepassvalue" />
+        <storepass value="testres" />
         <!--keypass-->
-        <keypass value="keypassvalue" />
+        <keypass value="testres" />
         <!--alias-->
-        <alias value="aliasvalue" />
+        <alias value="testres" />
     </issue>
      
 </resproguard>
