@@ -6,9 +6,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -49,14 +46,15 @@ public class Main {
     private static long          mBeginTime;
     private static long          mRawApkSize;
 
+
     /**
      * 是否通过命令行方式设置
      */
-    private boolean mSetSignThroughCmd    = false;
-    private boolean mSetMappingThroughCmd = false;
+    public boolean mSetSignThroughCmd    = false;
+    public boolean mSetMappingThroughCmd = false;
+    public String m7zipPath     = null;
+    public String mZipalignPath = null;
 
-    private String m7zipPath     = null;
-    private String mZipalignPath = null;
 
     public static void main(String[] args) {
         mBeginTime = System.currentTimeMillis();
@@ -64,22 +62,6 @@ public class Main {
         Main m = new Main();
         getRunningLocation(m);
         m.run(args);
-    }
-
-    public String get7zipPath() {
-        return m7zipPath;
-    }
-
-    public String getZipalignPath() {
-        return mZipalignPath;
-    }
-
-    public boolean getSetSignThroughCmd() {
-        return mSetSignThroughCmd;
-    }
-
-    public boolean getSetMappingThroughCmd() {
-        return mSetMappingThroughCmd;
     }
 
     private static void getRunningLocation(Main m) {
@@ -101,182 +83,35 @@ public class Main {
         if (args.length < 1) {
             goToError();
         }
+        ReadArgs readArgs = new ReadArgs(args).invoke();
+        File configFile = readArgs.getConfigFile();
+        File signatureFile = readArgs.getSignatureFile();
+        File mappingFile = readArgs.getMappingFile();
+        String keypass = readArgs.getKeypass();
+        String storealias = readArgs.getStorealias();
+        String storepass = readArgs.getStorepass();
+        String signedFile = readArgs.getSignedFile();
+        File outputFile = readArgs.getOutputFile();
+        String apkFileName = readArgs.getApkFileName();
 
-        File configFile = null;
-        File outputFile = null;
-        String apkFileName = null;
-
-        File signatureFile = null;
-        File mappingFile = null;
-        String keypass = null;
-        String storealias = null;
-        String storepass = null;
-
-        String signedFile = null;
-
-        for (int index = 0; index < args.length; index++) {
-            String arg = args[index];
-            if (arg.equals(ARG_HELP) || arg.equals("-h")) {
-                goToError();
-            } else if (arg.equals(ARG_CONFIG)) {
-                if (index == args.length - 1 || !args[index + 1].endsWith(TypedValue.XML_FILE)) {
-                    System.err.println("Missing XML configuration file argument");
-                    goToError();
-                }
-                configFile = new File(args[++index]);
-                if (!configFile.exists()) {
-                    System.err.println(configFile.getAbsolutePath() + " does not exist");
-                    goToError();
-                }
-                System.out.printf("special configFile file path: %s\n", configFile.getAbsolutePath());
-
-            } else if (arg.equals(ARG_OUT)) {
-                if (index == args.length - 1) {
-                    System.err.println("Missing output file argument");
-                    goToError();
-                }
-                outputFile = new File(args[++index]);
-                File parent = outputFile.getParentFile();
-                if (parent != null && (!parent.exists())) {
-                    parent.mkdirs();
-                }
-                System.out.printf("special output directory path: %s\n", outputFile.getAbsolutePath());
-
-            } else if (arg.equals(ARG_SIGNATURE)) {
-                //需要检查是否有四个参数
-                if (index == args.length - 1) {
-                    System.err.println("Missing signature data argument, should be "
-                        + ARG_SIGNATURE
-                        + " signature_file_path storepass keypass storealias");
-                    goToError();
-                }
-
-                //在后面设置的时候会检查文件是否存在
-                signatureFile = new File(args[++index]);
-
-                if (index == args.length - 1) {
-                    System.err.println("Missing signature data argument, should be "
-                        + ARG_SIGNATURE
-                        + " signature_file_path storepass keypass storealias");
-                    goToError();
-                }
-
-                storepass = args[++index];
-
-                if (index == args.length - 1) {
-                    System.err.println("Missing signature data argument, should be "
-                        + ARG_SIGNATURE
-                        + " signature_file_path storepass keypass storealias");
-                    goToError();
-                }
-
-                keypass = args[++index];
-
-                if (index == args.length - 1) {
-                    System.err.println("Missing signature data argument, should be "
-                        + ARG_SIGNATURE
-                        + " signature_file_path storepass keypass storealias");
-                    goToError();
-                }
-
-                storealias = args[++index];
-
-                mSetSignThroughCmd = true;
-
-            } else if (arg.equals(ARG_KEEPMAPPING)) {
-                if (index == args.length - 1) {
-                    System.err.println("Missing mapping file argument");
-                    goToError();
-                }
-                //在后面设置的时候会检查文件是否存在
-                mappingFile = new File(args[++index]);
-
-                mSetMappingThroughCmd = true;
-
-            } else if (arg.equals(ARG_7ZIP)) {
-                if (index == args.length - 1) {
-                    System.err.println("Missing 7zip path argument");
-                    goToError();
-                }
-                m7zipPath = args[++index];
-            } else if (arg.equals(ARG_ZIPALIGN)) {
-                if (index == args.length - 1) {
-                    System.err.println("Missing zipalign path argument");
-                    goToError();
-                }
-
-                mZipalignPath = args[++index];
-
-            } else if (arg.equals(ARG_REPACKAGE)) {
-                //这个模式的话就直接干活了，不会再理其他命令！
-                if (index == args.length - 1) {
-                    System.err.println("Missing the signed apk file argument");
-                    goToError();
-                }
-
-                signedFile = args[++index];
-
-
-            } else {
-                apkFileName = arg;
-            }
-        }
+        loadConfig(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
 
         //对于repackage模式，不管之前的东东，直接return
         if (signedFile != null) {
-            ResourceRepackage repackage = new ResourceRepackage(this, new File(signedFile));
+            ResourceRepackage repackage = new ResourceRepackage(mConfiguration, new File(signedFile));
             try {
                 if (outputFile != null) {
                     repackage.setOutDir(outputFile);
                 }
                 repackage.repackageApk();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
             }
             return;
         }
-
-        if (configFile == null) {
-            configFile = new File(mRunningLocation + File.separator + TypedValue.CONFIG_FILE);
-            if (!configFile.exists()) {
-                System.err.printf("the config file %s does not exit", configFile.getAbsolutePath());
-                printUsage(System.err);
-                System.exit(ERRNO_USAGE);
-            }
-        }
-
         System.out.printf("resourceprpguard begin\n");
-
-        mConfiguration = new Configuration(configFile, this);
-
-        try {
-            mConfiguration.readConfig();
-
-            //需要检查命令行的设置
-            if (mSetSignThroughCmd) {
-                mConfiguration.setSignData(signatureFile, keypass, storealias, storepass, true);
-            }
-
-            if (mSetMappingThroughCmd) {
-                mConfiguration.setKeepMappingData(mappingFile, true);
-            }
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-            goToError();
-        } catch (ParserConfigurationException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-            goToError();
-        } catch (SAXException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-            goToError();
-        }
         ApkDecoder decoder = new ApkDecoder(mConfiguration);
         File apkFile = new File(apkFileName);
         if (!apkFile.exists()) {
@@ -308,7 +143,7 @@ public class Main {
             goToError();
         }
 
-        ResourceApkBuilder builder = new ResourceApkBuilder(this);
+        ResourceApkBuilder builder = new ResourceApkBuilder(mConfiguration);
         String apkBasename = apkFile.getName();
         apkBasename = apkBasename.substring(0, apkBasename.indexOf(".apk"));
 
@@ -329,6 +164,45 @@ public class Main {
 
         System.out.printf("resources proguard done, total time cost: %fs\n", diffTimeFromBegin());
         System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+    }
+
+    private void loadConfig(File configFile, File signatureFile, File mappingFile, String keypass, String storealias, String storepass) {
+        if (configFile == null) {
+            configFile = new File(mRunningLocation + File.separator + TypedValue.CONFIG_FILE);
+            if (!configFile.exists()) {
+                System.err.printf("the config file %s does not exit", configFile.getAbsolutePath());
+                printUsage(System.err);
+                System.exit(ERRNO_USAGE);
+            }
+        }
+        mConfiguration = new Configuration(configFile, mSetSignThroughCmd, mSetMappingThroughCmd);
+        mConfiguration.m7zipPath = m7zipPath;
+        mConfiguration.mZipalignPath = mZipalignPath;
+
+        try {
+            mConfiguration.readConfig();
+
+            //需要检查命令行的设置
+            if (mSetSignThroughCmd) {
+                mConfiguration.setSignData(signatureFile, keypass, storealias, storepass, true);
+            }
+
+            if (mSetMappingThroughCmd) {
+                mConfiguration.setKeepMappingData(mappingFile, true);
+            }
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+            goToError();
+        } catch (ParserConfigurationException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+            goToError();
+        } catch (SAXException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+            goToError();
+        }
     }
 
     public double diffTimeFromBegin() {
@@ -462,4 +336,161 @@ public class Main {
         return sb.toString();
     }
 
+    private class ReadArgs {
+        private String[] args;
+        private File     configFile;
+        private File     outputFile;
+        private String   apkFileName;
+        private File     signatureFile;
+        private File     mappingFile;
+        private String   keypass;
+        private String   storealias;
+        private String   storepass;
+        private String   signedFile;
+
+        public ReadArgs(String[] args) {
+            this.args = args;
+        }
+
+        public File getConfigFile() {
+            return configFile;
+        }
+
+        public File getOutputFile() {
+            return outputFile;
+        }
+
+        public String getApkFileName() {
+            return apkFileName;
+        }
+
+        public File getSignatureFile() {
+            return signatureFile;
+        }
+
+        public File getMappingFile() {
+            return mappingFile;
+        }
+
+        public String getKeypass() {
+            return keypass;
+        }
+
+        public String getStorealias() {
+            return storealias;
+        }
+
+        public String getStorepass() {
+            return storepass;
+        }
+
+        public String getSignedFile() {
+            return signedFile;
+        }
+
+        public ReadArgs invoke() {
+            for (int index = 0; index < args.length; index++) {
+                String arg = args[index];
+                if (arg.equals(ARG_HELP) || arg.equals("-h")) {
+                    goToError();
+                } else if (arg.equals(ARG_CONFIG)) {
+                    if (index == args.length - 1 || !args[index + 1].endsWith(TypedValue.XML_FILE)) {
+                        System.err.println("Missing XML configuration file argument");
+                        goToError();
+                    }
+                    configFile = new File(args[++index]);
+                    if (!configFile.exists()) {
+                        System.err.println(configFile.getAbsolutePath() + " does not exist");
+                        goToError();
+                    }
+                    System.out.printf("special configFile file path: %s\n", configFile.getAbsolutePath());
+
+                } else if (arg.equals(ARG_OUT)) {
+                    if (index == args.length - 1) {
+                        System.err.println("Missing output file argument");
+                        goToError();
+                    }
+                    outputFile = new File(args[++index]);
+                    File parent = outputFile.getParentFile();
+                    if (parent != null && (!parent.exists())) {
+                        parent.mkdirs();
+                    }
+                    System.out.printf("special output directory path: %s\n", outputFile.getAbsolutePath());
+
+                } else if (arg.equals(ARG_SIGNATURE)) {
+                    //需要检查是否有四个参数
+                    if (index == args.length - 1) {
+                        System.err.println("Missing signature data argument, should be "
+                            + ARG_SIGNATURE
+                            + " signature_file_path storepass keypass storealias");
+                        goToError();
+                    }
+
+                    //在后面设置的时候会检查文件是否存在
+                    signatureFile = new File(args[++index]);
+
+                    if (index == args.length - 1) {
+                        System.err.println("Missing signature data argument, should be "
+                            + ARG_SIGNATURE
+                            + " signature_file_path storepass keypass storealias");
+                        goToError();
+                    }
+
+                    storepass = args[++index];
+
+                    if (index == args.length - 1) {
+                        System.err.println("Missing signature data argument, should be "
+                            + ARG_SIGNATURE
+                            + " signature_file_path storepass keypass storealias");
+                        goToError();
+                    }
+
+                    keypass = args[++index];
+
+                    if (index == args.length - 1) {
+                        System.err.println("Missing signature data argument, should be "
+                            + ARG_SIGNATURE
+                            + " signature_file_path storepass keypass storealias");
+                        goToError();
+                    }
+
+                    storealias = args[++index];
+                } else if (arg.equals(ARG_KEEPMAPPING)) {
+                    if (index == args.length - 1) {
+                        System.err.println("Missing mapping file argument");
+                        goToError();
+                    }
+                    //在后面设置的时候会检查文件是否存在
+                    mappingFile = new File(args[++index]);
+
+                    mSetMappingThroughCmd = true;
+
+                } else if (arg.equals(ARG_7ZIP)) {
+                    if (index == args.length - 1) {
+                        System.err.println("Missing 7zip path argument");
+                        goToError();
+                    }
+                    m7zipPath = args[++index];
+                } else if (arg.equals(ARG_ZIPALIGN)) {
+                    if (index == args.length - 1) {
+                        System.err.println("Missing zipalign path argument");
+                        goToError();
+                    }
+
+                    mZipalignPath = args[++index];
+
+                } else if (arg.equals(ARG_REPACKAGE)) {
+                    //这个模式的话就直接干活了，不会再理其他命令！
+                    if (index == args.length - 1) {
+                        System.err.println("Missing the signed apk file argument");
+                        goToError();
+                    }
+                    signedFile = args[++index];
+                } else {
+                    apkFileName = arg;
+                }
+            }
+            return this;
+        }
+    }
 }

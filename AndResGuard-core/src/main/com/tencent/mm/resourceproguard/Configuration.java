@@ -71,7 +71,6 @@ public class Configuration {
     public boolean mUseSignAPk;
     public File    mSignatureFile;
     public File    mOldMappingFile;
-//	public File mZipAlignFile;
 
     public String mKeyPass;
     public String mStorePass;
@@ -86,21 +85,28 @@ public class Configuration {
 
     public HashSet<Pattern> mCompressPatterns;
 
-    public Configuration(File config, Main m) {
-        // TODO Auto-generated constructor stub
+    public Configuration(File config, boolean signFlag, boolean mapFlag) {
         mConfigFile = config;
-        mClient = m;
+        mSetSignThroughCmd = signFlag;
+        mSetMappingThroughCmd = mapFlag;
     }
 
     public File getConfigFile() {
         return mConfigFile;
     }
 
+    /**
+     * 是否通过命令行方式设置
+     */
+    public final boolean mSetSignThroughCmd;
+    public final boolean mSetMappingThroughCmd ;
+
+    public String m7zipPath     = null;
+    public String mZipalignPath = null;
 
     private void readProperty(Node node) throws IOException {
         NodeList childNodes = node.getChildNodes();
 
-//         System.out.println("childNodes length: "+childNodes.getLength());
         if (childNodes.getLength() > 0) {
             for (int j = 0, n = childNodes.getLength(); j < n; j++) {
                 Node child = childNodes.item(j);
@@ -114,20 +120,15 @@ public class Configuration {
                                 "Invalid config file: Missing required attribute %s\n",
                                 ATTR_VALUE));
                     }
-//                  System.out.println("tag "+check.getTagName());
 
                     if (tagName.equals(ATTR_7ZIP)) {
                         mUse7zip = vaule != null ? vaule.equals("true") : false;
-//                     	 System.out.println("mUse7zip "+mUse7zip);
-
                     } else if (tagName.equals(ATTR_KEEPROOT)) {
                         mKeepRoot = vaule != null ? vaule.equals("true") : false;
                         System.out.println("mKeepRoot " + mKeepRoot);
-
                     } else if (tagName.equals(ATTR_SIGNFILE)) {
                         mMetaName = vaule;
                         mMetaName = mMetaName.trim();
-//                 		 System.out.println("mMetaName "+mMetaName);
                     } else {
                         System.err.println("unknown tag " + tagName);
                     }
@@ -214,14 +215,11 @@ public class Configuration {
                                         nameBefore));
                             }
                             String packageName = nameBefore.substring(0, packagePos);
-//                          System.out.println("packageName "+packageName);
                             int nextDot = nameBefore.indexOf(".", packagePos + 3);
                             String typeName = nameBefore.substring(packagePos + 3, nextDot);
-//                          System.out.println("typeName "+typeName);
 
                             String beforename = nameBefore.substring(nextDot + 1);
                             String aftername = nameAfter.substring(nameAfter.indexOf(".", packagePos + 3) + 1);
-//                          System.out.printf("beforename %s, aftername %s\n", beforename, aftername);
 
                             HashMap<String, HashMap<String, String>> typeMap;
 
@@ -245,11 +243,8 @@ public class Configuration {
                     }
 
                 }
-
                 line = br.readLine();
             }
-
-
         } catch (IOException ex) {
             throw new RuntimeException("Error while mapping file");
         } finally {
@@ -270,7 +265,6 @@ public class Configuration {
     private void readSign(Node node) throws IOException {
         NodeList childNodes = node.getChildNodes();
 
-//        System.out.println("childNodes length: "+childNodes.getLength());
         if (childNodes.getLength() > 0) {
             for (int j = 0, n = childNodes.getLength(); j < n; j++) {
                 Node child = childNodes.item(j);
@@ -283,7 +277,6 @@ public class Configuration {
                             String.format("Invalid config file: Missing required attribute %s\n", ATTR_VALUE)
                         );
                     }
-//                  System.out.println("tag "+check.getTagName());
 
                     if (tagName.equals(ATTR_SIGNFILE_PATH)) {
                         mSignatureFile = new File(vaule);
@@ -435,7 +428,6 @@ public class Configuration {
     private void readCompress(Node node) throws IOException {
         NodeList childNodes = node.getChildNodes();
         mCompressPatterns = new HashSet<Pattern>();
-//        System.out.println("readWhiteList childNodes length: "+childNodes.getLength());
         if (childNodes.getLength() > 0) {
             for (int j = 0, n = childNodes.getLength(); j < n; j++) {
                 Node child = childNodes.item(j);
@@ -444,9 +436,8 @@ public class Configuration {
                     String vaule = check.getAttribute(ATTR_VALUE);
                     if (vaule.length() == 0) {
                         throw new IOException(
-                            String.format(
-                                "Invalid config file: Missing required attribute %s\n",
-                                ATTR_VALUE));
+                            String.format("Invalid config file: Missing required attribute %s\n", ATTR_VALUE)
+                        );
                     }
                     vaule = convetToPatternString(vaule);
                     Pattern pattern = Pattern.compile(vaule);
@@ -499,7 +490,7 @@ public class Configuration {
                     }
                 } else if (id.equals(SIGN_ISSUE)) {
                     //如果是通过命令行的就不再读这里
-                    if (!mClient.getSetSignThroughCmd()) {
+                    if (mSetSignThroughCmd) {
                         mUseSignAPk = active;
                         if (mUseSignAPk) {
                             readSign(node);
@@ -507,7 +498,7 @@ public class Configuration {
                     }
                 } else if (id.equals(MAPPING_ISSUE)) {
                     //如果是通过命令行的就不再读这里
-                    if (!mClient.getSetMappingThroughCmd()) {
+                    if (mSetMappingThroughCmd) {
                         mUseKeepMapping = active;
                         if (mUseKeepMapping) {
                             readOldMapping(node);
@@ -527,7 +518,5 @@ public class Configuration {
             }
         }
     }
-
-
 }
 

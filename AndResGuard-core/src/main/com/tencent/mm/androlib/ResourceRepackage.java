@@ -7,13 +7,12 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import main.com.tencent.mm.resourceproguard.Configuration;
 import main.com.tencent.mm.resourceproguard.Main;
 import main.com.tencent.mm.util.FileOperation;
 import main.com.tencent.mm.util.TypedValue;
 
 public class ResourceRepackage {
-    private Main mClient;
-
     private File mSignedApk;
     private File mSignedWith7ZipApk;
     private File mAlignedWith7ZipApk;
@@ -22,10 +21,11 @@ public class ResourceRepackage {
 
     private String mApkName;
     private File   mOutDir;
+    private final Configuration config;
 
-    public ResourceRepackage(Main m, File signedFile) {
+    public ResourceRepackage(Configuration config, File signedFile) {
         // TODO Auto-generated constructor stub
-        mClient = m;
+        this.config = config;
         mSignedApk = signedFile;
     }
 
@@ -63,20 +63,13 @@ public class ResourceRepackage {
                     ", path=%s",
                 mSignedApk.getAbsolutePath()));
         }
-
         //需要自己安装7zip
-
         String apkBasename = mSignedApk.getName();
         mApkName = apkBasename.substring(0, apkBasename.indexOf(".apk"));
         //如果外面设过，就不用设了
         if (mOutDir == null) {
             mOutDir = new File(mSignedApk.getAbsoluteFile().getParent() + File.separator + mApkName);
         }
-
-//		if (mOutDir.exists()) {
-//			FileOperation.deleteDir(mOutDir);
-//			mOutDir.mkdirs();
-//		}
 
         mSignedWith7ZipApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_channel_7zip.apk");
         mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_channel_7zip_aligned.apk");
@@ -88,12 +81,9 @@ public class ResourceRepackage {
         FileOperation.deleteDir(mStoredOutPutDir);
         FileOperation.deleteDir(mSignedWith7ZipApk);
         FileOperation.deleteDir(mAlignedWith7ZipApk);
-
-
     }
 
     private void repackageWith7z() throws IOException, InterruptedException {
-
         System.out.printf("use 7zip to repackage: %s, will cost much more time\n", mSignedWith7ZipApk.getName());
         HashMap<String, Integer> compressData = FileOperation.unZipAPk(mSignedApk.getAbsolutePath(), m7zipOutPutDir.getAbsolutePath());
         //首先一次性生成一个全部都是压缩的安装包
@@ -105,10 +95,8 @@ public class ResourceRepackage {
             File file = new File(m7zipOutPutDir.getAbsolutePath() + File.separator + name);
             if (!file.exists()) {
                 continue;
-//					System.err.printf("file does not exit in compress data, path=%s\n", file.getAbsolutePath());
             }
             int method = compressData.get(name);
-//				System.out.printf("name %s\n", name);
             if (method == TypedValue.ZIP_STORED) {
                 storedFiles.add(name);
             }
@@ -119,47 +107,34 @@ public class ResourceRepackage {
         if (!mSignedWith7ZipApk.exists()) {
             throw new IOException(String.format(
                 "7z repackage signed apk fail,you must install 7z command line version first, linux: p7zip, window: 7za, path=%s",
-                mSignedWith7ZipApk.getAbsolutePath()));
+                mSignedWith7ZipApk.getAbsolutePath())
+            );
         }
-
-        System.out.printf("use 7zip to repackage %s done, time cost from begin: %fs\n", mSignedWith7ZipApk.getName(),
-            mClient.diffTimeFromBegin());
-
     }
 
     private void generalRaw7zip() throws IOException, InterruptedException {
         System.out.printf("general the raw 7zip file\n");
-        Process pro = null;
+        Process pro;
         String outPath = m7zipOutPutDir.getAbsoluteFile().getAbsolutePath();
 
         String path = outPath + File.separator + "*";
 
         //极限压缩
         String cmd;
-        if (mClient.get7zipPath() == null) {
+        if (config.m7zipPath == null) {
             cmd = TypedValue.COMMAND_7ZIP;
         } else {
-            cmd = mClient.get7zipPath();
+            cmd = config.m7zipPath;
         }
         cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + path + " -mx9";
-//		if ()
-//		System.out.println("cmd "+cmd );
         pro = Runtime.getRuntime().exec(cmd);
 
-        InputStreamReader ir = null;
-        LineNumberReader input = null;
-
-        ir = new InputStreamReader(pro.getInputStream());
-
-        input = new LineNumberReader(ir);
-
-
-        String line;
+        InputStreamReader ir = new InputStreamReader(pro.getInputStream());;
+        LineNumberReader input = new LineNumberReader(ir);
         //如果不读会有问题，被阻塞
-        while ((line = input.readLine()) != null) {
-//			System.out.println(line);
+        while (input.readLine() != null) {
+            ;
         }
-
         //destroy the stream
         if (pro != null) {
             pro.waitFor();
@@ -175,34 +150,22 @@ public class ResourceRepackage {
             FileOperation.copyFileUsingStream(new File(outputName + name), new File(storedParentName + name));
 
         }
-        Process pro = null;
-
         storedParentName = storedParentName + File.separator + "*";
 
         //极限压缩
         String cmd;
-        if (mClient.get7zipPath() == null) {
+        if (config.m7zipPath == null) {
             cmd = TypedValue.COMMAND_7ZIP;
         } else {
-            cmd = mClient.get7zipPath();
+            cmd = config.m7zipPath;
         }
         cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + storedParentName + " -mx0";
-//		if ()
-//		System.out.println("cmd "+cmd );
-        pro = Runtime.getRuntime().exec(cmd);
-
-        InputStreamReader ir = null;
-        LineNumberReader input = null;
-
-        ir = new InputStreamReader(pro.getInputStream());
-
-        input = new LineNumberReader(ir);
-
-
-        String line;
+        Process pro = Runtime.getRuntime().exec(cmd);
+        InputStreamReader ir = new InputStreamReader(pro.getInputStream());;
+        LineNumberReader input = new LineNumberReader(ir);;
         //如果不读会有问题，被阻塞
-        while ((line = input.readLine()) != null) {
-//			System.out.println(line);
+        while (input.readLine() != null) {
+            ;
         }
 
         //destroy the stream
@@ -213,9 +176,7 @@ public class ResourceRepackage {
     }
 
     private void alignApk() throws IOException, InterruptedException {
-
         if (mSignedWith7ZipApk.exists()) {
-
             alignApk(mSignedWith7ZipApk, mAlignedWith7ZipApk);
         }
     }
@@ -223,35 +184,22 @@ public class ResourceRepackage {
     private void alignApk(File before, File after) throws IOException, InterruptedException {
         System.out.printf("zipaligning apk: %s\n", before.getName());
         if (!before.exists()) {
-            throw new IOException(String.format(
-                "can not found the raw apk file to zipalign, path=%s",
-                before.getAbsolutePath()));
+            throw new IOException(
+                String.format("can not found the raw apk file to zipalign, path=%s", before.getAbsolutePath())
+            );
         }
         String cmd;
-        if (mClient.getZipalignPath() == null) {
+        if (config.mZipalignPath == null) {
             cmd = "zipalign";
         } else {
-            cmd = mClient.getZipalignPath();
+            cmd = config.mZipalignPath;
         }
         cmd += " 4 " + before.getAbsolutePath() + " " + after.getAbsolutePath();
-        ;
-//	    	System.out.println("cmd "+cmd );
-//	    	System.out.println("outputPath "+outputPath);
-//	    	System.out.println("outputTempPath "+outputTempPaWth);
-
         Process pro;
-
-
         pro = Runtime.getRuntime().exec(cmd);
 
         //destroy the stream
         pro.waitFor();
         pro.destroy();
-
-
-        System.out.printf("zipaligning apk %s done, time cost from begin: %fs\n", after.getName(),
-            mClient.diffTimeFromBegin());
-
     }
-
 }
