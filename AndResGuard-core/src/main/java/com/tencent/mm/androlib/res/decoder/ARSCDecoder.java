@@ -402,9 +402,9 @@ public class ARSCDecoder {
         int entriesStart = mIn.readInt();
 //		/* entriesStart */ mIn.skipInt
         //add log
-//		System.out.printf("readConfig  entryCount %d\n",entryCount);
+//		System.out.printf("readXmlConfig  entryCount %d\n",entryCount);
         //add log
-//		System.out.printf("readConfig  entriesStart %d\n",entriesStart);
+//		System.out.printf("readXmlConfig  entriesStart %d\n",entriesStart);
 
         readConfigFlags();
         int[] entryOffsets = mIn.readIntArray(entryCount);
@@ -415,11 +415,11 @@ public class ARSCDecoder {
 				.getOrCreateConfig(flags);*/
 
         for (int i = 0; i < entryOffsets.length; i++) {
-//			System.out.printf("readConfig entryOffsets %d\n",entryOffsets[i]);
+//			System.out.printf("readXmlConfig entryOffsets %d\n",entryOffsets[i]);
             mCurEntryID = i;
             if (entryOffsets[i] != -1) {
                 mResId = (mResId & 0xffff0000) | i;
-//				System.out.printf("readConfig mResId %d\n",mResId);
+//				System.out.printf("readXmlConfig mResId %d\n",mResId);
 
                 readEntry();
             }

@@ -49,8 +49,19 @@ android {
 }
 
 andResGuard {
-    configFilePath = file("../config.xml")
-
+    mappingPath = ""
+    use7zip = true
+    keepRoot = false
+    whiteList = [
+            "com.xmonster.letsgo.R.drawable.icon"
+    ]
+    compressFilePattern = [
+            "*.png",
+            "*.jpg",
+            "*.jpeg",
+            "*.gif",
+            "resources.arsc"
+    ]
 }
 
 dependencies {

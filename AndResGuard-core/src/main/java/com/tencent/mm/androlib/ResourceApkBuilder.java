@@ -12,14 +12,12 @@ import java.util.List;
 import com.tencent.mm.resourceproguard.Configuration;
 import com.tencent.mm.util.FileOperation;
 import com.tencent.mm.util.TypedValue;
+import com.tencent.mm.util.Utils;
 
 /**
  * @author shwenzhang
  */
 public class ResourceApkBuilder {
-    public ResourceApkBuilder(Configuration config) {
-        this.config = config;
-    }
 
     private final Configuration config;
     private File mOutDir;
@@ -33,6 +31,10 @@ public class ResourceApkBuilder {
     private File mAlignedWith7ZipApk;
 
     private String mApkName;
+
+    public ResourceApkBuilder(Configuration config) {
+        this.config = config;
+    }
 
     public void setOutDir(File outDir, String apkname) throws AndrolibException {
         mOutDir = outDir;
@@ -150,12 +152,7 @@ public class ResourceApkBuilder {
                 "can not found the raw apk file to zipalign, path=%s",
                 before.getAbsolutePath()));
         }
-        String cmd;
-        if (config.mZipalignPath == null) {
-            cmd = "zipalign";
-        } else {
-            cmd = config.mZipalignPath;
-        }
+        String cmd = Utils.isPresent(config.mZipalignPath) ? config.mZipalignPath : TypedValue.COMMAND_ZIPALIGIN;
         cmd += " 4 " + before.getAbsolutePath() + " " + after.getAbsolutePath();
         Process pro;
         pro = Runtime.getRuntime().exec(cmd);
@@ -181,7 +178,7 @@ public class ResourceApkBuilder {
 
 
         File[] unzipFiles = tempOutDir.listFiles();
-        List<File> collectFiles = new ArrayList<File>();
+        List<File> collectFiles = new ArrayList<>();
         for (File f : unzipFiles) {
             String name = f.getName();
             if (name.equals("res") || name.equals(config.mMetaName) || name.equals("resources.arsc")) {
@@ -238,12 +235,7 @@ public class ResourceApkBuilder {
         storedParentName = storedParentName + File.separator + "*";
 
         //极限压缩
-        String cmd;
-        if (config.m7zipPath == null) {
-            cmd = TypedValue.COMMAND_7ZIP;
-        } else {
-            cmd = config.m7zipPath;
-        }
+        String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
         cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + storedParentName + " -mx0";
         pro = Runtime.getRuntime().exec(cmd);
 
@@ -272,12 +264,7 @@ public class ResourceApkBuilder {
         String path = outPath + File.separator + "*";
 
         //极限压缩
-        String cmd;
-        if (config.m7zipPath == null) {
-            cmd = TypedValue.COMMAND_7ZIP;
-        } else {
-            cmd = config.m7zipPath;
-        }
+        String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
         cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + path + " -mx9";
         pro = Runtime.getRuntime().exec(cmd);
 

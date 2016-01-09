@@ -1,6 +1,14 @@
 
 package com.tencent.mm.resourceproguard;
 
+import com.tencent.mm.androlib.AndrolibException;
+import com.tencent.mm.androlib.ApkDecoder;
+import com.tencent.mm.androlib.ResourceApkBuilder;
+import com.tencent.mm.androlib.ResourceRepackage;
+import com.tencent.mm.directory.DirectoryException;
+import com.tencent.mm.util.FileOperation;
+import com.tencent.mm.util.TypedValue;
+
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -10,14 +18,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import javax.xml.parsers.ParserConfigurationException;
-
-import com.tencent.mm.androlib.AndrolibException;
-import com.tencent.mm.androlib.ApkDecoder;
-import com.tencent.mm.androlib.ResourceApkBuilder;
-import com.tencent.mm.androlib.ResourceRepackage;
-import com.tencent.mm.directory.DirectoryException;
-import com.tencent.mm.util.FileOperation;
-import com.tencent.mm.util.TypedValue;
 
 
 /**
@@ -41,7 +41,7 @@ public class Main {
 
     private static final String ARG_REPACKAGE = "-repackage";
 
-    protected      Configuration mConfiguration;
+    protected      Configuration config;
     private        File          mOutDir;
     private static long          mBeginTime;
     private static long          mRawApkSize;
@@ -52,14 +52,20 @@ public class Main {
      */
     public boolean mSetSignThroughCmd    = false;
     public boolean mSetMappingThroughCmd = false;
-    public String m7zipPath     = null;
-    public String mZipalignPath = null;
+    public String  m7zipPath             = null;
+    public String  mZipalignPath         = null;
 
     public static void main(String[] args) {
         mBeginTime = System.currentTimeMillis();
         Main m = new Main();
         getRunningLocation(m);
         m.run(args);
+    }
+
+    public static void gradleRun(InputParam inputParam) {
+        Main m = new Main();
+        getRunningLocation(m);
+        m.run(inputParam);
     }
 
     private static void getRunningLocation(Main m) {
@@ -77,19 +83,16 @@ public class Main {
         mRunningLocation = f.getAbsolutePath();
     }
 
-    private void run(
-        String configPath, String sigPath, String mappingPath,
-        String keypass, String storealias, String storepass,
-        String outputFile, String originalApk)
-    {
-        File configFile = new File(configPath);
-        File signatureFile = new File(sigPath);
-        File mappingFile = mappingPath != null ? new File(mappingPath) : null;
-        loadConfig(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
+    private void run(InputParam inputParam) {
+        loadConfigFromGradle(inputParam);
         System.out.println("resourceprpguard begin");
-        resourceProguard(new File(outputFile), originalApk);
+        resourceProguard(new File(inputParam.outFolder), inputParam.apkPath);
         System.out.printf("resources proguard done, total time cost: %fs\n", diffTimeFromBegin());
         System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+    }
+
+    private void loadConfigFromGradle(InputParam inputParam) {
+        config = new Configuration(inputParam);
     }
 
     private void run(String[] args) {
@@ -106,12 +109,11 @@ public class Main {
         String signedFile = readArgs.getSignedFile();
         File outputFile = readArgs.getOutputFile();
         String apkFileName = readArgs.getApkFileName();
-
-        loadConfig(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
+        loadConfigFromXml(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
 
         //对于repackage模式，不管之前的东东，直接return
         if (signedFile != null) {
-            ResourceRepackage repackage = new ResourceRepackage(mConfiguration, new File(signedFile));
+            ResourceRepackage repackage = new ResourceRepackage(config.mZipalignPath, config.m7zipPath, new File(signedFile));
             try {
                 if (outputFile != null) {
                     repackage.setOutDir(outputFile);
@@ -130,18 +132,8 @@ public class Main {
         System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
     }
 
-    public static void gradleRun(
-        String configPath, String sigPath, String mappingPath,
-        String keypass, String storealias, String storepass,
-        String outputFile, String originalApk
-    ) {
-        Main m = new Main();
-        getRunningLocation(m);
-        m.run(configPath, sigPath, mappingPath, keypass, storealias, storepass, outputFile, originalApk);
-    }
-
     private void resourceProguard(File outputFile, String apkFilePath) {
-        ApkDecoder decoder = new ApkDecoder(mConfiguration);
+        ApkDecoder decoder = new ApkDecoder(config);
         File apkFile = new File(apkFilePath);
         if (!apkFile.exists()) {
             System.err.printf("the input apk %s does not exit", apkFile.getAbsolutePath());
@@ -169,14 +161,14 @@ public class Main {
     }
 
     private void buildApk(ApkDecoder decoder, File apkFile) throws AndrolibException, IOException, InterruptedException {
-        ResourceApkBuilder builder = new ResourceApkBuilder(mConfiguration);
+        ResourceApkBuilder builder = new ResourceApkBuilder(config);
         String apkBasename = apkFile.getName();
         apkBasename = apkBasename.substring(0, apkBasename.indexOf(".apk"));
         builder.setOutDir(mOutDir, apkBasename);
         builder.buildApk(decoder.getCompressData());
     }
 
-    private void loadConfig(File configFile, File signatureFile, File mappingFile, String keypass, String storealias, String storepass) {
+    private void loadConfigFromXml(File configFile, File signatureFile, File mappingFile, String keypass, String storealias, String storepass) {
         if (configFile == null) {
             configFile = new File(mRunningLocation + File.separator + TypedValue.CONFIG_FILE);
             if (!configFile.exists()) {
@@ -185,30 +177,18 @@ public class Main {
                 System.exit(ERRNO_USAGE);
             }
         }
-        mConfiguration = new Configuration(configFile, mSetSignThroughCmd, mSetMappingThroughCmd);
-        mConfiguration.m7zipPath = m7zipPath;
-        mConfiguration.mZipalignPath = mZipalignPath;
-
         try {
-            mConfiguration.readConfig();
+            config = new Configuration(configFile, m7zipPath, mZipalignPath);
+
             //需要检查命令行的设置
             if (mSetSignThroughCmd) {
-                mConfiguration.setSignData(signatureFile, keypass, storealias, storepass, true);
+                config.setSignData(signatureFile, keypass, storealias, storepass);
             }
             if (mSetMappingThroughCmd) {
-                mConfiguration.setKeepMappingData(mappingFile, true);
+                config.setKeepMappingData(mappingFile);
             }
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-            goToError();
-        } catch (ParserConfigurationException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-            goToError();
-        } catch (SAXException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+        } catch (IOException | ParserConfigurationException | SAXException e) {
+            e.printStackTrace();
             goToError();
         }
     }

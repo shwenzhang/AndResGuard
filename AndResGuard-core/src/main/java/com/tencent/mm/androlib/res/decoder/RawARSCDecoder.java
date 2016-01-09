@@ -143,7 +143,7 @@ public class RawARSCDecoder {
         int[] entryOffsets = mIn.readIntArray(entryCount);
 
         for (int i = 0; i < entryOffsets.length; i++) {
-//			System.out.printf("readConfig entryOffsets %d\n",entryOffsets[i]);
+//			System.out.printf("readXmlConfig entryOffsets %d\n",entryOffsets[i]);
             if (entryOffsets[i] != -1) {
                 mResId = (mResId & 0xffff0000) | i;
 

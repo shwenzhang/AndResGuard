@@ -1,17 +1,19 @@
 package com.tencent.mm.androlib;
 
+import com.tencent.mm.util.FileOperation;
+import com.tencent.mm.util.TypedValue;
+import com.tencent.mm.util.Utils;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.tencent.mm.resourceproguard.Configuration;
-import com.tencent.mm.util.FileOperation;
-import com.tencent.mm.util.TypedValue;
-
 public class ResourceRepackage {
+
     private File mSignedApk;
     private File mSignedWith7ZipApk;
     private File mAlignedWith7ZipApk;
@@ -20,11 +22,12 @@ public class ResourceRepackage {
 
     private String mApkName;
     private File   mOutDir;
-    private final Configuration config;
+    private final String zipalignPath;
+    private final String sevenZipPath;
 
-    public ResourceRepackage(Configuration config, File signedFile) {
-        // TODO Auto-generated constructor stub
-        this.config = config;
+    public ResourceRepackage(String zipalignPath, String zipPath ,File signedFile) {
+        this.zipalignPath = zipalignPath;
+        this.sevenZipPath = zipPath;
         mSignedApk = signedFile;
     }
 
@@ -118,17 +121,11 @@ public class ResourceRepackage {
 
         String path = outPath + File.separator + "*";
 
-        //极限压缩
-        String cmd;
-        if (config.m7zipPath == null) {
-            cmd = TypedValue.COMMAND_7ZIP;
-        } else {
-            cmd = config.m7zipPath;
-        }
+        String cmd = Utils.isPresent(sevenZipPath) ? sevenZipPath : TypedValue.COMMAND_7ZIP;
         cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + path + " -mx9";
         pro = Runtime.getRuntime().exec(cmd);
 
-        InputStreamReader ir = new InputStreamReader(pro.getInputStream());;
+        InputStreamReader ir = new InputStreamReader(pro.getInputStream());
         LineNumberReader input = new LineNumberReader(ir);
         //如果不读会有问题，被阻塞
         while (input.readLine() != null) {
@@ -152,12 +149,7 @@ public class ResourceRepackage {
         storedParentName = storedParentName + File.separator + "*";
 
         //极限压缩
-        String cmd;
-        if (config.m7zipPath == null) {
-            cmd = TypedValue.COMMAND_7ZIP;
-        } else {
-            cmd = config.m7zipPath;
-        }
+        String cmd = Utils.isPresent(sevenZipPath) ? sevenZipPath : TypedValue.COMMAND_7ZIP;
         cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + storedParentName + " -mx0";
         Process pro = Runtime.getRuntime().exec(cmd);
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());;
@@ -166,7 +158,6 @@ public class ResourceRepackage {
         while (input.readLine() != null) {
             ;
         }
-
         //destroy the stream
         if (pro != null) {
             pro.waitFor();
@@ -187,12 +178,7 @@ public class ResourceRepackage {
                 String.format("can not found the raw apk file to zipalign, path=%s", before.getAbsolutePath())
             );
         }
-        String cmd;
-        if (config.mZipalignPath == null) {
-            cmd = "zipalign";
-        } else {
-            cmd = config.mZipalignPath;
-        }
+        String cmd = Utils.isPresent(zipalignPath) ? zipalignPath : TypedValue.COMMAND_ZIPALIGIN;
         cmd += " 4 " + before.getAbsolutePath() + " " + after.getAbsolutePath();
         Process pro;
         pro = Runtime.getRuntime().exec(cmd);

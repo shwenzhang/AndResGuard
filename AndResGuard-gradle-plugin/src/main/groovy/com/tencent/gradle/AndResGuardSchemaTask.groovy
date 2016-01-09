@@ -42,12 +42,12 @@ public class AndResGuardSchemaTask extends DefaultTask {
     @TaskAction
     def generate() {
         println "Using this configuration:\n $configuration"
-        String configPath = configuration.configFilePath
         String signPath = android.signingConfigs.release.storeFile
         String mappingPath = configuration.mappingPath
         String keyPass = android.signingConfigs.release.keyPassword
         String storealias = android.signingConfigs.release.keyAlias
         String storePass = android.signingConfigs.release.storePassword
+
         Main.gradleRun(configPath, signPath, mappingPath, keyPass, storealias, storePass, releaseFolder, releaseApkPath)
     }
 }
