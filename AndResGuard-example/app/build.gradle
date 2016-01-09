@@ -1,0 +1,72 @@
+buildscript {
+    repositories {
+        maven {
+            url uri('../../local_repo')
+        }
+    }
+    dependencies {
+        classpath group: 'com.tencent.gradle', name: 'andresguard', version: '1.0-SNAPSHOT'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'AndResGuard'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    signingConfigs {
+        release {
+            storeFile file("../keystore/release.keystore")
+            storePassword "testres"
+            keyAlias "testres"
+            keyPassword "testres"
+        }
+
+        debug {
+            storeFile file("../keystore/debug.keystore")
+        }
+    }
+
+    defaultConfig {
+        applicationId "andresguard.tencent.com.andresguard_example"
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            shrinkResources true
+            zipAlignEnabled true
+            pseudoLocalesEnabled true
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+andResGuard {
+    mappingFile = null
+    use7zip = false
+    keepRoot = false
+    whiteList = [
+            "com.xmonster.letsgo.R.drawable.icon"
+    ]
+    compressFilePattern = [
+            "*.png",
+            "*.jpg",
+            "*.jpeg",
+            "*.gif",
+            "resources.arsc"
+    ]
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+}

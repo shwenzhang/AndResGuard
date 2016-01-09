@@ -1,0 +1,25 @@
+apply plugin: 'groovy'
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    compile project(':AndResGuard-core')
+}
+
+apply plugin: 'maven'
+
+repositories {
+    mavenCentral()
+}
+
+group = 'com.tencent.gradle'
+version = '1.0-SNAPSHOT'
+archivesBaseName = 'andresguard'
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../local_repo'))
+        }
+    }
+}
