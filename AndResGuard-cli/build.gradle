@@ -4,6 +4,7 @@ apply plugin: 'java'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':AndResGuard-core')
 }
 
 sourceSets {
@@ -14,7 +15,7 @@ sourceSets {
     }
 }
 
-archivesBaseName = 'AndResGuard'
+archivesBaseName = 'andresguard'
 
 task buildJar(type: Copy, dependsOn: [build, jar]) {
     from('build/libs') { // 复制jar包

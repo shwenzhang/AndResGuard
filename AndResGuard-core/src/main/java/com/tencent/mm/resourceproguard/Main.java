@@ -77,6 +77,21 @@ public class Main {
         mRunningLocation = f.getAbsolutePath();
     }
 
+    private void run(
+        String configPath, String sigPath, String mappingPath,
+        String keypass, String storealias, String storepass,
+        String outputFile, String originalApk)
+    {
+        File configFile = new File(configPath);
+        File signatureFile = new File(sigPath);
+        File mappingFile = mappingPath != null ? new File(mappingPath) : null;
+        loadConfig(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
+        System.out.println("resourceprpguard begin");
+        resourceProguard(new File(outputFile), originalApk);
+        System.out.printf("resources proguard done, total time cost: %fs\n", diffTimeFromBegin());
+        System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+    }
+
     private void run(String[] args) {
         if (args.length < 1) {
             goToError();
@@ -115,7 +130,17 @@ public class Main {
         System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
     }
 
-    public void resourceProguard(File outputFile, String apkFilePath) {
+    public static void gradleRun(
+        String configPath, String sigPath, String mappingPath,
+        String keypass, String storealias, String storepass,
+        String outputFile, String originalApk
+    ) {
+        Main m = new Main();
+        getRunningLocation(m);
+        m.run(configPath, sigPath, mappingPath, keypass, storealias, storepass, outputFile, originalApk);
+    }
+
+    private void resourceProguard(File outputFile, String apkFilePath) {
         ApkDecoder decoder = new ApkDecoder(mConfiguration);
         File apkFile = new File(apkFilePath);
         if (!apkFile.exists()) {

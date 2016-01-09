@@ -1,5 +1,6 @@
 package com.tencent.gradle
 
+import com.tencent.mm.resourceproguard.Main
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
@@ -11,40 +12,42 @@ import org.gradle.api.tasks.TaskAction
  */
 public class AndResGuardSchemaTask extends DefaultTask {
     def configuration
+    def android
+    String releaseApkPath
+    String releaseFolder
 
     AndResGuardSchemaTask() {
         description = 'Assemble Proguard APK'
         group = 'andresguard'
-
         outputs.upToDateWhen { false }
-
         project.afterEvaluate {
-            def android = project.extensions.android
             configuration = project.andResGuard
-            configuration.targetDirectory = configuration.targetDirectory ?: project.file("${project.buildDir}/ARG-apk")
-
+            android = project.extensions.android
             android.applicationVariants.all { variant ->
                 println variant.buildType.name
                 if (variant.buildType.name == 'release') {
                     this.dependsOn variant.assemble
+                    variant.outputs.each { output ->
+                        releaseApkPath = output.outputFile
+                        releaseFolder = "${output.outputFile.parent}/AndResProguard/"
+                    }
                 }
             }
-
-            if (project.plugins.hasPlugin('com.android.application')) {
-                configureEnv()
-            } else {
+            if (!project.plugins.hasPlugin('com.android.application')) {
                 throw new GradleException('generateARGApk: Android Application plugin required')
             }
-            outputs.dir configuration.targetDirectory
         }
-    }
-
-    def configureEnv() {
-
     }
 
     @TaskAction
     def generate() {
         println "Using this configuration:\n $configuration"
+        String configPath = configuration.configFilePath
+        String signPath = android.signingConfigs.release.storeFile
+        String mappingPath = configuration.mappingPath
+        String keyPass = android.signingConfigs.release.keyPassword
+        String storealias = android.signingConfigs.release.keyAlias
+        String storePass = android.signingConfigs.release.storePassword
+        Main.gradleRun(configPath, signPath, mappingPath, keyPass, storealias, storePass, releaseFolder, releaseApkPath)
     }
 }

@@ -5,7 +5,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'com.tencent.gradle', name: 'AndResGuard', version: '1.0-SNAPSHOT'
+        classpath group: 'com.tencent.gradle', name: 'andresguard', version: '1.0-SNAPSHOT'
     }
 }
 
@@ -49,8 +49,8 @@ android {
 }
 
 andResGuard {
-    targetVersion = "1.2"
-    targetDirectory = "test"
+    configFilePath = file("../config.xml")
+
 }
 
 dependencies {
