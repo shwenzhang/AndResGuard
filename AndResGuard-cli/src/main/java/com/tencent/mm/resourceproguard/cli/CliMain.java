@@ -1,6 +1,8 @@
-package com.tencent.mm.resourceproguard;
+package com.tencent.mm.resourceproguard.cli;
 
 import com.tencent.mm.androlib.ResourceRepackage;
+import com.tencent.mm.resourceproguard.Configuration;
+import com.tencent.mm.resourceproguard.Main;
 import com.tencent.mm.util.TypedValue;
 
 import org.xml.sax.SAXException;

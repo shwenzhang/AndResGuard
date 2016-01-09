@@ -17,7 +17,10 @@ sourceSets {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'com.tencent.mm.resourceproguard.Main'
+        attributes 'Main-Class': 'com.tencent.mm.resourceproguard.cli.CliMain'
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
