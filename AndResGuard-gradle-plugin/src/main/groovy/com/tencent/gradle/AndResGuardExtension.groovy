@@ -1,5 +1,3 @@
-
-
 /**
  * The configuration properties.
  *

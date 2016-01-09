@@ -14,20 +14,21 @@
 
 package com.tencent.mm.androlib.res.util;
 
-import java.io.File;
-import java.net.URI;
-
 import com.tencent.mm.directory.Directory;
 import com.tencent.mm.directory.DirectoryException;
 import com.tencent.mm.directory.FileDirectory;
 import com.tencent.mm.directory.ZipRODirectory;
 
+import java.io.File;
+import java.net.URI;
+
 
 /**
  * @author shwenzhang
- *
  */
 public class ExtFile extends File {
+    private Directory mDirectory;
+
     public ExtFile(File file) {
         super(file.getPath());
     }
@@ -58,6 +59,4 @@ public class ExtFile extends File {
         }
         return mDirectory;
     }
-
-    private Directory mDirectory;
 }

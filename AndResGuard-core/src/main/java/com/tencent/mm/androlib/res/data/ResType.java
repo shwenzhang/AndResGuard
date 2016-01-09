@@ -14,14 +14,13 @@
 
 package com.tencent.mm.androlib.res.data;
 
-import java.util.HashSet;
-
 import com.tencent.mm.androlib.AndrolibException;
+
+import java.util.HashSet;
 
 
 /**
  * @author shwenzhang
- *
  */
 public final class ResType {
     private final String mName;

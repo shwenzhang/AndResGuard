@@ -20,7 +20,6 @@ import java.io.IOException;
 
 /**
  * @author shwenzhang
- *
  */
 abstract public class DataInputDelegate implements DataInput {
     protected final DataInput mDelegate;

@@ -1,14 +1,5 @@
-
 package com.tencent.mm.androlib;
 
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 import com.tencent.mm.androlib.res.data.ResPackage;
 import com.tencent.mm.androlib.res.decoder.ARSCDecoder;
@@ -19,21 +10,29 @@ import com.tencent.mm.resourceproguard.Configuration;
 import com.tencent.mm.util.FileOperation;
 import com.tencent.mm.util.TypedValue;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.regex.Pattern;
+
 /**
  * @author shwenzhang
  */
 public class ApkDecoder {
 
-    private final Configuration config;
-    private ExtFile mApkFile;
-    private File    mOutDir;
-    private File    mOutTempARSCFile;
-    private File    mOutARSCFile;
-    private File    mOutResFile;
-    private File    mRawResFile;
-    private File    mOutTempDir;
-    private File    mResMappingFile;
-    private HashMap<String, Integer> mCompressData;
+    private final Configuration            config;
+    private       ExtFile                  mApkFile;
+    private       File                     mOutDir;
+    private       File                     mOutTempARSCFile;
+    private       File                     mOutARSCFile;
+    private       File                     mOutResFile;
+    private       File                     mRawResFile;
+    private       File                     mOutTempDir;
+    private       File                     mResMappingFile;
+    private       HashMap<String, Integer> mCompressData;
 
     public ApkDecoder(Configuration config) {
         this.config = config;
@@ -53,10 +52,6 @@ public class ApkDecoder {
 
     public void setApkFile(File apkFile) {
         mApkFile = new ExtFile(apkFile);
-    }
-
-    public void setOutDir(File outDir) throws AndrolibException {
-        mOutDir = outDir;
     }
 
     private void ensureFilePath() throws IOException {
@@ -120,6 +115,10 @@ public class ApkDecoder {
 
     public File getOutDir() {
         return mOutDir;
+    }
+
+    public void setOutDir(File outDir) throws AndrolibException {
+        mOutDir = outDir;
     }
 
     public File getOutResFile() {

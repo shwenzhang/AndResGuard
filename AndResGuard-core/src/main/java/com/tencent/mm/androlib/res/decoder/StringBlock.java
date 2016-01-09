@@ -1,5 +1,8 @@
-
 package com.tencent.mm.androlib.res.decoder;
+
+import com.tencent.mm.androlib.AndrolibException;
+import com.tencent.mm.util.ExtDataInput;
+import com.tencent.mm.util.ExtDataOutput;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,15 +16,32 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.tencent.mm.androlib.AndrolibException;
-import com.tencent.mm.util.ExtDataInput;
-import com.tencent.mm.util.ExtDataOutput;
-
 
 /**
  * @author shwenzhang
  */
 public class StringBlock {
+
+    private static final CharsetDecoder UTF16LE_DECODER       = Charset.forName(
+        "UTF-16LE").newDecoder();
+    private static final CharsetDecoder UTF8_DECODER          = Charset.forName("UTF-8")
+        .newDecoder();
+    private static final Logger         LOGGER                = Logger.getLogger(StringBlock.class
+        .getName());
+    private static final int            CHUNK_STRINGPOOL_TYPE = 0x001C0001;
+    private static final int            UTF8_FLAG             = 0x00000100;
+    private static final int            CHUNK_NULL_TYPE       = 0x00000000;
+    private static final byte           NULL                  = 0;
+    private int[]   m_stringOffsets;
+    private byte[]  m_strings;
+    private int[]   m_styleOffsets;
+    private int[]   m_styles;
+    private boolean m_isUTF8;
+    private int[]   m_stringOwns;
+
+    // /////////////////////////////////////////// implementation
+    private StringBlock() {
+    }
 
     /**
      * Reads whole (including chunk type) string block from stream. Stream must
@@ -66,7 +86,7 @@ public class StringBlock {
             reader.readFully(block.m_strings);
 
 /*			for (int i=0; i< size; i++) {
-				System.out.printf("!!block.m_strings[%d] = %d \n",i,block.m_strings[i]);
+                System.out.printf("!!block.m_strings[%d] = %d \n",i,block.m_strings[i]);
 			}*/
         }
         if (stylesOffset != 0) {
@@ -190,7 +210,6 @@ public class StringBlock {
         return (chunkSize - totalSize);
 
     }
-
 
     public static int writeTableNameStringBlock(ExtDataInput reader, ExtDataOutput out, Map<Integer, String> tableProguardMap) throws IOException, AndrolibException {
         int type = reader.readInt();
@@ -358,36 +377,6 @@ public class StringBlock {
         out.writeBytes(reader, chunkSize - 8);
     }
 
-    /**
-     * Returns number of strings in block.
-     */
-    public int getCount() {
-        return m_stringOffsets != null ? m_stringOffsets.length : 0;
-    }
-
-
-    /**
-     * Returns raw string (without any styling information) at specified index.
-     */
-    public String getString(int index) {
-        if (index < 0 || m_stringOffsets == null || index >= m_stringOffsets.length) {
-            return null;
-        }
-        int offset = m_stringOffsets[index];
-        int length;
-
-        if (m_isUTF8) {
-            int[] val = getUtf8(m_strings, offset);
-            offset = val[0];
-            length = val[1];
-        } else {
-            int[] val = getUtf16(m_strings, offset);
-            offset += val[0];
-            length = val[1];
-        }
-        return decodeString(offset, length);
-    }
-
     private static final int[] getUtf8(byte[] array, int offset) {
         int val = array[offset];
         int length;
@@ -421,6 +410,53 @@ public class StringBlock {
         return new int[]{2, val * 2};
     }
 
+    private static final int getShort(byte[] array, int offset) {
+        return (array[offset + 1] & 0xff) << 8 | array[offset] & 0xff;
+    }
+
+    private static final void writeShort(byte[] array, int offset, short value) {
+        array[offset] = (byte) (0xFF & value);
+        array[offset + 1] = (byte) (0xFF & (value >> 8));
+    }
+
+    private static final int getShort(int[] array, int offset) {
+        int value = array[offset / 4];
+        if ((offset % 4) / 2 == 0) {
+            return (value & 0xFFFF);
+        } else {
+            return (value >>> 16);
+        }
+    }
+
+    /**
+     * Returns number of strings in block.
+     */
+    public int getCount() {
+        return m_stringOffsets != null ? m_stringOffsets.length : 0;
+    }
+
+    /**
+     * Returns raw string (without any styling information) at specified index.
+     */
+    public String getString(int index) {
+        if (index < 0 || m_stringOffsets == null || index >= m_stringOffsets.length) {
+            return null;
+        }
+        int offset = m_stringOffsets[index];
+        int length;
+
+        if (m_isUTF8) {
+            int[] val = getUtf8(m_strings, offset);
+            offset = val[0];
+            length = val[1];
+        } else {
+            int[] val = getUtf16(m_strings, offset);
+            offset += val[0];
+            length = val[1];
+        }
+        return decodeString(offset, length);
+    }
+
     /**
      * Not yet implemented.
      * <p>
@@ -429,7 +465,6 @@ public class StringBlock {
     public CharSequence get(int index) {
         return getString(index);
     }
-
 
     /**
      * Finds index of the string. Returns -1 if the string was not found.
@@ -458,11 +493,6 @@ public class StringBlock {
         return -1;
     }
 
-    // /////////////////////////////////////////// implementation
-    private StringBlock() {
-    }
-
-
     private String decodeString(int offset, int length) {
         try {
             return (m_isUTF8 ? UTF8_DECODER : UTF16LE_DECODER).decode(
@@ -472,41 +502,5 @@ public class StringBlock {
             return null;
         }
     }
-
-    private static final int getShort(byte[] array, int offset) {
-        return (array[offset + 1] & 0xff) << 8 | array[offset] & 0xff;
-    }
-
-    private static final void writeShort(byte[] array, int offset, short value) {
-        array[offset] = (byte) (0xFF & value);
-        array[offset + 1] = (byte) (0xFF & (value >> 8));
-    }
-
-    private static final int getShort(int[] array, int offset) {
-        int value = array[offset / 4];
-        if ((offset % 4) / 2 == 0) {
-            return (value & 0xFFFF);
-        } else {
-            return (value >>> 16);
-        }
-    }
-
-
-    private int[]   m_stringOffsets;
-    private byte[]  m_strings;
-    private int[]   m_styleOffsets;
-    private int[]   m_styles;
-    private boolean m_isUTF8;
-    private int[]   m_stringOwns;
-    private static final CharsetDecoder UTF16LE_DECODER       = Charset.forName(
-        "UTF-16LE").newDecoder();
-    private static final CharsetDecoder UTF8_DECODER          = Charset.forName("UTF-8")
-        .newDecoder();
-    private static final Logger         LOGGER                = Logger.getLogger(StringBlock.class
-        .getName());
-    private static final int            CHUNK_STRINGPOOL_TYPE = 0x001C0001;
-    private static final int            UTF8_FLAG             = 0x00000100;
-    private static final int            CHUNK_NULL_TYPE       = 0x00000000;
-    private static final byte           NULL                  = 0;
 
 }

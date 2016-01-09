@@ -1,4 +1,3 @@
-
 package com.tencent.mm.util;
 
 import java.io.BufferedInputStream;
@@ -18,6 +17,8 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public class FileOperation {
+    private static final int BUFFER = 8192;
+
     public static final boolean fileExists(String filePath) {
         if (filePath == null) {
             return false;
@@ -99,9 +100,6 @@ public class FileOperation {
         file.delete();
         return true;
     }
-
-
-    private static final int BUFFER = 8192;
 
     public static void copyFileUsingStream(File source, File dest) throws IOException {
         FileInputStream is = null;

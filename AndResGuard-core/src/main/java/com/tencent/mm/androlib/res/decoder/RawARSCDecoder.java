@@ -1,5 +1,10 @@
-
 package com.tencent.mm.androlib.res.decoder;
+
+import com.mindprod.ledatastream.LEDataInputStream;
+import com.tencent.mm.androlib.AndrolibException;
+import com.tencent.mm.androlib.res.data.ResPackage;
+import com.tencent.mm.androlib.res.data.ResType;
+import com.tencent.mm.util.ExtDataInput;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -10,12 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import com.mindprod.ledatastream.LEDataInputStream;
-import com.tencent.mm.androlib.AndrolibException;
-import com.tencent.mm.androlib.res.data.ResPackage;
-import com.tencent.mm.androlib.res.data.ResType;
-import com.tencent.mm.util.ExtDataInput;
-
 
 /**
  * 其实应该是原来有，并且在白名单里面的才去掉！现在没有判断是否在白名单中
@@ -24,6 +23,28 @@ import com.tencent.mm.util.ExtDataInput;
  */
 public class RawARSCDecoder {
 
+
+    private final static short ENTRY_FLAG_COMPLEX = 0x0001;
+    private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class
+        .getName());
+    private static final int    KNOWN_CONFIG_BYTES = 38;
+    private static HashMap<Integer, Set<String>> mExistTypeNames;
+    private ExtDataInput mIn;
+    private Header      mHeader;
+    private StringBlock mTypeNames;
+    private StringBlock mSpecNames;
+    private ResPackage mPkg;
+    private ResType    mType;
+    private int mCurTypeID = -1;
+    private ResPackage[] mPkgs;
+    private int mResId;
+
+
+    private RawARSCDecoder(InputStream arscStream) throws AndrolibException, IOException {
+
+        mIn = new ExtDataInput(new LEDataInputStream(arscStream));
+        mExistTypeNames = new HashMap<Integer, Set<String>>();
+    }
 
     public static ResPackage[] decode(InputStream arscStream
     )
@@ -40,13 +61,9 @@ public class RawARSCDecoder {
         }
     }
 
-
-    private RawARSCDecoder(InputStream arscStream) throws AndrolibException, IOException {
-
-        mIn = new ExtDataInput(new LEDataInputStream(arscStream));
-        mExistTypeNames = new HashMap<Integer, Set<String>>();
+    public static Set<String> getExistTypeSpecNameStrings(int type) {
+        return mExistTypeNames.get(type);
     }
-
 
     private ResPackage[] readTable() throws IOException, AndrolibException {
         nextChunkCheckType(Header.TYPE_TABLE);
@@ -67,7 +84,6 @@ public class RawARSCDecoder {
         return packages;
     }
 
-
     private ResPackage readPackage() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_PACKAGE);
         int id = (byte) mIn.readInt();
@@ -75,7 +91,7 @@ public class RawARSCDecoder {
         //add log
         /* typeNameStrings */
         mIn.skipInt();
-		/* typeNameCount */
+        /* typeNameCount */
         mIn.skipInt();
 		/* specNameStrings */
         mIn.skipInt();
@@ -101,7 +117,6 @@ public class RawARSCDecoder {
 
         return mPkg;
     }
-
 
     private void readType() throws AndrolibException, IOException {
         checkChunkType(Header.TYPE_TYPE);
@@ -178,7 +193,6 @@ public class RawARSCDecoder {
 
     }
 
-
     private void readComplexEntry(boolean flags, int specNamesId) throws IOException,
         AndrolibException {
         int parent = mIn.readInt();
@@ -192,7 +206,6 @@ public class RawARSCDecoder {
 
     }
 
-
     private void readValue(boolean flags, int specNamesId) throws IOException, AndrolibException {
 		/* size */
         mIn.skipCheckShort((short) 8);
@@ -202,7 +215,6 @@ public class RawARSCDecoder {
         int data = mIn.readInt();
 
     }
-
 
     private void readConfigFlags() throws IOException,
         AndrolibException {
@@ -277,11 +289,9 @@ public class RawARSCDecoder {
 
     }
 
-
     private Header nextChunk() throws IOException {
         return mHeader = Header.read(mIn);
     }
-
 
     private void checkChunkType(int expectedType) throws AndrolibException {
         if (mHeader.type != expectedType) {
@@ -297,29 +307,19 @@ public class RawARSCDecoder {
         checkChunkType(expectedType);
     }
 
-
-    private ExtDataInput mIn;
-
-
-    private Header      mHeader;
-    private StringBlock mTypeNames;
-    private StringBlock mSpecNames;
-
-    private ResPackage mPkg;
-    private ResType    mType;
-
-    private int mCurTypeID = -1;
-
-    private ResPackage[] mPkgs;
-
-    private static HashMap<Integer, Set<String>> mExistTypeNames;
-
-    private int mResId;
-
-    private final static short ENTRY_FLAG_COMPLEX = 0x0001;
-
+    private void putTypeSpecNameStrings(int type, String name) {
+        Set<String> names = mExistTypeNames.get(type);
+        if (names == null) {
+            names = new HashSet<String>();
+        }
+        names.add(name);
+        mExistTypeNames.put(type, names);
+    }
 
     public static class Header {
+        public final static short TYPE_NONE = -1, TYPE_TABLE = 0x0002,
+            TYPE_PACKAGE                    = 0x0200, TYPE_TYPE = 0x0202,
+            TYPE_CONFIG                     = 0x0201;
         public final short type;
         public final int   chunkSize;
 
@@ -339,11 +339,6 @@ public class RawARSCDecoder {
 
             return new Header(type, in.readInt());
         }
-
-
-        public final static short TYPE_NONE = -1, TYPE_TABLE = 0x0002,
-            TYPE_PACKAGE                    = 0x0200, TYPE_TYPE = 0x0202,
-            TYPE_CONFIG                     = 0x0201;
     }
 
     public static class FlagsOffset {
@@ -354,23 +349,6 @@ public class RawARSCDecoder {
             this.offset = offset;
             this.count = count;
         }
-    }
-
-    private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class
-        .getName());
-    private static final int    KNOWN_CONFIG_BYTES = 38;
-
-    private void putTypeSpecNameStrings(int type, String name) {
-        Set<String> names = mExistTypeNames.get(type);
-        if (names == null) {
-            names = new HashSet<String>();
-        }
-        names.add(name);
-        mExistTypeNames.put(type, names);
-    }
-
-    public static Set<String> getExistTypeSpecNameStrings(int type) {
-        return mExistTypeNames.get(type);
     }
 
 

@@ -15,11 +15,18 @@ sourceSets {
     }
 }
 
-archivesBaseName = 'andresguard'
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.tencent.mm.resourceproguard.Main'
+    }
+}
 
+// copy the jar to work directory
 task buildJar(type: Copy, dependsOn: [build, jar]) {
-    from('build/libs') { // 复制jar包
+    from('build/libs') {
         include '*.jar'
     }
-    into ('../example/')
+    into('../tool_output')
 }
+
+defaultTasks 'buildJar'

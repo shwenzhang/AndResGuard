@@ -72,20 +72,6 @@ public final class LEDataInputStream implements DataInput {
     // --------------------------
 
     /**
-     * Note. This is a STATIC method!
-     *
-     * @param in stream to read UTF chars from (endian irrelevant)
-     * @return string from stream
-     * @throws IOException if read fails.
-     */
-    public static String readUTF(DataInput in) throws IOException {
-        return DataInputStream.readUTF(in);
-    }
-
-    // -------------------------- PUBLIC INSTANCE METHODS
-    // --------------------------
-
-    /**
      * constructor.
      *
      * @param in binary inputstream of little-endian data.
@@ -94,6 +80,20 @@ public final class LEDataInputStream implements DataInput {
         this.is = in;
         this.dis = new DataInputStream(in);
         work = new byte[8];
+    }
+
+    // -------------------------- PUBLIC INSTANCE METHODS
+    // --------------------------
+
+    /**
+     * Note. This is a STATIC method!
+     *
+     * @param in stream to read UTF chars from (endian irrelevant)
+     * @return string from stream
+     * @throws IOException if read fails.
+     */
+    public static String readUTF(DataInput in) throws IOException {
+        return DataInputStream.readUTF(in);
     }
 
     /**

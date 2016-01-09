@@ -142,7 +142,7 @@ public class InputParam {
                 storealias,
                 storepass,
                 metaName
-                );
+            );
         }
     }
 }

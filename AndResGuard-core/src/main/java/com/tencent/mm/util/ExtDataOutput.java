@@ -1,4 +1,3 @@
-
 package com.tencent.mm.util;
 
 import java.io.DataOutput;

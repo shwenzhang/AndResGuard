@@ -1,4 +1,3 @@
-
 package com.tencent.mm.androlib.res.data;
 
 import java.util.HashSet;
@@ -22,12 +21,12 @@ public class ResPackage {
         this.mName = name;
     }
 
-    public void setCanProguard(boolean set) {
-        mCanProguard = set;
-    }
-
     public boolean isCanProguard() {
         return mCanProguard;
+    }
+
+    public void setCanProguard(boolean set) {
+        mCanProguard = set;
     }
 
     public boolean hasSpecRepplace(String resID) {

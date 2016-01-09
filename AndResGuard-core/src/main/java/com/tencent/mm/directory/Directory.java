@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 
 public interface Directory {
+    public final char separator = '/';
+
     public Set<String> getFiles();
 
     public Set<String> getFiles(boolean recursive);
@@ -41,7 +43,4 @@ public interface Directory {
     public Directory createDir(String path) throws DirectoryException;
 
     public boolean removeFile(String path);
-
-
-    public final char separator = '/';
 }

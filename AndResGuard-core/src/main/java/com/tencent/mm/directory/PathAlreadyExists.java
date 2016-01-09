@@ -15,6 +15,8 @@
 package com.tencent.mm.directory;
 
 public class PathAlreadyExists extends DirectoryException {
+    private static final long serialVersionUID = 3776428251424428904L;
+
     public PathAlreadyExists() {
     }
 
@@ -29,6 +31,4 @@ public class PathAlreadyExists extends DirectoryException {
     public PathAlreadyExists(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
     }
-
-    private static final long serialVersionUID = 3776428251424428904L;
 }

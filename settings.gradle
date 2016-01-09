@@ -1,1 +1,1 @@
-include ':AndResGuard-core', ':AndResGuard-gradle-plugin'
+include ':AndResGuard-core', ':AndResGuard-gradle-plugin', ':AndResGuard-cli'

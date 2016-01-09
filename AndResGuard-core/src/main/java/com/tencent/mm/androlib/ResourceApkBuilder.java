@@ -1,5 +1,9 @@
-
 package com.tencent.mm.androlib;
+
+import com.tencent.mm.resourceproguard.Configuration;
+import com.tencent.mm.util.FileOperation;
+import com.tencent.mm.util.TypedValue;
+import com.tencent.mm.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,19 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.tencent.mm.resourceproguard.Configuration;
-import com.tencent.mm.util.FileOperation;
-import com.tencent.mm.util.TypedValue;
-import com.tencent.mm.util.Utils;
-
 /**
  * @author shwenzhang
  */
 public class ResourceApkBuilder {
 
     private final Configuration config;
-    private File mOutDir;
-    private File m7zipOutPutDir;
+    private       File          mOutDir;
+    private       File          m7zipOutPutDir;
 
     private File mUnSignedApk;
     private File mSignedApk;
@@ -121,7 +120,7 @@ public class ResourceApkBuilder {
 
             if (!mSignedApk.exists()) {
                 throw new IOException(String.format(
-                    "can not found the signed apk file, is the input sign data correct? path=%s",mSignedApk.getAbsolutePath())
+                    "can not found the signed apk file, is the input sign data correct? path=%s", mSignedApk.getAbsolutePath())
                 );
             }
         }

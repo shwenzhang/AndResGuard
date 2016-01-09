@@ -1,6 +1,16 @@
-
-
 package com.tencent.mm.androlib.res.decoder;
+
+import com.mindprod.ledatastream.LEDataInputStream;
+import com.mindprod.ledatastream.LEDataOutputStream;
+import com.tencent.mm.androlib.AndrolibException;
+import com.tencent.mm.androlib.ApkDecoder;
+import com.tencent.mm.androlib.res.data.ResPackage;
+import com.tencent.mm.androlib.res.data.ResType;
+import com.tencent.mm.resourceproguard.Configuration;
+import com.tencent.mm.util.ExtDataInput;
+import com.tencent.mm.util.ExtDataOutput;
+import com.tencent.mm.util.FileOperation;
+import com.tencent.mm.util.TypedValue;
 
 import java.io.BufferedWriter;
 import java.io.EOFException;
@@ -25,24 +35,57 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import com.mindprod.ledatastream.LEDataInputStream;
-import com.mindprod.ledatastream.LEDataOutputStream;
-import com.tencent.mm.androlib.AndrolibException;
-import com.tencent.mm.androlib.ApkDecoder;
-import com.tencent.mm.androlib.res.data.ResPackage;
-import com.tencent.mm.androlib.res.data.ResType;
-import com.tencent.mm.resourceproguard.Configuration;
-import com.tencent.mm.util.ExtDataInput;
-import com.tencent.mm.util.ExtDataOutput;
-import com.tencent.mm.util.FileOperation;
-import com.tencent.mm.util.TypedValue;
-
 
 /**
  * @author shwenzhang
  */
 public class ARSCDecoder {
 
+
+    private final static short ENTRY_FLAG_COMPLEX = 0x0001;
+    private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
+    private static final int    KNOWN_CONFIG_BYTES = 38;
+    private static Map<Integer, String> mTableStringsProguard  = new LinkedHashMap<Integer, String>();
+    private ExtDataInput  mIn;
+    private ExtDataOutput mOut;
+    private Header      mHeader;
+    private StringBlock mTableStrings;
+    private StringBlock mTypeNames;
+    private StringBlock mSpecNames;
+    private ResPackage  mPkg;
+    private ResType     mType;
+    private ResPackage[] mPkgs;
+    private int[]        mPkgsLenghtChange;
+    private int mTableLenghtChange = 0;
+    private int mResId;
+    private int mCurTypeID    = -1;
+    private int mCurEntryID   = -1;
+    private int mCurPackageID = -1;
+    private ProguardStringBuilder mProguardBuilder;
+    private        boolean              mShouldProguardForType = false;
+    private Writer mMappingWriter;
+    private Map<String, String>  mOldFileName           = new LinkedHashMap<String, String>();
+    private Map<String, Integer> mCurSpecNameToPos      = new LinkedHashMap<String, Integer>();
+    private HashSet<String>      mShouldProguardTypeSet = new HashSet<String>();
+    private ApkDecoder mApkDecoder;
+
+
+    private ARSCDecoder(InputStream arscStream, ApkDecoder decoder) throws AndrolibException, IOException {
+
+        mIn = new ExtDataInput(new LEDataInputStream(arscStream));
+        mApkDecoder = decoder;
+        proguardFileName();
+
+
+    }
+
+    private ARSCDecoder(InputStream arscStream, ApkDecoder decoder, ResPackage[] pkgs) throws FileNotFoundException {
+        mApkDecoder = decoder;
+        mIn = new ExtDataInput(new LEDataInputStream(arscStream));
+        mOut = new ExtDataOutput(new LEDataOutputStream(new FileOutputStream(mApkDecoder.getOutTempARSCFile(), false)));
+        mPkgs = pkgs;
+        mPkgsLenghtChange = new int[pkgs.length];
+    }
 
     public static ResPackage[] decode(InputStream arscStream, ApkDecoder apkDecoder
     )
@@ -67,15 +110,6 @@ public class ARSCDecoder {
         } catch (IOException ex) {
             throw new AndrolibException("Could not decode arsc file", ex);
         }
-    }
-
-    private ARSCDecoder(InputStream arscStream, ApkDecoder decoder) throws AndrolibException, IOException {
-
-        mIn = new ExtDataInput(new LEDataInputStream(arscStream));
-        mApkDecoder = decoder;
-        proguardFileName();
-
-
     }
 
     private void proguardFileName() throws IOException, AndrolibException {
@@ -142,14 +176,6 @@ public class ARSCDecoder {
         destResDir.mkdir();
     }
 
-    private ARSCDecoder(InputStream arscStream, ApkDecoder decoder, ResPackage[] pkgs) throws FileNotFoundException {
-        mApkDecoder = decoder;
-        mIn = new ExtDataInput(new LEDataInputStream(arscStream));
-        mOut = new ExtDataOutput(new LEDataOutputStream(new FileOutputStream(mApkDecoder.getOutTempARSCFile(), false)));
-        mPkgs = pkgs;
-        mPkgsLenghtChange = new int[pkgs.length];
-    }
-
     private ResPackage[] readTable() throws IOException, AndrolibException {
         nextChunkCheckType(Header.TYPE_TABLE);
         int packageCount = mIn.readInt();
@@ -166,7 +192,6 @@ public class ARSCDecoder {
         mMappingWriter.close();
         return packages;
     }
-
 
     private void writeTable() throws IOException, AndrolibException {
         System.out.printf("writing new resources.arsc \n");
@@ -237,7 +262,7 @@ public class ARSCDecoder {
 
 		/* typeNameStrings */
         mIn.skipInt();
-		/* typeNameCount */
+        /* typeNameCount */
         mIn.skipInt();
 		/* specNameStrings */
         mIn.skipInt();
@@ -275,7 +300,6 @@ public class ARSCDecoder {
         }
         return mPkg;
     }
-
 
     private void writePackage() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_PACKAGE);
@@ -408,8 +432,8 @@ public class ARSCDecoder {
 
         readConfigFlags();
         int[] entryOffsets = mIn.readIntArray(entryCount);
-		
-		
+
+
 
 /*		mConfig = flags.isInvalid && !mKeepBroken ? null : mPkg
 				.getOrCreateConfig(flags);*/
@@ -757,11 +781,9 @@ public class ARSCDecoder {
 
     }
 
-
     private Header nextChunk() throws IOException {
         return mHeader = Header.read(mIn);
     }
-
 
     private void checkChunkType(int expectedType) throws AndrolibException {
         if (mHeader.type != expectedType) {
@@ -776,6 +798,8 @@ public class ARSCDecoder {
         nextChunk();
         checkChunkType(expectedType);
     }
+
+//	private Map<Integer, Boolean> mTableStringDone = new LinkedHashMap<Integer, Boolean>();
 
     private Header writeNextChunk(int diffSize) throws IOException, AndrolibException {
         mHeader = Header.readAndWriteHeader(mIn, mOut, diffSize);
@@ -792,27 +816,20 @@ public class ARSCDecoder {
         return mHeader;
     }
 
-    private ExtDataInput  mIn;
-    private ExtDataOutput mOut;
-
-
-    private Header      mHeader;
-    private StringBlock mTableStrings;
-    private StringBlock mTypeNames;
-    private StringBlock mSpecNames;
-    private ResPackage  mPkg;
-    private ResType     mType;
-
-    private ResPackage[] mPkgs;
-    private int[]        mPkgsLenghtChange;
-    private int mTableLenghtChange = 0;
-
-    private int mResId;
-
-    private final static short ENTRY_FLAG_COMPLEX = 0x0001;
-
+    /**
+     * 为了加速，不需要处理string,id,array，这几个是肯定不是的
+     *
+     * @param name
+     * @return
+     */
+    private boolean isToProguardFile(String name) {
+        return (!name.equals("string") && !name.equals("id") && !name.equals("array"));
+    }
 
     public static class Header {
+        public final static short TYPE_NONE = -1, TYPE_TABLE = 0x0002,
+            TYPE_PACKAGE                    = 0x0200, TYPE_TYPE = 0x0202,
+            TYPE_CONFIG                     = 0x0201;
         public final short type;
         public final int   chunkSize;
 
@@ -854,10 +871,6 @@ public class ARSCDecoder {
             }
             return new Header(type, size);
         }
-
-        public final static short TYPE_NONE = -1, TYPE_TABLE = 0x0002,
-            TYPE_PACKAGE                    = 0x0200, TYPE_TYPE = 0x0202,
-            TYPE_CONFIG                     = 0x0201;
     }
 
     public static class FlagsOffset {
@@ -870,26 +883,6 @@ public class ARSCDecoder {
         }
     }
 
-    private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
-    private static final int    KNOWN_CONFIG_BYTES = 38;
-
-    private int mCurTypeID    = -1;
-    private int mCurEntryID   = -1;
-    private int mCurPackageID = -1;
-
-    private ProguardStringBuilder mProguardBuilder;
-    private static Map<Integer, String> mTableStringsProguard  = new LinkedHashMap<Integer, String>();
-    private        boolean              mShouldProguardForType = false;
-    private Writer mMappingWriter;
-
-//	private Map<Integer, Boolean> mTableStringDone = new LinkedHashMap<Integer, Boolean>();
-
-    private Map<String, String>  mOldFileName           = new LinkedHashMap<String, String>();
-    private Map<String, Integer> mCurSpecNameToPos      = new LinkedHashMap<String, Integer>();
-    private HashSet<String>      mShouldProguardTypeSet = new HashSet<String>();
-
-    private ApkDecoder mApkDecoder;
-
     private class ProguardStringBuilder {
         private int          mReplaceCount        = 0;
         private List<String> mReplaceStringBuffer = new ArrayList<String>();
@@ -897,6 +890,13 @@ public class ARSCDecoder {
         private boolean[] mIsWhiteList;
         private String[] mAToZ   = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
         private String[] mAToAll = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
+        /**
+         * 在window上面有些关键字是不能作为文件名的
+         * CON, PRN, AUX, CLOCK$, NUL
+         * COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9
+         * LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, and LPT9.
+         */
+        private HashSet<String> mFileNameBlackList;
 
         public ProguardStringBuilder() {
             // TODO Auto-generated constructor stub
@@ -907,15 +907,6 @@ public class ARSCDecoder {
             mFileNameBlackList.add("nul");
 
         }
-
-        /**
-         * 在window上面有些关键字是不能作为文件名的
-         * CON, PRN, AUX, CLOCK$, NUL
-         * COM1, COM2, COM3, COM4, COM5, COM6, COM7, COM8, COM9
-         * LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, and LPT9.
-         */
-        private HashSet<String> mFileNameBlackList;
-
 
         public void reset() {
             mReplaceStringBuffer.clear();
@@ -991,16 +982,5 @@ public class ARSCDecoder {
         public int lenght() {
             return mReplaceStringBuffer.size();
         }
-    }
-
-
-    /**
-     * 为了加速，不需要处理string,id,array，这几个是肯定不是的
-     *
-     * @param name
-     * @return
-     */
-    private boolean isToProguardFile(String name) {
-        return (!name.equals("string") && !name.equals("id") && !name.equals("array"));
     }
 }

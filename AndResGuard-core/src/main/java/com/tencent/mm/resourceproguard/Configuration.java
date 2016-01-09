@@ -1,4 +1,3 @@
-
 package com.tencent.mm.resourceproguard;
 
 import com.tencent.mm.util.Utils;
@@ -47,13 +46,16 @@ public class Configuration {
     protected static final String ATTR_SIGNFILE_KEYPASS   = "keypass";
     protected static final String ATTR_SIGNFILE_STOREPASS = "storepass";
     protected static final String ATTR_SIGNFILE_ALIAS     = "alias";
-
+    public final HashMap<String, HashMap<String, HashSet<Pattern>>>        mWhiteList        = new HashMap<>();
+    public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping    = new HashMap<>();
+    public final HashMap<String, String>                                   mOldFileMapping   = new HashMap<>();
+    public final HashSet<Pattern>                                          mCompressPatterns = new HashSet<>();
+    private final Pattern MAP_PATTERN = Pattern.compile("\\s+(.*)->(.*)");
     public boolean mUse7zip        = true;
     public boolean mKeepRoot       = false;
     public String  mMetaName       = "META-INF";
     public boolean mUseSignAPk     = false;
     public boolean mUseKeepMapping = false;
-
     public File    mSignatureFile;
     public File    mOldMappingFile;
     public boolean mUseWhiteList;
@@ -61,19 +63,12 @@ public class Configuration {
     public String  mKeyPass;
     public String  mStorePass;
     public String  mStoreAlias;
-
-    public final HashMap<String, HashMap<String, HashSet<Pattern>>>        mWhiteList        = new HashMap<>();
-    public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping    = new HashMap<>();
-    public final HashMap<String, String>                                   mOldFileMapping   = new HashMap<>();
-    public final HashSet<Pattern>                                          mCompressPatterns = new HashSet<>();
-
-    private final Pattern MAP_PATTERN = Pattern.compile("\\s+(.*)->(.*)");
-
     public String m7zipPath;
     public String mZipalignPath;
 
     /**
      * use by command line with xml config
+     *
      * @param config
      */
     public Configuration(File config) throws IOException, ParserConfigurationException, SAXException {
@@ -82,6 +77,7 @@ public class Configuration {
 
     /**
      * use by command line with xml config
+     *
      * @param config
      */
     public Configuration(File config, String sevenzipPath, String zipAlignPath) throws IOException, ParserConfigurationException, SAXException {
@@ -142,8 +138,8 @@ public class Configuration {
         }
     }
 
-     void readXmlConfig(File xmlConfigFile)
-         throws IOException, ParserConfigurationException, SAXException {
+    void readXmlConfig(File xmlConfigFile)
+        throws IOException, ParserConfigurationException, SAXException {
         if (!xmlConfigFile.exists()) {
             return;
         }
@@ -393,7 +389,7 @@ public class Configuration {
         mOldMappingFile = new File(filePath);
         if (!mOldMappingFile.exists()) {
             throw new IOException(
-                String.format("the old mapping file do not exit, raw path= %s\n",  mOldMappingFile.getAbsolutePath())
+                String.format("the old mapping file do not exit, raw path= %s\n", mOldMappingFile.getAbsolutePath())
             );
         }
         processOldMappingFile();
@@ -437,7 +433,7 @@ public class Configuration {
                                 throw new IOException(
                                     String.format(
                                         "the old mapping file packagename is malformed, " +
-                                            "it should be like com.tencent.mm.R.attr.test, yours %s\n",nameBefore)
+                                            "it should be like com.tencent.mm.R.attr.test, yours %s\n", nameBefore)
                                 );
 
                             }

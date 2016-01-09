@@ -8,24 +8,22 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ResourceRepackage {
 
+    private final String zipalignPath;
+    private final String sevenZipPath;
     private File mSignedApk;
     private File mSignedWith7ZipApk;
     private File mAlignedWith7ZipApk;
     private File m7zipOutPutDir;
     private File mStoredOutPutDir;
+    private       String mApkName;
+    private       File   mOutDir;
 
-    private String mApkName;
-    private File   mOutDir;
-    private final String zipalignPath;
-    private final String sevenZipPath;
-
-    public ResourceRepackage(String zipalignPath, String zipPath ,File signedFile) {
+    public ResourceRepackage(String zipalignPath, String zipPath, File signedFile) {
         this.zipalignPath = zipalignPath;
         this.sevenZipPath = zipPath;
         mSignedApk = signedFile;
@@ -152,8 +150,10 @@ public class ResourceRepackage {
         String cmd = Utils.isPresent(sevenZipPath) ? sevenZipPath : TypedValue.COMMAND_7ZIP;
         cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + storedParentName + " -mx0";
         Process pro = Runtime.getRuntime().exec(cmd);
-        InputStreamReader ir = new InputStreamReader(pro.getInputStream());;
-        LineNumberReader input = new LineNumberReader(ir);;
+        InputStreamReader ir = new InputStreamReader(pro.getInputStream());
+        ;
+        LineNumberReader input = new LineNumberReader(ir);
+        ;
         //如果不读会有问题，被阻塞
         while (input.readLine() != null) {
             ;

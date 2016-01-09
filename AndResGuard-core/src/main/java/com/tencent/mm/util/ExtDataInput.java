@@ -22,7 +22,6 @@ import java.io.InputStream;
 
 /**
  * @author shwenzhang
- *
  */
 public class ExtDataInput extends DataInputDelegate {
     public ExtDataInput(InputStream in) {
