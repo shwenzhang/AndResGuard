@@ -119,12 +119,12 @@ public class ResourceApkBuilder {
             pro.destroy();
 
             if (!mSignedApk.exists()) {
-                throw new IOException(String.format(
-                    "can not found the signed apk file, is the input sign data correct? path=%s", mSignedApk.getAbsolutePath())
+                throw new IOException(
+                    String.format("can not found the signed apk file, is the input sign data correct? path=%s",
+                        mSignedApk.getAbsolutePath())
                 );
             }
         }
-
     }
 
     private void alignApk() throws IOException, InterruptedException {
@@ -175,7 +175,6 @@ public class ResourceApkBuilder {
             System.exit(-1);
         }
 
-
         File[] unzipFiles = tempOutDir.listFiles();
         List<File> collectFiles = new ArrayList<>();
         for (File f : unzipFiles) {
@@ -195,8 +194,9 @@ public class ResourceApkBuilder {
         //!!!文件数量应该是一样的，如果不一样肯定有问题
         File rawResDir = new File(tempOutDir.getAbsolutePath() + File.separator + "res");
         if (FileOperation.getlist(destResDir) != FileOperation.getlist(rawResDir)) {
+            System.err.printf("DestResDir %d \nrawResDir %d", FileOperation.getlist(destResDir), FileOperation.getlist(rawResDir));
             throw new IOException(String.format(
-                "the file count of %s, and the file count of %s is not equal, there must be some problem, please contact shwenzhang for detail\n",
+                "the file count of %s, and the file count of %s is not equal, there must be some problem\n",
                 rawResDir.getAbsolutePath(), destResDir.getAbsolutePath()));
         }
         if (!destResDir.exists()) {
