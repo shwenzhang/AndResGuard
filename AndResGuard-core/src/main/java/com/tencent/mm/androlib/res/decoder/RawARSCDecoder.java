@@ -15,33 +15,30 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-
 /**
  * 其实应该是原来有，并且在白名单里面的才去掉！现在没有判断是否在白名单中
  *
  * @author shwenzhang
  */
 public class RawARSCDecoder {
-
-
-    private final static short ENTRY_FLAG_COMPLEX = 0x0001;
-    private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class
-        .getName());
+    private final static short  ENTRY_FLAG_COMPLEX = 0x0001;
+    private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
     private static final int    KNOWN_CONFIG_BYTES = 38;
+
     private static HashMap<Integer, Set<String>> mExistTypeNames;
+
     private ExtDataInput mIn;
-    private Header      mHeader;
-    private StringBlock mTypeNames;
-    private StringBlock mSpecNames;
-    private ResPackage mPkg;
-    private ResType    mType;
+    private Header       mHeader;
+    private StringBlock  mTypeNames;
+    private StringBlock  mSpecNames;
+    private ResPackage   mPkg;
+    private ResType      mType;
     private int mCurTypeID = -1;
     private ResPackage[] mPkgs;
-    private int mResId;
+    private int          mResId;
 
 
     private RawARSCDecoder(InputStream arscStream) throws AndrolibException, IOException {
-
         mIn = new ExtDataInput(new LEDataInputStream(arscStream));
         mExistTypeNames = new HashMap<Integer, Set<String>>();
     }
@@ -68,19 +65,12 @@ public class RawARSCDecoder {
     private ResPackage[] readTable() throws IOException, AndrolibException {
         nextChunkCheckType(Header.TYPE_TABLE);
         int packageCount = mIn.readInt();
-        //add log
-//		System.out.printf("packageCount %d\n",packageCount);
         StringBlock.read(mIn);
-
-
         ResPackage[] packages = new ResPackage[packageCount];
-
         nextChunk();
         for (int i = 0; i < packageCount; i++) {
             packages[i] = readPackage();
         }
-
-
         return packages;
     }
 
@@ -93,23 +83,14 @@ public class RawARSCDecoder {
         mIn.skipInt();
         /* typeNameCount */
         mIn.skipInt();
-		/* specNameStrings */
+        /* specNameStrings */
         mIn.skipInt();
-		/* specNameCount */
+        /* specNameCount */
         mIn.skipInt();
-
-
         mTypeNames = StringBlock.read(mIn);
-
-
         mSpecNames = StringBlock.read(mIn);
-
-
         mResId = id << 24;
-
         mPkg = new ResPackage(id, name);
-
-
         nextChunk();
         while (mHeader.type == Header.TYPE_TYPE) {
             readType();
@@ -123,49 +104,30 @@ public class RawARSCDecoder {
         byte id = mIn.readByte();
         mIn.skipBytes(3);
         int entryCount = mIn.readInt();
-
         mCurTypeID = id;
-
-
         //对，这里是用来描述差异性的！！！
-		/* flags */
         mIn.skipBytes(entryCount * 4);
-//		int[] entryOffsets = mIn.readIntArray(entryCount);
-
-//		System.out.printf("readType id %d\n",id);
         mResId = (0xff000000 & mResId) | id << 16;
-//		System.out.printf("readType mResId %d, id %d, %s \n",mResId,id, mTypeNames.getString(id - 1));
-
         mType = new ResType(mTypeNames.getString(id - 1), mPkg);
-//		System.out.printf("typename %s\n",mType.getName());
-
         while (nextChunk().type == Header.TYPE_CONFIG) {
             readConfig();
         }
-
-
     }
 
     private void readConfig() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_CONFIG);
-		/* typeId */
         mIn.skipInt();
         int entryCount = mIn.readInt();
         int entriesStart = mIn.readInt();
-
-
         readConfigFlags();
         int[] entryOffsets = mIn.readIntArray(entryCount);
-
         for (int i = 0; i < entryOffsets.length; i++) {
-//			System.out.printf("readXmlConfig entryOffsets %d\n",entryOffsets[i]);
             if (entryOffsets[i] != -1) {
                 mResId = (mResId & 0xffff0000) | i;
 
                 readEntry();
             }
         }
-
     }
 
     /**
@@ -175,12 +137,10 @@ public class RawARSCDecoder {
      * @throws AndrolibException
      */
     private void readEntry() throws IOException, AndrolibException {
-		/* size */
+        /* size */
         mIn.skipBytes(2);
         short flags = mIn.readShort();
         int specNamesId = mIn.readInt();
-//		System.out.printf("rea readEntry specNamesId  %d: %s\n",specNamesId, mSpecNames.get(specNamesId));
-
         putTypeSpecNameStrings(mCurTypeID, mSpecNames.getString(specNamesId));
         boolean readDirect = false;
         if ((flags & ENTRY_FLAG_COMPLEX) == 0) {
@@ -190,30 +150,25 @@ public class RawARSCDecoder {
             readDirect = false;
             readComplexEntry(readDirect, specNamesId);
         }
-
     }
 
     private void readComplexEntry(boolean flags, int specNamesId) throws IOException,
         AndrolibException {
         int parent = mIn.readInt();
         int count = mIn.readInt();
-//		System.out.printf("readComplexEntry count  %d\n",count);
         for (int i = 0; i < count; i++) {
             mIn.readInt();
             readValue(flags, specNamesId);
         }
-
-
     }
 
     private void readValue(boolean flags, int specNamesId) throws IOException, AndrolibException {
-		/* size */
+        /* size */
         mIn.skipCheckShort((short) 8);
-		/* zero */
+        /* zero */
         mIn.skipCheckByte((byte) 0);
         byte type = mIn.readByte();
         int data = mIn.readInt();
-
     }
 
     private void readConfigFlags() throws IOException,
@@ -224,29 +179,24 @@ public class RawARSCDecoder {
         }
 
         boolean isInvalid = false;
-
         short mcc = mIn.readShort();
         short mnc = mIn.readShort();
-
         char[] language = new char[]{(char) mIn.readByte(), (char) mIn.readByte()};
         char[] country = new char[]{(char) mIn.readByte(), (char) mIn.readByte()};
-
         byte orientation = mIn.readByte();
         byte touchscreen = mIn.readByte();
-
         int density = mIn.readUnsignedShort();
-
         byte keyboard = mIn.readByte();
         byte navigation = mIn.readByte();
         byte inputFlags = mIn.readByte();
-		/* inputPad0 */
+        /* inputPad0 */
         mIn.skipBytes(1);
 
         short screenWidth = mIn.readShort();
         short screenHeight = mIn.readShort();
 
         short sdkVersion = mIn.readShort();
-		/* minorVersion, now must always be 0 */
+        /* minorVersion, now must always be 0 */
         mIn.skipBytes(2);
 
         byte screenLayout = 0;
@@ -286,7 +236,6 @@ public class RawARSCDecoder {
                 isInvalid = true;
             }
         }
-
     }
 
     private Header nextChunk() throws IOException {
@@ -350,6 +299,4 @@ public class RawARSCDecoder {
             this.count = count;
         }
     }
-
-
 }

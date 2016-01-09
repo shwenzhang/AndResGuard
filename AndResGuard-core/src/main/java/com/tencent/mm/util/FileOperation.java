@@ -49,7 +49,7 @@ public class FileOperation {
         if (!f.isDirectory()) {
             return 1;
         }
-        long size = 0;
+        long size;
         File flist[] = f.listFiles();
         size = flist.length;
         for (int i = 0; i < flist.length; i++) {
@@ -68,16 +68,14 @@ public class FileOperation {
             try {
                 fis = new FileInputStream(f);
                 size = fis.available();
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 try {
-                    fis.close();
+                    if (fis != null) {
+                        fis.close();
+                    }
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -118,8 +116,12 @@ public class FileOperation {
                 os.write(buffer, 0, length);
             }
         } finally {
-            is.close();
-            os.close();
+            if (is != null) {
+                is.close();
+            }
+            if (os != null) {
+                os.close();
+            }
         }
     }
 
@@ -151,11 +153,11 @@ public class FileOperation {
         checkDirectory(filePath);
         ZipFile zipFile = new ZipFile(fileName);
         Enumeration emu = zipFile.entries();
-        HashMap<String, Integer> compress = new HashMap<String, Integer>();
+        HashMap<String, Integer> compress = new HashMap<>();
         while (emu.hasMoreElements()) {
             ZipEntry entry = (ZipEntry) emu.nextElement();
             if (entry.isDirectory()) {
-                new File(filePath + File.separator + entry.getName()).mkdirs();
+                new File(filePath, entry.getName()).mkdirs();
                 continue;
             }
             BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(entry));
@@ -167,14 +169,11 @@ public class FileOperation {
                 parent.mkdirs();
             }
             //要用linux的斜杠
-            String compatibaleresult = new String(entry.getName());
+            String compatibaleresult = entry.getName();
             if (compatibaleresult.contains("\\")) {
-//         		 System.out.printf("name %s, compress  %d\n",entry.getName(), entry.getMethod());
                 compatibaleresult = compatibaleresult.replace("\\", "/");
             }
             compress.put(compatibaleresult, entry.getMethod());
-//     		 System.out.printf("name %s, compress  %d\n",entry.getName(), entry.getMethod());
-
             FileOutputStream fos = new FileOutputStream(file);
             BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER);
 
@@ -216,23 +215,15 @@ public class FileOperation {
                 zipFile(file, zipout, rootpath, compressData);
             }
         } else {
-//			byte buffer[] = new byte[BUFFER];
             final byte[] fileContents = readContents(resFile);
             //这里需要强转成linux格式，果然坑！！
             if (rootpath.contains("\\")) {
                 rootpath = rootpath.replace("\\", "/");
             }
-//			BufferedInputStream in = new BufferedInputStream(new FileInputStream(resFile), BUFFER);
             if (!compressData.containsKey(rootpath)) {
-                throw new IOException(String.format(
-                    "do not have the compress data path=%s",
-                    rootpath));
-
+                throw new IOException(String.format("do not have the compress data path=%s", rootpath));
             }
-
             int compressMethod = compressData.get(rootpath);
-
-
             ZipEntry entry = new ZipEntry(rootpath);
 
             if (compressMethod == ZipEntry.DEFLATED) {
@@ -244,16 +235,8 @@ public class FileOperation {
                 checksumCalculator.update(fileContents);
                 entry.setCrc(checksumCalculator.getValue());
             }
-
-//    		System.out.printf("name %s, compress  %d\n",entry.getName(), entry.getMethod());
-
             zipout.putNextEntry(entry);
             zipout.write(fileContents);
-//			int realLength;
-//			while ((realLength = in.read(buffer)) != -1) {
-//				zipout.write(buffer, 0, realLength);
-//			}
-//			in.close();
             zipout.flush();
             zipout.closeEntry();
         }
@@ -265,9 +248,9 @@ public class FileOperation {
         try {
             final FileInputStream in = new FileInputStream(file);
             final BufferedInputStream bIn = new BufferedInputStream(in);
-            int length = 0;
+            int length;
             byte[] buffer = new byte[bufferSize];
-            byte[] bufferCopy = new byte[bufferSize];
+            byte[] bufferCopy;
             while ((length = bIn.read(buffer, 0, bufferSize)) != -1) {
                 bufferCopy = new byte[length];
                 System.arraycopy(buffer, 0, bufferCopy, 0, length);
@@ -277,7 +260,6 @@ public class FileOperation {
         } finally {
             output.close();
         }
-
         return output.toByteArray();
     }
 }

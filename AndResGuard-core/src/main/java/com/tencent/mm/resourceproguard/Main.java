@@ -40,6 +40,11 @@ public class Main {
         System.out.println("resourceprpguard begin");
         resourceProguard(new File(inputParam.outFolder), inputParam.apkPath);
         System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+        clean();
+    }
+
+    private void clean() {
+        config = null;
     }
 
     private void loadConfigFromGradle(InputParam inputParam) {
@@ -66,7 +71,6 @@ public class Main {
             goToError();
         }
     }
-
 
     private void decodeResource(File outputFile, ApkDecoder decoder, File apkFile) throws AndrolibException, IOException, DirectoryException {
         decoder.setApkFile(apkFile);

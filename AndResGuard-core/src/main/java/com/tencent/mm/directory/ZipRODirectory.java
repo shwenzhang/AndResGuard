@@ -99,8 +99,8 @@ public class ZipRODirectory extends AbstractDirectory {
     }
 
     private void loadAll() {
-        mFiles = new LinkedHashSet<String>();
-        mDirs = new LinkedHashMap<String, AbstractDirectory>();
+        mFiles = new LinkedHashSet<>();
+        mDirs = new LinkedHashMap<>();
 
         int prefixLen = getPath().length();
         Enumeration<? extends ZipEntry> entries = getZipFile().entries();
@@ -113,7 +113,6 @@ public class ZipRODirectory extends AbstractDirectory {
             }
 
             String subname = name.substring(prefixLen);
-
             int pos = subname.indexOf(separator);
             if (pos == -1) {
                 if (!entry.isDirectory()) {

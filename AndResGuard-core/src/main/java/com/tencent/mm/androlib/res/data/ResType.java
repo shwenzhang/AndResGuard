@@ -26,12 +26,12 @@ public final class ResType {
     private final String mName;
 
     private final ResPackage      mPackage;
-    private       HashSet<String> specNames;
+    private final HashSet<String> specNames;
 
     public ResType(String name, ResPackage package_) {
         this.mName = name;
         this.mPackage = package_;
-        specNames = new HashSet<String>();
+        specNames = new HashSet<>();
     }
 
     public String getName() {

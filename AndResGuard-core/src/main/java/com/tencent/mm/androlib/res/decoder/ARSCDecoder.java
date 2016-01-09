@@ -43,44 +43,52 @@ import java.util.regex.Pattern;
 public class ARSCDecoder {
 
 
-    private final static short ENTRY_FLAG_COMPLEX = 0x0001;
+    private final static short  ENTRY_FLAG_COMPLEX = 0x0001;
     private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
     private static final int    KNOWN_CONFIG_BYTES = 38;
-    private static Map<Integer, String> mTableStringsProguard  = new LinkedHashMap<Integer, String>();
+
+    private static Map<Integer, String> mTableStringsProguard;
+
     private ExtDataInput  mIn;
     private ExtDataOutput mOut;
-    private Header      mHeader;
-    private StringBlock mTableStrings;
-    private StringBlock mTypeNames;
-    private StringBlock mSpecNames;
-    private ResPackage  mPkg;
-    private ResType     mType;
-    private ResPackage[] mPkgs;
-    private int[]        mPkgsLenghtChange;
+    private Header        mHeader;
+    private StringBlock   mTableStrings;
+    private StringBlock   mTypeNames;
+    private StringBlock   mSpecNames;
+    private ResPackage    mPkg;
+    private ResType       mType;
+    private ResPackage[]  mPkgs;
+    private int[]         mPkgsLenghtChange;
     private int mTableLenghtChange = 0;
     private int mResId;
     private int mCurTypeID    = -1;
     private int mCurEntryID   = -1;
     private int mCurPackageID = -1;
+
     private ProguardStringBuilder mProguardBuilder;
-    private        boolean              mShouldProguardForType = false;
-    private Writer mMappingWriter;
-    private Map<String, String>  mOldFileName           = new LinkedHashMap<String, String>();
-    private Map<String, Integer> mCurSpecNameToPos      = new LinkedHashMap<String, Integer>();
-    private HashSet<String>      mShouldProguardTypeSet = new HashSet<String>();
-    private ApkDecoder mApkDecoder;
+    private boolean mShouldProguardForType = false;
+    private       Writer               mMappingWriter;
+    private final Map<String, String>  mOldFileName;
+    private final Map<String, Integer> mCurSpecNameToPos;
+    private final HashSet<String>      mShouldProguardTypeSet;
+    private final ApkDecoder           mApkDecoder;
 
 
     private ARSCDecoder(InputStream arscStream, ApkDecoder decoder) throws AndrolibException, IOException {
-
+        mTableStringsProguard = new LinkedHashMap<>();
+        mOldFileName = new LinkedHashMap<>();
+        mCurSpecNameToPos = new LinkedHashMap<>();
+        mShouldProguardTypeSet = new HashSet<>();
         mIn = new ExtDataInput(new LEDataInputStream(arscStream));
         mApkDecoder = decoder;
         proguardFileName();
-
-
     }
 
     private ARSCDecoder(InputStream arscStream, ApkDecoder decoder, ResPackage[] pkgs) throws FileNotFoundException {
+        mTableStringsProguard = new LinkedHashMap<>();
+        mOldFileName = new LinkedHashMap<>();
+        mCurSpecNameToPos = new LinkedHashMap<>();
+        mShouldProguardTypeSet = new HashSet<>();
         mApkDecoder = decoder;
         mIn = new ExtDataInput(new LEDataInputStream(arscStream));
         mOut = new ExtDataOutput(new LEDataOutputStream(new FileOutputStream(mApkDecoder.getOutTempARSCFile(), false)));
