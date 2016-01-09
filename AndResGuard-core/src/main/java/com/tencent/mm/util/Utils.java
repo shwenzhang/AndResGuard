@@ -1,5 +1,6 @@
 package com.tencent.mm.util;
 
+import java.io.File;
 import java.util.Iterator;
 
 /**
@@ -35,5 +36,12 @@ public class Utils {
             input = input.replace("*", ".+");
         }
         return input;
+    }
+
+    public static void cleanDir(File dir) {
+        if (dir.exists()) {
+            FileOperation.deleteDir(dir);
+            dir.mkdirs();
+        }
     }
 }
