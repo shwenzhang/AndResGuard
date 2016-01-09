@@ -8,7 +8,7 @@
 
 public class AndResGuardExtension {
 
-    String mappingPath;
+    String mappingFile;
     boolean use7zip;
     String metaName;
     boolean keepRoot;
@@ -21,13 +21,12 @@ public class AndResGuardExtension {
         keepRoot = false
         whiteList = []
         compressFilePattern = []
-        mappingPath = ""
+        mappingFile = null
     }
 
     @Override
     public String toString() {
-        """| mappingPath = ${mappingPath}
-           | use7zip = ${use7zip}
+        """| use7zip = ${use7zip}
            | metaName = ${metaName}
            | keepRoot = ${keepRoot}
            | whiteList = ${whiteList}

@@ -1,5 +1,6 @@
 package com.tencent.gradle
 
+import com.tencent.mm.resourceproguard.InputParam
 import com.tencent.mm.resourceproguard.Main
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -41,13 +42,20 @@ public class AndResGuardSchemaTask extends DefaultTask {
 
     @TaskAction
     def generate() {
-        println "Using this configuration:\n $configuration"
-        String signPath = android.signingConfigs.release.storeFile
-        String mappingPath = configuration.mappingPath
-        String keyPass = android.signingConfigs.release.keyPassword
-        String storealias = android.signingConfigs.release.keyAlias
-        String storePass = android.signingConfigs.release.storePassword
-
-        Main.gradleRun(configPath, signPath, mappingPath, keyPass, storealias, storePass, releaseFolder, releaseApkPath)
+        InputParam inputParam = new InputParam.Builder()
+                .setSignFile(android.signingConfigs.release.storeFile)
+                .setKeypass(android.signingConfigs.release.keyPassword)
+                .setStorealias(android.signingConfigs.release.keyAlias)
+                .setStorepass(android.signingConfigs.release.storePassword)
+                .setMappingFile(configuration.mappingFile)
+                .setWhiteList(configuration.whiteList)
+                .setUse7zip(configuration.use7zip)
+                .setMetaName(configuration.metaName)
+                .setKeepRoot(configuration.keepRoot)
+                .setCompressFilePattern(configuration.compressFilePattern)
+                .setOutBuilder(releaseFolder)
+                .setApkPath(releaseApkPath)
+                .create();
+        Main.gradleRun(inputParam)
     }
 }

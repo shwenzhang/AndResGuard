@@ -48,10 +48,6 @@ public class Configuration {
     protected static final String ATTR_SIGNFILE_STOREPASS = "storepass";
     protected static final String ATTR_SIGNFILE_ALIAS     = "alias";
 
-    /** different source config structure **/
-    private File       xmlConfigFile;
-    private InputParam gradleInputParam;
-
     public boolean mUse7zip        = true;
     public boolean mKeepRoot       = false;
     public String  mMetaName       = "META-INF";
@@ -66,11 +62,11 @@ public class Configuration {
     public String  mStorePass;
     public String  mStoreAlias;
 
-    public HashMap<String, HashMap<String, HashSet<Pattern>>>        mWhiteList;
-    public HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping;
-    public HashMap<String, String>                                   mOldFileMapping;
+    public final HashMap<String, HashMap<String, HashSet<Pattern>>>        mWhiteList        = new HashMap<>();
+    public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping    = new HashMap<>();
+    public final HashMap<String, String>                                   mOldFileMapping   = new HashMap<>();
+    public final HashSet<Pattern>                                          mCompressPatterns = new HashSet<>();
 
-    public HashSet<Pattern> mCompressPatterns;
     private final Pattern MAP_PATTERN = Pattern.compile("\\s+(.*)->(.*)");
 
     public String m7zipPath;
@@ -88,18 +84,34 @@ public class Configuration {
      * use by command line with xml config
      * @param config
      */
-    public Configuration(File config, String sevenipPath, String zipAlignPath) throws IOException, ParserConfigurationException, SAXException {
+    public Configuration(File config, String sevenzipPath, String zipAlignPath) throws IOException, ParserConfigurationException, SAXException {
         readXmlConfig(config);
-        this.m7zipPath = sevenipPath;
+        this.m7zipPath = sevenzipPath;
         this.mZipalignPath = zipAlignPath;
     }
 
     /**
      * use by gradle
-     * @param gradleInputParam
      */
-    public Configuration(InputParam gradleInputParam) {
-
+    public Configuration(InputParam param, String sevenzipPath, String zipAlignPath) throws IOException {
+        setSignData(param.signFile, param.keypass, param.storealias, param.storepass);
+        if (param.mappingFile != null) {
+            mUseKeepMapping = true;
+            setKeepMappingData(param.mappingFile);
+        }
+        for (String item : param.whiteList) {
+            mUseWhiteList = true;
+            addWhiteList(item);
+        }
+        mUse7zip = param.use7zip;
+        mKeepRoot = param.keepRoot;
+        mMetaName = param.metaName;
+        for (String item : param.compressFilePattern) {
+            mUseCompress = true;
+            addToCompressPatterns(item);
+        }
+        this.m7zipPath = sevenzipPath;
+        this.mZipalignPath = zipAlignPath;
     }
 
     public void setSignData(File signatureFile, String keypass, String storealias, String storepass) throws IOException {
@@ -118,7 +130,6 @@ public class Configuration {
     }
 
     public void setKeepMappingData(File mappingFile) throws IOException {
-        mUseKeepMapping = true;
         if (mUseKeepMapping) {
             mOldMappingFile = mappingFile;
 
@@ -199,55 +210,58 @@ public class Configuration {
 
     private void readWhiteListFromXml(Node node) throws IOException {
         NodeList childNodes = node.getChildNodes();
-        mWhiteList = new HashMap<>();
         if (childNodes.getLength() > 0) {
             for (int j = 0, n = childNodes.getLength(); j < n; j++) {
                 Node child = childNodes.item(j);
                 if (child.getNodeType() == Node.ELEMENT_NODE) {
                     Element check = (Element) child;
                     String vaule = check.getAttribute(ATTR_VALUE);
-                    if (vaule.length() == 0) {
-                        throw new IOException("Invalid config file: Missing required attribute " + ATTR_VALUE);
-                    }
-
-                    int packagePos = vaule.indexOf(".R.");
-                    if (packagePos == -1) {
-
-                        throw new IOException(
-                            String.format(
-                                "please write the full package name,eg com.tencent.mm.R.drawable.dfdf, but yours %s\n",
-                                vaule));
-                    }
-                    //先去掉空格
-                    vaule = vaule.trim();
-                    String packageName = vaule.substring(0, packagePos);
-                    //不能通过lastDot
-                    int nextDot = vaule.indexOf(".", packagePos + 3);
-                    String typeName = vaule.substring(packagePos + 3, nextDot);
-                    String name = vaule.substring(nextDot + 1);
-                    HashMap<String, HashSet<Pattern>> typeMap;
-
-                    if (mWhiteList.containsKey(packageName)) {
-                        typeMap = mWhiteList.get(packageName);
-                    } else {
-                        typeMap = new HashMap<>();
-                    }
-
-                    HashSet<Pattern> patterns;
-                    if (typeMap.containsKey(typeName)) {
-                        patterns = typeMap.get(typeName);
-                    } else {
-                        patterns = new HashSet<>();
-                    }
-
-                    name = Utils.convetToPatternString(name);
-                    Pattern pattern = Pattern.compile(name);
-                    patterns.add(pattern);
-                    typeMap.put(typeName, patterns);
-                    mWhiteList.put(packageName, typeMap);
+                    addWhiteList(vaule);
                 }
             }
         }
+    }
+
+    private void addWhiteList(String item) throws IOException {
+        if (item.length() == 0) {
+            throw new IOException("Invalid config file: Missing required attribute " + ATTR_VALUE);
+        }
+
+        int packagePos = item.indexOf(".R.");
+        if (packagePos == -1) {
+
+            throw new IOException(
+                String.format(
+                    "please write the full package name,eg com.tencent.mm.R.drawable.dfdf, but yours %s\n",
+                    item));
+        }
+        //先去掉空格
+        item = item.trim();
+        String packageName = item.substring(0, packagePos);
+        //不能通过lastDot
+        int nextDot = item.indexOf(".", packagePos + 3);
+        String typeName = item.substring(packagePos + 3, nextDot);
+        String name = item.substring(nextDot + 1);
+        HashMap<String, HashSet<Pattern>> typeMap;
+
+        if (mWhiteList.containsKey(packageName)) {
+            typeMap = mWhiteList.get(packageName);
+        } else {
+            typeMap = new HashMap<>();
+        }
+
+        HashSet<Pattern> patterns;
+        if (typeMap.containsKey(typeName)) {
+            patterns = typeMap.get(typeName);
+        } else {
+            patterns = new HashSet<>();
+        }
+
+        name = Utils.convetToPatternString(name);
+        Pattern pattern = Pattern.compile(name);
+        patterns.add(pattern);
+        typeMap.put(typeName, patterns);
+        mWhiteList.put(packageName, typeMap);
     }
 
     private void readSignFromXml(Node node) throws IOException {
@@ -298,24 +312,27 @@ public class Configuration {
 
     private void readCompressFromXml(Node node) throws IOException {
         NodeList childNodes = node.getChildNodes();
-        mCompressPatterns = new HashSet<>();
         if (childNodes.getLength() > 0) {
             for (int j = 0, n = childNodes.getLength(); j < n; j++) {
                 Node child = childNodes.item(j);
                 if (child.getNodeType() == Node.ELEMENT_NODE) {
                     Element check = (Element) child;
-                    String vaule = check.getAttribute(ATTR_VALUE);
-                    if (vaule.length() == 0) {
-                        throw new IOException(
-                            String.format("Invalid config file: Missing required attribute %s\n", ATTR_VALUE)
-                        );
-                    }
-                    vaule = Utils.convetToPatternString(vaule);
-                    Pattern pattern = Pattern.compile(vaule);
-                    mCompressPatterns.add(pattern);
+                    String value = check.getAttribute(ATTR_VALUE);
+                    addToCompressPatterns(value);
                 }
             }
         }
+    }
+
+    private void addToCompressPatterns(String value) throws IOException {
+        if (value.length() == 0) {
+            throw new IOException(
+                String.format("Invalid config file: Missing required attribute %s\n", ATTR_VALUE)
+            );
+        }
+        value = Utils.convetToPatternString(value);
+        Pattern pattern = Pattern.compile(value);
+        mCompressPatterns.add(pattern);
     }
 
     private void loadMappingFilesFromXml(Node node) throws IOException {
@@ -352,15 +369,14 @@ public class Configuration {
                     String vaule = check.getAttribute(ATTR_VALUE);
                     if (vaule.length() == 0) {
                         throw new IOException(
-                            String.format(
-                                "Invalid config file: Missing required attribute %s\n",
-                                ATTR_VALUE));
+                            String.format("Invalid config file: Missing required attribute %s\n", ATTR_VALUE)
+                        );
                     }
 
                     if (tagName.equals(ATTR_7ZIP)) {
-                        mUse7zip = vaule != null ? vaule.equals("true") : false;
+                        mUse7zip = vaule.equals("true");
                     } else if (tagName.equals(ATTR_KEEPROOT)) {
-                        mKeepRoot = vaule != null ? vaule.equals("true") : false;
+                        mKeepRoot = vaule.equals("true");
                         System.out.println("mKeepRoot " + mKeepRoot);
                     } else if (tagName.equals(ATTR_SIGNFILE)) {
                         mMetaName = vaule;
@@ -388,8 +404,6 @@ public class Configuration {
     }
 
     private void processOldMappingFile() throws IOException {
-        mOldResMapping = new HashMap<>();
-        mOldFileMapping = new HashMap<>();
         mOldResMapping.clear();
         mOldFileMapping.clear();
 

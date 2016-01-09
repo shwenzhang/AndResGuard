@@ -49,8 +49,8 @@ android {
 }
 
 andResGuard {
-    mappingPath = ""
-    use7zip = true
+    mappingFile = null
+    use7zip = false
     keepRoot = false
     whiteList = [
             "com.xmonster.letsgo.R.drawable.icon"

@@ -92,7 +92,11 @@ public class Main {
     }
 
     private void loadConfigFromGradle(InputParam inputParam) {
-        config = new Configuration(inputParam);
+        try {
+            config = new Configuration(inputParam, m7zipPath, mZipalignPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void run(String[] args) {
@@ -119,10 +123,8 @@ public class Main {
                     repackage.setOutDir(outputFile);
                 }
                 repackage.repackageApk();
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
             }
             return;
         }
