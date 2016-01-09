@@ -90,11 +90,6 @@ public class CliMain extends Main {
         out.println("if you donot know how to write the config file, look at the comment in the default config.xml");
         out.println("if you want to use 7z, you must install the 7z command line version in window;");
         out.println("sudo apt-get install p7zip-full in linux");
-
-        out.println();
-        out.println("further more:");
-        out.println("welcome to use resourcesprogurad, it is used for proguard resource, aurthor: shwenzhang, com.tencet.mm");
-        out.println("if you find any problem, please contact shwenzhang at any time!");
     }
 
     private static void printUsage(PrintStream out, String[] args) {

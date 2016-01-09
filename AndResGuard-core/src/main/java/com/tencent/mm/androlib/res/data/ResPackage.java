@@ -11,14 +11,14 @@ import java.util.Map;
 public class ResPackage {
     private final String mName;
 
-    private Map<Integer, String> mSpecNamesReplace = new LinkedHashMap<Integer, String>();
-    private HashSet<String>      mSpecNamesBlock   = new HashSet<String>();
-//	private Map<Integer, String> mSpecNamesOldBlock = new LinkedHashMap<Integer, String>();
-
+    private final Map<Integer, String> mSpecNamesReplace;
+    private final HashSet<String>      mSpecNamesBlock;
     private boolean mCanProguard = false;
 
     public ResPackage(int id, String name) {
         this.mName = name;
+        mSpecNamesReplace = new LinkedHashMap<>();
+        mSpecNamesBlock   = new HashSet<>();
     }
 
     public boolean isCanProguard() {
@@ -60,6 +60,4 @@ public class ResPackage {
     public String toString() {
         return mName;
     }
-
-
 }

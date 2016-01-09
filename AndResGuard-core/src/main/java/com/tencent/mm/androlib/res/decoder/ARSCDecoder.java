@@ -11,6 +11,7 @@ import com.tencent.mm.util.ExtDataInput;
 import com.tencent.mm.util.ExtDataOutput;
 import com.tencent.mm.util.FileOperation;
 import com.tencent.mm.util.TypedValue;
+import com.tencent.mm.util.Utils;
 
 import java.io.BufferedWriter;
 import java.io.EOFException;
@@ -42,44 +43,52 @@ import java.util.regex.Pattern;
 public class ARSCDecoder {
 
 
-    private final static short ENTRY_FLAG_COMPLEX = 0x0001;
+    private final static short  ENTRY_FLAG_COMPLEX = 0x0001;
     private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
     private static final int    KNOWN_CONFIG_BYTES = 38;
-    private static Map<Integer, String> mTableStringsProguard  = new LinkedHashMap<Integer, String>();
+
+    private static Map<Integer, String> mTableStringsProguard;
+
     private ExtDataInput  mIn;
     private ExtDataOutput mOut;
-    private Header      mHeader;
-    private StringBlock mTableStrings;
-    private StringBlock mTypeNames;
-    private StringBlock mSpecNames;
-    private ResPackage  mPkg;
-    private ResType     mType;
-    private ResPackage[] mPkgs;
-    private int[]        mPkgsLenghtChange;
+    private Header        mHeader;
+    private StringBlock   mTableStrings;
+    private StringBlock   mTypeNames;
+    private StringBlock   mSpecNames;
+    private ResPackage    mPkg;
+    private ResType       mType;
+    private ResPackage[]  mPkgs;
+    private int[]         mPkgsLenghtChange;
     private int mTableLenghtChange = 0;
     private int mResId;
     private int mCurTypeID    = -1;
     private int mCurEntryID   = -1;
     private int mCurPackageID = -1;
+
     private ProguardStringBuilder mProguardBuilder;
-    private        boolean              mShouldProguardForType = false;
-    private Writer mMappingWriter;
-    private Map<String, String>  mOldFileName           = new LinkedHashMap<String, String>();
-    private Map<String, Integer> mCurSpecNameToPos      = new LinkedHashMap<String, Integer>();
-    private HashSet<String>      mShouldProguardTypeSet = new HashSet<String>();
-    private ApkDecoder mApkDecoder;
+    private boolean mShouldProguardForType = false;
+    private       Writer               mMappingWriter;
+    private final Map<String, String>  mOldFileName;
+    private final Map<String, Integer> mCurSpecNameToPos;
+    private final HashSet<String>      mShouldProguardTypeSet;
+    private final ApkDecoder           mApkDecoder;
 
 
     private ARSCDecoder(InputStream arscStream, ApkDecoder decoder) throws AndrolibException, IOException {
-
+        mTableStringsProguard = new LinkedHashMap<>();
+        mOldFileName = new LinkedHashMap<>();
+        mCurSpecNameToPos = new LinkedHashMap<>();
+        mShouldProguardTypeSet = new HashSet<>();
         mIn = new ExtDataInput(new LEDataInputStream(arscStream));
         mApkDecoder = decoder;
         proguardFileName();
-
-
     }
 
     private ARSCDecoder(InputStream arscStream, ApkDecoder decoder, ResPackage[] pkgs) throws FileNotFoundException {
+        mTableStringsProguard = new LinkedHashMap<>();
+        mOldFileName = new LinkedHashMap<>();
+        mCurSpecNameToPos = new LinkedHashMap<>();
+        mShouldProguardTypeSet = new HashSet<>();
         mApkDecoder = decoder;
         mIn = new ExtDataInput(new LEDataInputStream(arscStream));
         mOut = new ExtDataOutput(new LEDataOutputStream(new FileOutputStream(mApkDecoder.getOutTempARSCFile(), false)));
@@ -171,9 +180,7 @@ public class ARSCDecoder {
             generalFileResMapping();
         }
 
-        File destResDir = mApkDecoder.getOutResFile();
-        FileOperation.deleteDir(destResDir);
-        destResDir.mkdir();
+        Utils.cleanDir(mApkDecoder.getOutResFile());
     }
 
     private ResPackage[] readTable() throws IOException, AndrolibException {
@@ -181,21 +188,18 @@ public class ARSCDecoder {
         int packageCount = mIn.readInt();
         mTableStrings = StringBlock.read(mIn);
         ResPackage[] packages = new ResPackage[packageCount];
-
         nextChunk();
+
         for (int i = 0; i < packageCount; i++) {
             packages[i] = readPackage();
         }
-
         System.out.printf("resources mapping file %s done\n", mApkDecoder.getResMappingFile().getAbsolutePath());
-
         mMappingWriter.close();
         return packages;
     }
 
     private void writeTable() throws IOException, AndrolibException {
         System.out.printf("writing new resources.arsc \n");
-
         mTableLenghtChange = 0;
         writeNextChunkCheck(Header.TYPE_TABLE, 0);
         int packageCount = mIn.readInt();
@@ -230,9 +234,7 @@ public class ARSCDecoder {
     private void generalResIDMapping(String packagename, String typename, String specname, String replace) throws IOException {
         mMappingWriter.write("    " + packagename + ".R." + typename + "." + specname + " -> " + packagename + ".R." + typename + "." + replace);
         mMappingWriter.write("\n");
-
         mMappingWriter.flush();
-
     }
 
     private void reWriteTable() throws AndrolibException, IOException {
@@ -260,32 +262,18 @@ public class ARSCDecoder {
         //add log
         System.out.printf("reading packagename %s\n", name);
 
-		/* typeNameStrings */
+        /* typeNameStrings */
         mIn.skipInt();
         /* typeNameCount */
         mIn.skipInt();
-		/* specNameStrings */
+        /* specNameStrings */
         mIn.skipInt();
-		/* specNameCount */
+        /* specNameCount */
         mIn.skipInt();
-
         mCurTypeID = -1;
-
         mTypeNames = StringBlock.read(mIn);
-        //add log
-//		int count = mTypeNames.getCount();
-//		System.out.printf("mTypeNames size: %d\n",count);
-//		for (int i = 0; i < count; i++) {
-//			System.out.printf("mTypeNames %d: %s\n",i,mTypeNames.get(i));
-//		}
-
         mSpecNames = StringBlock.read(mIn);
-
-
-//		System.out.printf("readPackage id %d\n",id);
-
         mResId = id << 24;
-//		System.out.printf("readPackage package id mResId %d\n",mResId);
 
         mPkg = new ResPackage(id, name);
         //系统包名不混淆
@@ -393,22 +381,14 @@ public class ARSCDecoder {
 
     private void writeType() throws AndrolibException, IOException {
         checkChunkType(Header.TYPE_TYPE);
-
         byte id = mIn.readByte();
         mOut.writeByte(id);
-
         mResId = (0xff000000 & mResId) | id << 16;
-//		System.out.printf("writeType mResId %d\n",mResId);
-
         mOut.writeBytes(mIn, 3);
-
         int entryCount = mIn.readInt();
-
         mOut.writeInt(entryCount);
-
-
         //对，这里是用来描述差异性的！！！
-//		/* flags */mIn.skipBytes(entryCount * 4);
+        ///* flags */mIn.skipBytes(entryCount * 4);
         int[] entryOffsets = mIn.readIntArray(entryCount);
         mOut.writeIntArray(entryOffsets);
 
@@ -420,31 +400,16 @@ public class ARSCDecoder {
 
     private void readConfig() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_CONFIG);
-		/* typeId */
+        /* typeId */
         mIn.skipInt();
         int entryCount = mIn.readInt();
         int entriesStart = mIn.readInt();
-//		/* entriesStart */ mIn.skipInt
-        //add log
-//		System.out.printf("readXmlConfig  entryCount %d\n",entryCount);
-        //add log
-//		System.out.printf("readXmlConfig  entriesStart %d\n",entriesStart);
-
         readConfigFlags();
         int[] entryOffsets = mIn.readIntArray(entryCount);
-
-
-
-/*		mConfig = flags.isInvalid && !mKeepBroken ? null : mPkg
-				.getOrCreateConfig(flags);*/
-
         for (int i = 0; i < entryOffsets.length; i++) {
-//			System.out.printf("readXmlConfig entryOffsets %d\n",entryOffsets[i]);
             mCurEntryID = i;
             if (entryOffsets[i] != -1) {
                 mResId = (mResId & 0xffff0000) | i;
-//				System.out.printf("readXmlConfig mResId %d\n",mResId);
-
                 readEntry();
             }
         }
@@ -613,9 +578,9 @@ public class ARSCDecoder {
     }
 
     private void readValue(boolean flags, int specNamesId) throws IOException, AndrolibException {
-		/* size */
+        /* size */
         mIn.skipCheckShort((short) 8);
-		/* zero */
+        /* zero */
         mIn.skipCheckByte((byte) 0);
         byte type = mIn.readByte();
         int data = mIn.readInt();
@@ -726,7 +691,7 @@ public class ARSCDecoder {
         short screenHeight = mIn.readShort();
 
         short sdkVersion = mIn.readShort();
-		/* minorVersion, now must always be 0 */
+        /* minorVersion, now must always be 0 */
         mIn.skipBytes(2);
 
         byte screenLayout = 0;
@@ -798,8 +763,6 @@ public class ARSCDecoder {
         nextChunk();
         checkChunkType(expectedType);
     }
-
-//	private Map<Integer, Boolean> mTableStringDone = new LinkedHashMap<Integer, Boolean>();
 
     private Header writeNextChunk(int diffSize) throws IOException, AndrolibException {
         mHeader = Header.readAndWriteHeader(mIn, mOut, diffSize);

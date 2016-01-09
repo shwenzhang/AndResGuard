@@ -46,10 +46,12 @@ public class Configuration {
     protected static final String ATTR_SIGNFILE_KEYPASS   = "keypass";
     protected static final String ATTR_SIGNFILE_STOREPASS = "storepass";
     protected static final String ATTR_SIGNFILE_ALIAS     = "alias";
-    public final HashMap<String, HashMap<String, HashSet<Pattern>>>        mWhiteList        = new HashMap<>();
-    public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping    = new HashMap<>();
-    public final HashMap<String, String>                                   mOldFileMapping   = new HashMap<>();
-    public final HashSet<Pattern>                                          mCompressPatterns = new HashSet<>();
+
+    public final HashMap<String, HashMap<String, HashSet<Pattern>>>        mWhiteList;
+    public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping;
+    public final HashMap<String, String>                                   mOldFileMapping;
+    public final HashSet<Pattern>                                          mCompressPatterns;
+
     private final Pattern MAP_PATTERN = Pattern.compile("\\s+(.*)->(.*)");
     public boolean mUse7zip        = true;
     public boolean mKeepRoot       = false;
@@ -68,19 +70,13 @@ public class Configuration {
 
     /**
      * use by command line with xml config
-     *
-     * @param config
      */
-    public Configuration(File config) throws IOException, ParserConfigurationException, SAXException {
-        readXmlConfig(config);
-    }
-
-    /**
-     * use by command line with xml config
-     *
-     * @param config
-     */
-    public Configuration(File config, String sevenzipPath, String zipAlignPath) throws IOException, ParserConfigurationException, SAXException {
+    public Configuration(File config, String sevenzipPath, String zipAlignPath)
+        throws IOException, ParserConfigurationException, SAXException {
+        mWhiteList = new HashMap<>();
+        mOldResMapping = new HashMap<>();
+        mOldFileMapping = new HashMap<>();
+        mCompressPatterns = new HashSet<>();
         readXmlConfig(config);
         this.m7zipPath = sevenzipPath;
         this.mZipalignPath = zipAlignPath;
@@ -90,6 +86,10 @@ public class Configuration {
      * use by gradle
      */
     public Configuration(InputParam param, String sevenzipPath, String zipAlignPath) throws IOException {
+        mWhiteList = new HashMap<>();
+        mOldResMapping = new HashMap<>();
+        mOldFileMapping = new HashMap<>();
+        mCompressPatterns = new HashSet<>();
         setSignData(param.signFile, param.keypass, param.storealias, param.storepass);
         if (param.mappingFile != null) {
             mUseKeepMapping = true;

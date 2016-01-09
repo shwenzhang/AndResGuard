@@ -9,6 +9,7 @@ import com.tencent.mm.directory.DirectoryException;
 import com.tencent.mm.resourceproguard.Configuration;
 import com.tencent.mm.util.FileOperation;
 import com.tencent.mm.util.TypedValue;
+import com.tencent.mm.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,16 +56,12 @@ public class ApkDecoder {
     }
 
     private void ensureFilePath() throws IOException {
-        String destDirectory = mOutDir.getAbsolutePath();
-        if (mOutDir.exists()) {
-            FileOperation.deleteDir(mOutDir);
-            mOutDir.mkdirs();
-        }
-        String unZipDest = destDirectory + File.separator + TypedValue.UNZIP_FILE_PATH;
+        Utils.cleanDir(mOutDir);
+
+        String unZipDest = new File(mOutDir, TypedValue.UNZIP_FILE_PATH).getAbsolutePath();
         System.out.printf("unziping apk to %s\n", unZipDest);
         mCompressData = FileOperation.unZipAPk(mApkFile.getAbsoluteFile().getAbsolutePath(), unZipDest);
         dealWithCompressConfig();
-
         //将res混淆成r
         if (!config.mKeepRoot) {
             mOutResFile = new File(mOutDir.getAbsolutePath() + File.separator + TypedValue.RES_FILE_PATH);

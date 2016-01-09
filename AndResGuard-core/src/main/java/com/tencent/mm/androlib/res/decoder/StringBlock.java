@@ -22,16 +22,14 @@ import java.util.logging.Logger;
  */
 public class StringBlock {
 
-    private static final CharsetDecoder UTF16LE_DECODER       = Charset.forName(
-        "UTF-16LE").newDecoder();
-    private static final CharsetDecoder UTF8_DECODER          = Charset.forName("UTF-8")
-        .newDecoder();
-    private static final Logger         LOGGER                = Logger.getLogger(StringBlock.class
-        .getName());
+    private static final CharsetDecoder UTF16LE_DECODER       = Charset.forName("UTF-16LE").newDecoder();
+    private static final CharsetDecoder UTF8_DECODER          = Charset.forName("UTF-8").newDecoder();
+    private static final Logger         LOGGER                = Logger.getLogger(StringBlock.class.getName());
     private static final int            CHUNK_STRINGPOOL_TYPE = 0x001C0001;
     private static final int            UTF8_FLAG             = 0x00000100;
     private static final int            CHUNK_NULL_TYPE       = 0x00000000;
     private static final byte           NULL                  = 0;
+
     private int[]   m_stringOffsets;
     private byte[]  m_strings;
     private int[]   m_styleOffsets;
@@ -39,7 +37,6 @@ public class StringBlock {
     private boolean m_isUTF8;
     private int[]   m_stringOwns;
 
-    // /////////////////////////////////////////// implementation
     private StringBlock() {
     }
 
@@ -52,19 +49,12 @@ public class StringBlock {
         int chunkSize = reader.readInt();
         int stringCount = reader.readInt();
         int styleCount = reader.readInt();
-//		System.out.printf("!!stringCount  %d\n",stringCount);
-//		System.out.printf("!!chunkSize  %d\n",chunkSize);
-
         int flags = reader.readInt();
         int stringsOffset = reader.readInt();
         int stylesOffset = reader.readInt();
 
-//		System.out.printf("!!stringsOffset  %d\n",stringsOffset);
-
         StringBlock block = new StringBlock();
         block.m_isUTF8 = (flags & UTF8_FLAG) != 0;
-//		System.out.printf("!!block.m_isUTF8  %b\n",block.m_isUTF8);
-
         block.m_stringOffsets = reader.readIntArray(stringCount);
         block.m_stringOwns = new int[stringCount];
         Arrays.fill(block.m_stringOwns, -1);
@@ -73,9 +63,7 @@ public class StringBlock {
             block.m_styleOffsets = reader.readIntArray(styleCount);
         }
         {
-            int size = ((stylesOffset == 0) ? chunkSize : stylesOffset)
-                - stringsOffset;
-//			System.out.printf("!!size  %d\n",size);
+            int size = ((stylesOffset == 0) ? chunkSize : stylesOffset)    - stringsOffset;
 
             if ((size % 4) != 0) {
                 throw new IOException("String data size is not multiple of 4 ("
@@ -84,10 +72,6 @@ public class StringBlock {
             block.m_strings = new byte[size];
 
             reader.readFully(block.m_strings);
-
-/*			for (int i=0; i< size; i++) {
-                System.out.printf("!!block.m_strings[%d] = %d \n",i,block.m_strings[i]);
-			}*/
         }
         if (stylesOffset != 0) {
             int size = (chunkSize - stylesOffset);
@@ -97,7 +81,6 @@ public class StringBlock {
             }
             block.m_styles = reader.readIntArray(size / 4);
         }
-
         return block;
     }
 
@@ -116,27 +99,17 @@ public class StringBlock {
         boolean isUTF8 = (flags & UTF8_FLAG) != 0;
         int stringsOffset = reader.readInt();
         int stylesOffset = reader.readInt();
-
         reader.readIntArray(stringCount);
-
-
-        int size = ((stylesOffset == 0) ? chunkSize : stylesOffset)
-            - stringsOffset;
+        int size = ((stylesOffset == 0) ? chunkSize : stylesOffset) - stringsOffset;
 
         if ((size % 4) != 0) {
-            throw new IOException("String data size is not multiple of 4 ("
-                + size + ").");
+            throw new IOException("String data size is not multiple of 4 ("+ size + ").");
         }
         byte[] temp_strings = new byte[size];
         reader.readFully(temp_strings);
-
-
         int totalSize = 0;
-
         out.writeCheckInt(type, CHUNK_STRINGPOOL_TYPE);
-
         totalSize += 4;
-
         stringCount = specNames.size();
 
         totalSize += 6 * 4 + 4 * stringCount;
@@ -149,10 +122,8 @@ public class StringBlock {
         curSpecNameToPos.clear();
 
         for (Iterator<String> it = specNames.iterator(); it.hasNext(); ) {
-
             stringOffsets[i] = offset;
             String name = it.next();
-//			System.out.printf("name %s, i %d\n", name, i);
             curSpecNameToPos.put(name, i);
             if (isUTF8) {
                 strings[offset++] = (byte) name.length();
@@ -160,12 +131,11 @@ public class StringBlock {
                 totalSize += 2;
                 byte[] tempByte = name.getBytes(Charset.forName("UTF-8"));
                 if (name.length() != tempByte.length) {
-                    throw new AndrolibException(String.format(
-                        "writeSpecNameStringBlock lenght is different  name %d, tempByte %d\n", name.length(), tempByte.length));
+                    throw new AndrolibException(
+                        String.format("writeSpecNameStringBlock lenght is different  name %d, tempByte %d\n", name.length(), tempByte.length)
+                    );
                 }
-
                 System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
-
                 offset += name.length();
                 strings[offset++] = NULL;
                 totalSize += name.length() + 1;
@@ -175,8 +145,9 @@ public class StringBlock {
                 totalSize += 2;
                 byte[] tempByte = name.getBytes(Charset.forName("UTF-16LE"));
                 if ((name.length() * 2) != tempByte.length) {
-                    throw new AndrolibException(String.format(
-                        "writeSpecNameStringBlock lenght is different  name %d, tempByte %d\n", name.length(), tempByte.length));
+                    throw new AndrolibException(
+                        String.format("writeSpecNameStringBlock lenght is different  name %d, tempByte %d\n", name.length(), tempByte.length)
+                    );
                 }
                 System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
                 offset += tempByte.length;
@@ -184,8 +155,6 @@ public class StringBlock {
                 strings[offset++] = NULL;
                 totalSize += tempByte.length + 2;
             }
-
-
             i++;
         }
         //要保证string size 是4的倍数,要补零
@@ -206,9 +175,7 @@ public class StringBlock {
         out.writeInt(stylesOffset);
         out.writeIntArray(stringOffsets);
         out.write(strings, 0, offset);
-//		System.out.printf("dwriteSpecNameStringBlock iff size %d,  string size %d \n", chunkSize -totalSize, totalSize - stringsOffset);
         return (chunkSize - totalSize);
-
     }
 
     public static int writeTableNameStringBlock(ExtDataInput reader, ExtDataOutput out, Map<Integer, String> tableProguardMap) throws IOException, AndrolibException {
@@ -216,15 +183,9 @@ public class StringBlock {
         int chunkSize = reader.readInt();
         int stringCount = reader.readInt();
         int styleOffsetCount = reader.readInt();
-//		System.out.printf("!!stringCount  %d\n",stringCount);
-//		System.out.printf("!!chunkSize  %d\n",chunkSize);
-
         int flags = reader.readInt();
         int stringsOffset = reader.readInt();
         int stylesOffset = reader.readInt();
-
-//		System.out.printf("!!stringCount  %d\n",stringCount);
-//		System.out.printf("!!styleOffsetCount  %d\n",styleOffsetCount);
 
         StringBlock block = new StringBlock();
         block.m_isUTF8 = (flags & UTF8_FLAG) != 0;
@@ -238,16 +199,12 @@ public class StringBlock {
         block.m_stringOwns = new int[stringCount];
         for (int i = 0; i < stringCount; i++) {
             block.m_stringOwns[i] = -1;
-//			System.out.printf("!!block.m_stringOffsets  %d\n",block.m_stringOffsets[i]);
         }
         if (styleOffsetCount != 0) {
             block.m_styleOffsets = reader.readIntArray(styleOffsetCount);
         }
         {
-            int size = ((stylesOffset == 0) ? chunkSize : stylesOffset)
-                - stringsOffset;
-//			System.out.printf("!!size  %d\n",size);
-
+            int size = ((stylesOffset == 0) ? chunkSize : stylesOffset) - stringsOffset;
             if ((size % 4) != 0) {
                 throw new IOException("String data size is not multiple of 4 ("
                     + size + ").");
@@ -282,11 +239,8 @@ public class StringBlock {
         System.arraycopy(block.m_stringOffsets, 0, stringOffsets, 0, stringOffsets.length);
 
         int offset = 0;
-        int i = 0;
-//		System.out.printf("!!tableProguardMap size %d \n",tableProguardMap.size());
-
+        int i;
         for (i = 0; i < stringCount; i++) {
-
             stringOffsets[i] = offset;
             //如果找不到即没混淆这一项,直接拷贝
             if (tableProguardMap.get(i) == null) {
@@ -297,7 +251,6 @@ public class StringBlock {
                 totalSize += copyLen;
             } else {
                 String name = tableProguardMap.get(i);
-//				System.out.printf("!!i %d, name  %s\n",i,name);
                 if (block.m_isUTF8) {
                     strings[offset++] = (byte) name.length();
                     strings[offset++] = (byte) name.length();
@@ -338,8 +291,6 @@ public class StringBlock {
                 totalSize++;
             }
         }
-
-
         //因为是int的,如果之前的不为0
         if (stylesOffset != 0) {
             stylesOffset = totalSize;
@@ -357,13 +308,10 @@ public class StringBlock {
             out.writeIntArray(block.m_styleOffsets);
         }
         out.write(strings, 0, offset);
-//		System.out.printf("!!table offset  %d\n",offset);
         if (stylesOffset != 0) {
             out.writeIntArray(block.m_styles);
         }
-//		System.out.printf("writeTableNameStringBlock diff size %d \n", chunkSize -totalSize);
         return (chunkSize - totalSize);
-
     }
 
     /**
