@@ -1,4 +1,4 @@
-#  AndResGuard #
+# AndResGuard
 
 [![Jcenter Status](https://api.bintray.com/packages/simsun/maven/AndResGuard-gradle-plugin/images/download.svg)](https://bintray.com/simsun/maven/AndResGuard-gradle-plugin)
 
@@ -18,9 +18,38 @@ Some uses of AndResGuard are:
 
 AndResGuard is a command-line tool, it supports Window、Linux and Mac. We suggest you to use 7zip in Linux or Mac platform for a higher compression ratio.
 
-## How to use ##
+## How to use
+### With Gradle
+This has been released on Bintray
+```
+apply plugin: 'AndResGuard'
 
-**1.how to use**
+buildscript {
+    dependencies {
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.0.0'
+    }
+}
+
+andResGuard {
+    mappingFile = null
+    use7zip = false
+    keepRoot = false
+    whiteList = [
+            "com.xmonster.letsgo.R.drawable.icon"
+    ]
+    compressFilePattern = [
+            "*.png",
+            "*.jpg",
+            "*.jpeg",
+            "*.gif",
+            "resources.arsc"
+    ]
+}
+```
+
+Run `andresguard/generate` task to generate compressed APK.
+
+### With Command Line
 ```
     java -jar andresguard.jar -h
 ```
@@ -73,7 +102,7 @@ if you just want to repackage an apk compress with 7z：
 	java -jar resourceproguard.jar -repackage input.apk -out output_directory
 	 -7zip /shwenzhang/tool/7za  -zipalign /shwenzhang/sdk/tools/zipalign   
 
-## What we get ##
+### What we get
 
 Normally, we can get the following 7 useful files:
 
@@ -84,7 +113,7 @@ During the process, we can see the cost time and  the reduce size.
 ![](http://i.imgur.com/ICDkJCH.png)
 
 
-##How to write config.xml file ##
+### How to write config.xml file
 
 There are five main configurations:property, whitelist, keepmapping, compress, sign。
 
@@ -157,7 +186,7 @@ if you want to sign the apk, you should input following data, but if you want to
 
 Warning： if you use -signature mode。these setting in config.xml will be overlayed.
 
-## FQA ##
+## FQA
 
 1. How to use compress flag
 If you use compess flag with *.png、*.gif、*.jpg，it will help you decrease the size of file `resources.arsc`
