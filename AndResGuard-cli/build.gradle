@@ -2,8 +2,15 @@ apply plugin: 'java'
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+version = properties.getProperty("bintray.version")
+group = properties.getProperty("bintray.groupId")
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    //compile group: 'com.tencent.mm', name: 'AndResGuard-core', version: version
     compile project(':AndResGuard-core')
 }
 

@@ -3,12 +3,18 @@ apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
-version = '1.0.0'
-group = "com.tencent.mm"
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+version = properties.getProperty("bintray.version")
+group = properties.getProperty("bintray.groupId")
+def appId = 'AndResGuard-gradle-plugin'
 
 dependencies {
     compile gradleApi()
     compile localGroovy()
+    //compile group: 'com.tencent.mm', name: 'AndResGuard-core', version: version
     compile project(':AndResGuard-core')
 }
 
@@ -37,8 +43,6 @@ artifacts {
     archives sourcesJar
 }
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 bintray {
     user = properties.getProperty("bintray.user")
@@ -62,8 +66,8 @@ publishing {
     publications {
         AndResPorguard(MavenPublication) {
             from components.java
-            groupId 'com.tencent.mm'
-            artifactId 'AndResGuard-gradle-plugin'
+            groupId group
+            artifactId appId
         }
     }
 }
