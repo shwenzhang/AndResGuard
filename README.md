@@ -1,5 +1,9 @@
 #  AndResGuard #
 
+:project-name: AndResGuard-gradle-plugin
+image:https://api.bintray.com/packages/simsun/maven/{project-name}/images/download.svg[Download, link="https://bintray.com/simsun/maven/{project-name}"]
+
+
 *Read this in other languages: [English](README.md), [简体中文](README.zh-cn.md).*
 
 AndResGuard is a tool to proguard resource for Android, just like ProGuard in Java. It can change res/drawable/wechat to r/d/a, and rename the resource file wechat.png to a.png. Finally, it repackages the apk with 7zip, which can reduce the package size obviously.
