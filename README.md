@@ -1,6 +1,8 @@
 #  AndResGuard #
 
 :project-name: AndResGuard-gradle-plugin
+:linkattrs:
+
 image:https://api.bintray.com/packages/simsun/maven/{project-name}/images/download.svg[Download, link="https://bintray.com/simsun/maven/{project-name}"]
 
 
