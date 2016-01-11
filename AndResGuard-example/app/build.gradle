@@ -69,5 +69,4 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
-    compile group: 'com.tencent.mm', name: 'AndResGuard-gradle-plugin', version: '1.0.0'
 }
