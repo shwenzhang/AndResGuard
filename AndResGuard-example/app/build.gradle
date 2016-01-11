@@ -1,16 +1,17 @@
-buildscript {
-    repositories {
-        maven {
-            url uri('../../local_repo')
-        }
-    }
-    dependencies {
-        classpath group: 'com.tencent.gradle', name: 'andresguard', version: '1.0-SNAPSHOT'
-    }
-}
+//buildscript {
+//    repositories {
+//        maven {
+//            url uri('../../local_repo')
+//        }
+//    }
+//    dependencies {
+//        classpath group: 'com.tencent.gradle', name: 'andresguard', version: '1.0-SNAPSHOT'
+//    }
+//}
 
 apply plugin: 'com.android.application'
 apply plugin: 'AndResGuard'
+
 
 android {
     compileSdkVersion 23
