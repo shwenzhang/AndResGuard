@@ -23,8 +23,10 @@ andResGuard {
     mappingFile = null
     use7zip = false
     keepRoot = false
+    // add <yourpackagename>.R.drawable.icon into whitelist.
+    // because the launcher will get the icon with his name
     whiteList = [
-            "com.xmonster.letsgo.R.drawable.icon"
+           "andresguard.tencent.com.andresguard_example.R.drawable.icon"
     ]
     compressFilePattern = [
             "*.png",
