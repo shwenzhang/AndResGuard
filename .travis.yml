@@ -1,5 +1,5 @@
 language: java
-script: "mvn verify"
+script: "script: ./gradlew check"
 jdk:
   - oraclejdk7
   - oraclejdk8
