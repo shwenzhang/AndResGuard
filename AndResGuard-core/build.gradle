@@ -4,8 +4,11 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
+try {
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+} catch (Exception e) {
+    properties.load(project.rootProject.file('travis.properties').newDataInputStream())
+}
 version = properties.getProperty("bintray.version")
 group = properties.getProperty("bintray.groupId")
 def appId = 'AndResGuard-core'
