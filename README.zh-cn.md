@@ -1,5 +1,6 @@
 #  Android资源混淆工具使用说明 #
 
+[![Build Status](https://travis-ci.org/shwenzhang/AndResGuard.svg?branch=master)](https://travis-ci.org/shwenzhang/AndResGuard)
 [![Jcenter Status](https://api.bintray.com/packages/simsun/maven/AndResGuard-gradle-plugin/images/download.svg)](https://bintray.com/simsun/maven/AndResGuard-gradle-plugin)
 
 *其他语言版本: [English](README.md), [简体中文](README.zh-cn.md).*
