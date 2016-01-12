@@ -20,7 +20,6 @@ import java.util.zip.ZipEntry;
 
 /**
  * Container for a dynamically typed data value. Primarily used with
- * {@link android.content.res.Resources} for holding resource values.
  */
 public class TypedValue {
     public static final String UNZIP_FILE_PATH = "temp";
