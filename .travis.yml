@@ -1,5 +1,5 @@
 language: java
-script: "script: ./gradlew check"
+script: "./gradlew check"
 jdk:
   - oraclejdk7
   - oraclejdk8
