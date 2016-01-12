@@ -40,8 +40,6 @@ public final class LEDataInputStream implements DataInput {
 
     /**
      * undisplayed copyright notice.
-     *
-     * @noinspection UnusedDeclaration
      */
     private static final String EMBEDDED_COPYRIGHT = "copyright (c) 1999-2010 Roedy Green, Canadian Mind Products, http://mindprod.com";
 
@@ -49,22 +47,16 @@ public final class LEDataInputStream implements DataInput {
 
     /**
      * to get at the big-Endian methods of a basic DataInputStream
-     *
-     * @noinspection WeakerAccess
      */
     protected final DataInputStream dis;
 
     /**
      * to get at the a basic readBytes method.
-     *
-     * @noinspection WeakerAccess
      */
     protected final InputStream is;
 
     /**
      * work array for buffering input.
-     *
-     * @noinspection WeakerAccess
      */
     protected final byte[] work;
 
@@ -217,7 +209,6 @@ public final class LEDataInputStream implements DataInput {
      * @return a rough approximation of the 8-bit stream as a 16-bit unicode
      * string
      * @throws IOException
-     * @noinspection deprecation
      * @deprecated This method does not properly convert bytes to characters.
      * Use a Reader instead with a little-endian encoding.
      */
