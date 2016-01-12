@@ -192,6 +192,7 @@ public class CliMain extends Main {
         resourceProguard(outputFile, apkFileName);
         System.out.printf("resources proguard done, total time cost: %fs\n", diffTimeFromBegin());
         System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+        clean();
     }
 
     private void loadConfigFromXml(File configFile, File signatureFile, File mappingFile, String keypass, String storealias, String storepass) {

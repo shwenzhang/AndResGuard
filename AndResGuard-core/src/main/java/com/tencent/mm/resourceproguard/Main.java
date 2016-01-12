@@ -3,6 +3,7 @@ package com.tencent.mm.resourceproguard;
 import com.tencent.mm.androlib.AndrolibException;
 import com.tencent.mm.androlib.ApkDecoder;
 import com.tencent.mm.androlib.ResourceApkBuilder;
+import com.tencent.mm.androlib.res.decoder.ARSCDecoder;
 import com.tencent.mm.directory.DirectoryException;
 import com.tencent.mm.util.FileOperation;
 
@@ -43,8 +44,9 @@ public class Main {
         clean();
     }
 
-    private void clean() {
+    protected void clean() {
         config = null;
+        ARSCDecoder.mTableStringsProguard.clear();
     }
 
     private void loadConfigFromGradle(InputParam inputParam) {

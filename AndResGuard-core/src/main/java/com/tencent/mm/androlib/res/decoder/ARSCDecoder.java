@@ -47,7 +47,7 @@ public class ARSCDecoder {
     private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
     private static final int    KNOWN_CONFIG_BYTES = 38;
 
-    private static Map<Integer, String> mTableStringsProguard;
+    public static Map<Integer, String> mTableStringsProguard = new LinkedHashMap<>();
 
     private ExtDataInput  mIn;
     private ExtDataOutput mOut;
@@ -75,7 +75,6 @@ public class ARSCDecoder {
 
 
     private ARSCDecoder(InputStream arscStream, ApkDecoder decoder) throws AndrolibException, IOException {
-        mTableStringsProguard = new LinkedHashMap<>();
         mOldFileName = new LinkedHashMap<>();
         mCurSpecNameToPos = new LinkedHashMap<>();
         mShouldProguardTypeSet = new HashSet<>();
@@ -85,7 +84,6 @@ public class ARSCDecoder {
     }
 
     private ARSCDecoder(InputStream arscStream, ApkDecoder decoder, ResPackage[] pkgs) throws FileNotFoundException {
-        mTableStringsProguard = new LinkedHashMap<>();
         mOldFileName = new LinkedHashMap<>();
         mCurSpecNameToPos = new LinkedHashMap<>();
         mShouldProguardTypeSet = new HashSet<>();
