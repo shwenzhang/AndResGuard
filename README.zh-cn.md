@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/shwenzhang/AndResGuard.svg?branch=master)](https://travis-ci.org/shwenzhang/AndResGuard)
 [![Jcenter Status](https://api.bintray.com/packages/simsun/maven/AndResGuard-gradle-plugin/images/download.svg)](https://bintray.com/simsun/maven/AndResGuard-gradle-plugin)
+[![Join the chat at https://gitter.im/shwenzhang/AndResGuard](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shwenzhang/AndResGuard?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 *其他语言版本: [English](README.md), [简体中文](README.zh-cn.md).*
 
