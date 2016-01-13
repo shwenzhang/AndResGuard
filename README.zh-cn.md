@@ -2,8 +2,7 @@
 
 [![Build Status](https://travis-ci.org/shwenzhang/AndResGuard.svg?branch=master)](https://travis-ci.org/shwenzhang/AndResGuard)
 [![Jcenter Status](https://api.bintray.com/packages/simsun/maven/AndResGuard-gradle-plugin/images/download.svg)](https://bintray.com/simsun/maven/AndResGuard-gradle-plugin)
-[![Join the chat at https://gitter.im/shwenzhang/AndResGuard](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shwenzhang/AndResGuard?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
+[![Join Gitter](https://badges.gitter.im/shwenzhang/AndResGuard.svg)](https://gitter.im/shwenzhang/AndResGuard?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge)
 *其他语言版本: [English](README.md), [简体中文](README.zh-cn.md).*
 
 本文主要是讲述资源混淆组件的用法以及性能，资源混淆组件不涉及编译过程，只需输入一个apk(无论签名与否，debug版，release版均可，在处理过程中会直接将原签名删除)，可得到一个实现资源混淆后的apk(若在配置文件中输入签名信息，可自动重签名并对齐，得到可直接发布的apk)以及对应资源ID的mapping文件。同时可在配置文件中指定白名单，压缩文件(支持*，？通配符)，支持自动签名，保持旧mapping，7z重打包，对齐等功能。   本工具支持Linux、Window跨平台使用，但测试表示若使用7z压缩，Linux下的压缩率更高。
