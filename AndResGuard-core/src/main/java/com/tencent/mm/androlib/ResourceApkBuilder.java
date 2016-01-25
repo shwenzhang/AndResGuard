@@ -119,10 +119,7 @@ public class ResourceApkBuilder {
             pro.destroy();
 
             if (!mSignedApk.exists()) {
-                throw new IOException(
-                    String.format("can not found the signed apk file, is the input sign data correct? path=%s",
-                        mSignedApk.getAbsolutePath())
-                );
+                throw new IOException("Can't Generate signed APK. Plz check your sign info is correct.");
             }
         }
     }
