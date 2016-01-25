@@ -28,7 +28,7 @@ andResGuard {
     use7zip = false
     keepRoot = false
     // add <yourpackagename>.R.drawable.icon into whitelist.
-    // because the launcher will get the icon with his name
+    // because the launcher will get thgge icon with his name
     whiteList = [
            "andresguard.tencent.com.andresguard_example.R.drawable.icon"
     ]
