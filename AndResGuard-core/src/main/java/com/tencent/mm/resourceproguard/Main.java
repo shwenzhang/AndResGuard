@@ -52,10 +52,7 @@ public class Main {
 
     private void loadConfigFromGradle(InputParam inputParam) {
         try {
-            config = new Configuration(
-                inputParam,
-                m7zipPath
-            );
+            config = new Configuration(inputParam);
         } catch (IOException e) {
             e.printStackTrace();
         }

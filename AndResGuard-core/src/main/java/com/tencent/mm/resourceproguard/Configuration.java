@@ -85,7 +85,7 @@ public class Configuration {
     /**
      * use by gradle
      */
-    public Configuration(InputParam param, String sevenzipPath) throws IOException {
+    public Configuration(InputParam param) throws IOException {
         mWhiteList = new HashMap<>();
         mOldResMapping = new HashMap<>();
         mOldFileMapping = new HashMap<>();
@@ -106,7 +106,7 @@ public class Configuration {
             mUseCompress = true;
             addToCompressPatterns(item);
         }
-        this.m7zipPath = sevenzipPath;
+        this.m7zipPath = param.sevenZipPath;
         this.mZipalignPath = param.zipAlignPath;
     }
 
