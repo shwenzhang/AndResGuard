@@ -39,6 +39,8 @@ andResGuard {
             "*.gif",
             "resources.arsc"
     ]
+    zipAlignPath = {your_zipalign_path}
+    sevenZipPath = {your_7zip_path}
 }
 ```
 
