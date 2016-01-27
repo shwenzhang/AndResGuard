@@ -6,6 +6,7 @@ import com.tencent.mm.androlib.ResourceApkBuilder;
 import com.tencent.mm.androlib.res.decoder.ARSCDecoder;
 import com.tencent.mm.directory.DirectoryException;
 import com.tencent.mm.util.FileOperation;
+import com.tencent.mm.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +52,10 @@ public class Main {
 
     private void loadConfigFromGradle(InputParam inputParam) {
         try {
-            config = new Configuration(inputParam, m7zipPath, mZipalignPath);
+            config = new Configuration(
+                inputParam,
+                m7zipPath
+            );
         } catch (IOException e) {
             e.printStackTrace();
         }

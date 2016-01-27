@@ -39,7 +39,7 @@ android {
 
 andResGuard {
     mappingFile = null
-    use7zip = false
+    use7zip = true
     keepRoot = false
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
@@ -53,6 +53,8 @@ andResGuard {
             "*.gif",
             "resources.arsc"
     ]
+    //change to your zipAlignPath
+    zipAlignPath = '/Users/sun/Library/Android/sdk/build-tools/21.1.1/zipalign'
 }
 
 dependencies {

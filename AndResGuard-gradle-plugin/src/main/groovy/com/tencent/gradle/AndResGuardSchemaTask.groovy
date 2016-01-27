@@ -42,6 +42,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
 
     @TaskAction
     def generate() {
+        print configuration
         InputParam inputParam = new InputParam.Builder()
                 .setSignFile(android.signingConfigs.release.storeFile)
                 .setKeypass(android.signingConfigs.release.keyPassword)
@@ -53,6 +54,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
                 .setMetaName(configuration.metaName)
                 .setKeepRoot(configuration.keepRoot)
                 .setCompressFilePattern(configuration.compressFilePattern)
+                .setZipAlign(configuration.zipAlignPath)
                 .setOutBuilder(releaseFolder)
                 .setApkPath(releaseApkPath)
                 .create();
