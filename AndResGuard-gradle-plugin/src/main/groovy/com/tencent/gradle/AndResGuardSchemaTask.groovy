@@ -55,6 +55,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
                 .setKeepRoot(configuration.keepRoot)
                 .setCompressFilePattern(configuration.compressFilePattern)
                 .setZipAlign(configuration.zipAlignPath)
+                .setSevenZipPath(configuration.sevenZipPath)
                 .setOutBuilder(releaseFolder)
                 .setApkPath(releaseApkPath)
                 .create();
