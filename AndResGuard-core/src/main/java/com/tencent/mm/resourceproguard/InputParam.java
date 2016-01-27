@@ -19,7 +19,7 @@ public class InputParam {
     public final String            keypass;
     public final String            storealias;
     public final String            storepass;
-
+    public final String            zipAlignPath;
 
     private InputParam(
         File mappingFile,
@@ -33,7 +33,8 @@ public class InputParam {
         String keypass,
         String storealias,
         String storepass,
-        String metaName
+        String metaName,
+        String zipAlignPath
     ) {
         this.mappingFile = mappingFile;
         this.use7zip = use7zip;
@@ -47,6 +48,7 @@ public class InputParam {
         this.storealias = storealias;
         this.storepass = storepass;
         this.metaName = metaName;
+        this.zipAlignPath = zipAlignPath;
     }
 
     public static class Builder {
@@ -62,6 +64,7 @@ public class InputParam {
         private String            storealias;
         private String            storepass;
         private String            metaName;
+        private String            zipAlignPath;
 
         public Builder() {
             use7zip = false;
@@ -128,6 +131,11 @@ public class InputParam {
             return this;
         }
 
+        public Builder setZipAlign(String zipAlignPath) {
+            this.zipAlignPath = zipAlignPath;
+            return this;
+        }
+
         public InputParam create() {
             return new InputParam(
                 mappingFile,
@@ -141,7 +149,8 @@ public class InputParam {
                 keypass,
                 storealias,
                 storepass,
-                metaName
+                metaName,
+                zipAlignPath
             );
         }
     }
