@@ -53,8 +53,11 @@ andResGuard {
             "*.gif",
             "resources.arsc"
     ]
-    //change to your zipAlignPath
+    //FIXME:change to your zipalign path
     zipAlignPath = '/Users/sun/Library/Android/sdk/build-tools/21.1.1/zipalign'
+
+    //FIXME:change to your 7za path
+    sevenZipPath = '/usr/local/bin/7za'
 }
 
 dependencies {

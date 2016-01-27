@@ -20,6 +20,7 @@ public class InputParam {
     public final String            storealias;
     public final String            storepass;
     public final String            zipAlignPath;
+    public final String            sevenZipPath;
 
     private InputParam(
         File mappingFile,
@@ -34,7 +35,8 @@ public class InputParam {
         String storealias,
         String storepass,
         String metaName,
-        String zipAlignPath
+        String zipAlignPath,
+        String sevenZipPath
     ) {
         this.mappingFile = mappingFile;
         this.use7zip = use7zip;
@@ -49,6 +51,7 @@ public class InputParam {
         this.storepass = storepass;
         this.metaName = metaName;
         this.zipAlignPath = zipAlignPath;
+        this.sevenZipPath = sevenZipPath;
     }
 
     public static class Builder {
@@ -65,6 +68,7 @@ public class InputParam {
         private String            storepass;
         private String            metaName;
         private String            zipAlignPath;
+        private String            sevenZipPath;
 
         public Builder() {
             use7zip = false;
@@ -136,6 +140,11 @@ public class InputParam {
             return this;
         }
 
+        public Builder setSevenZipPath(String sevenZipPath) {
+            this.sevenZipPath = sevenZipPath;
+            return this;
+        }
+
         public InputParam create() {
             return new InputParam(
                 mappingFile,
@@ -150,7 +159,8 @@ public class InputParam {
                 storealias,
                 storepass,
                 metaName,
-                zipAlignPath
+                zipAlignPath,
+                sevenZipPath
             );
         }
     }
