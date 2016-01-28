@@ -44,7 +44,8 @@ andResGuard {
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
     whiteList = [
-            "andresguard.tencent.com.andresguard_example.R.drawable.icon"
+            "<your_package_name>.R.drawable.icon"
+            "<your_package_name>.R.string.com.crashlytics.*"
     ]
     compressFilePattern = [
             "*.png",
@@ -216,14 +217,26 @@ NOTE: *You should add your icon to whitelist, because of some launchers' special
 5. Use umeng or other sdk
 You should add umeng resource to whitelist
 ```xml
-		<issue id="whitelist" isactive="true">
-			<path value ="yourpackagename.R.string.umeng*" />   
-			<path value ="yourpackagename.R.layout.umeng*" />
-			<path value ="yourpackagename.R.drawable.umeng*" />
-			<path value ="yourpackagename.R.anim.umeng*" />
-			<path value ="yourpackagename.R.color.umeng*" />
-			<path value ="yourpackagename.R.style.*UM*" />
-			<path value ="yourpackagename.R.style.umeng*" />
-			<path value ="yourpackagename.R.id.umeng*" />
-		</issue>
+    <issue id="whitelist" isactive="true">
+        <path value ="yourpackagename.R.string.umeng*" />   
+        <path value ="yourpackagename.R.layout.umeng*" />
+        <path value ="yourpackagename.R.drawable.umeng*" />
+        <path value ="yourpackagename.R.anim.umeng*" />
+        <path value ="yourpackagename.R.color.umeng*" />
+        <path value ="yourpackagename.R.style.*UM*" />
+        <path value ="yourpackagename.R.style.umeng*" />
+        <path value ="yourpackagename.R.id.umeng*" />
+    </issue>
 ```
+
+6. Use fabric
+
+The Fabric Gradle plugin generates a unique identifier so that our backend can identify your builds. This identifier is used to deobfuscate crashes and distribute the correct versions of your beta test builds. The identifier will be added to your res/values and looks like:
+<string name="com.crashlytics.android.build_id">RANDOM_UUID</string>
+
+The Fabric will get this value with exact name, so we add it to whitelist.
+
+```
+    "<your_package_name>.R.string.com.crashlytics.*"
+```
+

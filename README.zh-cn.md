@@ -209,16 +209,19 @@ Sign主要是对处理后的文件重签名，需要我们输入签名文件位�
 
 6. 对于一些第三方sdk,例如友盟，可能需要将部分资源添加到白名单中。
 
-		<issue id="whitelist" isactive="true">
-			<path value ="yourpackagename.R.string.umeng*" />   
-			<path value ="yourpackagename.R.layout.umeng*" />
-			<path value ="yourpackagename.R.drawable.umeng*" />
-			<path value ="yourpackagename.R.anim.umeng*" />
-			<path value ="yourpackagename.R.color.umeng*" />
-			<path value ="yourpackagename.R.style.*UM*" />
-			<path value ="yourpackagename.R.style.umeng*" />
-			<path value ="yourpackagename.R.id.umeng*" />
-		</issue>
+```xml
+    <issue id="whitelist" isactive="true">
+        <path value ="yourpackagename.R.string.umeng*" />   
+        <path value ="yourpackagename.R.layout.umeng*" />
+        <path value ="yourpackagename.R.drawable.umeng*" />
+        <path value ="yourpackagename.R.anim.umeng*" />
+        <path value ="yourpackagename.R.color.umeng*" />
+        <path value ="yourpackagename.R.style.*UM*" />
+        <path value ="yourpackagename.R.style.umeng*" />
+        <path value ="yourpackagename.R.id.umeng*" />
+        <path value ="yourpackagename.R.string.com.crashlytics.*" />
+    </issue>
+```
 
 ##  Androd资源混淆工具的耗时与效果 ##
 
