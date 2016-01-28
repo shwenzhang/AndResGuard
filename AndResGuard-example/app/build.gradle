@@ -1,5 +1,30 @@
 apply plugin: 'com.android.application'
 apply plugin: 'AndResGuard'
+apply plugin: 'io.fabric'
+
+buildscript {
+    repositories {
+        jcenter()
+        maven { url 'https://maven.fabric.io/public' }
+    }
+    dependencies {
+        // The Fabric Gradle plugin uses an open ended version to react
+        // quickly to Android tooling updates
+        classpath 'io.fabric.tools:gradle:latest.integration'
+    }
+}
+
+repositories {
+    jcenter()
+    maven { url 'https://maven.fabric.io/public' }
+}
+
+crashlytics {
+    enableNdk true
+    androidNdkOut 'src/main/obj'
+    androidNdkLibsOut 'src/main/libs'
+}
+
 
 android {
     compileSdkVersion 23
@@ -44,7 +69,9 @@ andResGuard {
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
     whiteList = [
-            "andresguard.tencent.com.andresguard_example.R.drawable.icon"
+            "andresguard.tencent.com.andresguard_example.R.drawable.icon",
+            //https://docs.fabric.io/android/crashlytics/build-tools.html
+            "andresguard.tencent.com.andresguard_example.R.string.com.crashlytics.*"
     ]
     compressFilePattern = [
             "*.png",
@@ -65,4 +92,12 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
+    // Crashlytics Kit
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+        transitive = true
+    }
+    // NDK Kit
+    compile('com.crashlytics.sdk.android:crashlytics-ndk:1.1.2@aar') {
+        transitive = true
+    }
 }

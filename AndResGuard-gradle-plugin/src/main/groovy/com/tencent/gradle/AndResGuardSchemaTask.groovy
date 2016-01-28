@@ -18,7 +18,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
     String releaseFolder
 
     AndResGuardSchemaTask() {
-        description = 'Assemble Proguard APK'
+        description = 'Assemble Resource Proguard APK'
         group = 'andresguard'
         outputs.upToDateWhen { false }
         project.afterEvaluate {
