@@ -14,6 +14,6 @@ class AndResGuardPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.extensions.create('andResGuard', AndResGuardExtension)
-        project.tasks.create('generate', AndResGuardSchemaTask)
+        project.tasks.create('resguard', AndResGuardSchemaTask)
     }
 }
