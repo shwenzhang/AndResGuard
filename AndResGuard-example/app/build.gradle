@@ -69,7 +69,9 @@ andResGuard {
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
     whiteList = [
-            "andresguard.tencent.com.andresguard_example.R.drawable.icon"
+            "andresguard.tencent.com.andresguard_example.R.drawable.icon",
+            //https://docs.fabric.io/android/crashlytics/build-tools.html
+            "andresguard.tencent.com.andresguard_example.R.string.com.crashlytics.*"
     ]
     compressFilePattern = [
             "*.png",
