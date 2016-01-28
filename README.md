@@ -239,4 +239,3 @@ The Fabric will get this value with exact name, so we add it to whitelist.
 ```
     "<your_package_name>.R.string.com.crashlytics.*"
 ```
-
