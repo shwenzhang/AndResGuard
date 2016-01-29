@@ -38,9 +38,6 @@ andResGuard {
     mappingFile = null
     use7zip = false
     keepRoot = false
-    whiteList = [
-            "com.xmonster.letsgo.R.drawable.icon"
-    ]
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
     whiteList = [
