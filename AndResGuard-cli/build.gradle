@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
 Properties properties = new Properties()
 try {
