@@ -58,6 +58,8 @@ andResGuard {
 
 Run `andresguard/generate` task to generate compressed APK.
 
+*Note: please put andResGuard block below SignConfigs, we will use your signConfig info to repackage apk file.*
+
 ### With Command Line
 ```
     java -jar andresguard.jar -h

@@ -30,12 +30,17 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
+
     signingConfigs {
         release {
-            storeFile file("../keystore/release.keystore")
-            storePassword "testres"
-            keyAlias "testres"
-            keyPassword "testres"
+            try {
+                storeFile file("../keystore/release.keystore")
+                storePassword "testres"
+                keyAlias "testres"
+                keyPassword "testres"
+            } catch (ex) {
+                throw new InvalidUserDataException(ex.toString())
+            }
         }
 
         debug {
@@ -43,13 +48,6 @@ android {
         }
     }
 
-    defaultConfig {
-        applicationId "andresguard.tencent.com.andresguard_example"
-        minSdkVersion 14
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
-    }
     buildTypes {
         release {
             minifyEnabled true
@@ -59,6 +57,15 @@ android {
             pseudoLocalesEnabled true
             signingConfig signingConfigs.release
         }
+    }
+
+
+    defaultConfig {
+        applicationId "andresguard.tencent.com.andresguard_example"
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
     }
 }
 

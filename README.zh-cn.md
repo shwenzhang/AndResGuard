@@ -47,6 +47,7 @@ andResGuard {
 
 运行`andresguard/generate`的gradle任务，可以得到资源混淆的安装包
 
+*注意: 请把andResGuard的相关配置放在签名信息的下面,我们会使用你的签名信息用户重新打包APK*
 ## 如何使用资源混淆工具 ##
 
 ### 使用命令行###
