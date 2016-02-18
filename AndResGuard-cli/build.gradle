@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
 Properties properties = new Properties()
 try {
@@ -28,6 +28,7 @@ sourceSets {
 jar {
     manifest {
         attributes 'Main-Class': 'com.tencent.mm.resourceproguard.cli.CliMain'
+        attributes 'Manifest-Version': version
     }
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }

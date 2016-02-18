@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.System;
 import java.net.URLDecoder;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -223,6 +224,11 @@ public class CliMain extends Main {
     public double diffTimeFromBegin() {
         long end = System.currentTimeMillis();
         return (end - mBeginTime) / 1000.0;
+    }
+
+    protected void goToError() {
+        printUsage(System.err);
+        System.exit(ERRNO_USAGE);
     }
 
     private class ReadArgs {
