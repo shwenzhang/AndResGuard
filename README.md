@@ -65,7 +65,7 @@ Gradle Button :  ![](https://cloud.githubusercontent.com/assets/4221359/13136634
 
 Or alternatively, you run ```./gradlew generate``` in your terminal.
 
-*Note: please put andResGuard block below SignConfigs, we will use your signConfig info to repackage apk file.*
+**Note: please put andResGuard block below SignConfigs, we will use your signConfig info to repackage apk file.**
 
 ### With Command Line
 ```
