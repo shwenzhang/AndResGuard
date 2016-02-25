@@ -30,7 +30,7 @@ apply plugin: 'AndResGuard'
 
 buildscript {
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.2'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.3'
     }
 }
 
@@ -56,16 +56,12 @@ andResGuard {
 }
 ```
 
-Run `andresguard/generate` task to generate compressed APK. This can be done in two ways: 
-If you are using AndroidStudio, you can find the generate task option in ```andresguard``` group. 
-Tasks: ![](https://cloud.githubusercontent.com/assets/454498/13135649/b5b7e614-d64d-11e5-90f0-8f546de6bbfc.png)
+Run `andresguard/resguard` task to generate compressed APK. This can be done in two ways:
+ 
+If you are using AndroidStudio, you can find the generate task option in ```andresguard``` group.
+Or alternatively, you run ```./gradlew resguard``` in your terminal.
 
-The Tasks can be found out by clicking on "Gradle" button, shown as:
-Gradle Button :  ![](https://cloud.githubusercontent.com/assets/4221359/13136634/445d878c-d641-11e5-8da3-37cb71a3f688.jpg)
-
-Or alternatively, you run ```./gradlew generate``` in your terminal.
-
-**Note: please put andResGuard block below SignConfigs, we will use your signConfig info to repackage apk file.**
+**Note: please put andResGuard block below SignConfigs in build.gradle file, we will use your signConfig info to repackage apk file.**
 
 ### With Command Line
 ```
