@@ -76,10 +76,10 @@ public class ResourceApkBuilder {
         //首先一次性生成一个全部都是压缩的安装包
         generalRaw7zip();
 
-        ArrayList<String> storedFiles = new ArrayList<String>();
+        ArrayList<String> storedFiles = new ArrayList<>();
         //对于不压缩的要update回去
         for (String name : compressData.keySet()) {
-            File file = new File(m7zipOutPutDir.getAbsolutePath() + File.separator + name);
+            File file = new File(m7zipOutPutDir.getAbsolutePath(), name);
             if (!file.exists()) {
                 continue;
             }
@@ -90,7 +90,6 @@ public class ResourceApkBuilder {
         }
 
         addStoredFileIn7Zip(storedFiles);
-        System.out.println(mSignedWith7ZipApk.exists());
         if (!mSignedWith7ZipApk.exists()) {
             throw new IOException(String.format(
                 "[use7zApk]7z repackage signed apk fail,you must install 7z command line version first, linux: p7zip, window: 7za, path=%s",
@@ -225,7 +224,7 @@ public class ResourceApkBuilder {
         storedParentName = storedParentName + File.separator + "*";
         //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "a -tzip", mSignedWith7ZipApk.getAbsolutePath(), storedParentName, "-mx0");
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", mSignedWith7ZipApk.getAbsolutePath(), storedParentName, "-mx0");
         Process pro = pb.start();
 
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());
@@ -242,7 +241,7 @@ public class ResourceApkBuilder {
         String path = outPath + File.separator + "*";
         //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, " a -tzip", mSignedWith7ZipApk.getAbsolutePath(), path, "-mx9");
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", mSignedWith7ZipApk.getAbsolutePath(), path, "-mx9");
         Process pro = pb.start();
 
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());

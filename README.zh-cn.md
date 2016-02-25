@@ -54,6 +54,8 @@ andResGuard {
 
 ### 使用命令行###
 
+**`tools_output`文件夹有使用命令行工具的简单例子,可以参考**
+
 我们先看看它的help描述，最简单的使用方式是：java -jar andresguard.jar input.apk，此时会读取运行路径中的config.xml文件，并将结果输出到运行路径中的input(输入apk的名称)中。当然你也可以自己定义：
 
 -config,        指定具体config文件的路径；

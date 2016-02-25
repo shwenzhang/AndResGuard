@@ -115,7 +115,7 @@ public class ResourceRepackage {
         String path = outPath + File.separator + "*";
 
         String cmd = Utils.isPresent(sevenZipPath) ? sevenZipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "a -tzip", mSignedWith7ZipApk.getAbsolutePath(), path, "-mx9");
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", mSignedWith7ZipApk.getAbsolutePath(), path, "-mx9");
         Process pro = pb.start();
 
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());
@@ -138,7 +138,7 @@ public class ResourceRepackage {
         storedParentName = storedParentName + File.separator + "*";
         //极限压缩
         String cmd = Utils.isPresent(sevenZipPath) ? sevenZipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "a -tzip", mSignedWith7ZipApk.getAbsolutePath(), storedParentName, "-mx0");
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", mSignedWith7ZipApk.getAbsolutePath(), storedParentName, "-mx0");
         Process pro = pb.start();
 
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());

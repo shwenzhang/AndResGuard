@@ -65,8 +65,11 @@ Or alternatively, you run ```./gradlew resguard``` in your terminal.
 
 ### With Command Line
 ```
-    java -jar andresguard.jar -h
+    java -jar andresguard-x.x.x.jar -h
 ```
+
+**You can find a simple example in `tools_output` folder.**
+
 we can see the help description, The easiest way is : `java -jar andresguard.jar input.apk`. Then it would try to read the config,xml, and output the results to the directory with the name of input.apk.
 
 - -config,        set the config file yourself, if not, the default path is the running location with name config.xml.
