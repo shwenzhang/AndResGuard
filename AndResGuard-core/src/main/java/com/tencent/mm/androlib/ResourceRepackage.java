@@ -48,7 +48,6 @@ public class ResourceRepackage {
         if (mSignedWith7ZipApk.exists()) {
             mSignedWith7ZipApk.delete();
         }
-
     }
 
     /**
@@ -68,14 +67,14 @@ public class ResourceRepackage {
         mApkName = apkBasename.substring(0, apkBasename.indexOf(".apk"));
         //如果外面设过，就不用设了
         if (mOutDir == null) {
-            mOutDir = new File(mSignedApk.getAbsoluteFile().getParent() + File.separator + mApkName);
+            mOutDir = new File(mSignedApk.getAbsoluteFile().getParent(), mApkName);
         }
 
-        mSignedWith7ZipApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_channel_7zip.apk");
-        mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_channel_7zip_aligned.apk");
+        mSignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_channel_7zip.apk");
+        mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_channel_7zip_aligned.apk");
 
-        m7zipOutPutDir = new File(mOutDir.getAbsolutePath() + File.separator + TypedValue.OUT_7ZIP_FILE_PATH);
-        mStoredOutPutDir = new File(mOutDir.getAbsolutePath() + File.separator + "storefiles");
+        m7zipOutPutDir = new File(mOutDir.getAbsolutePath(), TypedValue.OUT_7ZIP_FILE_PATH);
+        mStoredOutPutDir = new File(mOutDir.getAbsolutePath(), "storefiles");
         //删除目录,因为之前的方法是把整个输出目录都删除，所以不会有问题，现在不会，所以要单独删
         FileOperation.deleteDir(m7zipOutPutDir);
         FileOperation.deleteDir(mStoredOutPutDir);
@@ -88,11 +87,10 @@ public class ResourceRepackage {
         HashMap<String, Integer> compressData = FileOperation.unZipAPk(mSignedApk.getAbsolutePath(), m7zipOutPutDir.getAbsolutePath());
         //首先一次性生成一个全部都是压缩的安装包
         generalRaw7zip();
-
-        ArrayList<String> storedFiles = new ArrayList<String>();
+        ArrayList<String> storedFiles = new ArrayList<>();
         //对于不压缩的要update回去
         for (String name : compressData.keySet()) {
-            File file = new File(m7zipOutPutDir.getAbsolutePath() + File.separator + name);
+            File file = new File(m7zipOutPutDir.getAbsolutePath(), name);
             if (!file.exists()) {
                 continue;
             }
@@ -103,10 +101,9 @@ public class ResourceRepackage {
         }
 
         addStoredFileIn7Zip(storedFiles);
-
         if (!mSignedWith7ZipApk.exists()) {
             throw new IOException(String.format(
-                "7z repackage signed apk fail,you must install 7z command line version first, linux: p7zip, window: 7za, path=%s",
+                "[repackageWith7z]7z repackage signed apk fail,you must install 7z command line version first, linux: p7zip, window: 7za, path=%s",
                 mSignedWith7ZipApk.getAbsolutePath())
             );
         }
@@ -114,55 +111,43 @@ public class ResourceRepackage {
 
     private void generalRaw7zip() throws IOException, InterruptedException {
         System.out.printf("general the raw 7zip file\n");
-        Process pro;
         String outPath = m7zipOutPutDir.getAbsoluteFile().getAbsolutePath();
-
         String path = outPath + File.separator + "*";
 
         String cmd = Utils.isPresent(sevenZipPath) ? sevenZipPath : TypedValue.COMMAND_7ZIP;
-        cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + path + " -mx9";
-        pro = Runtime.getRuntime().exec(cmd);
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a -tzip", mSignedWith7ZipApk.getAbsolutePath(), path, "-mx9");
+        Process pro = pb.start();
 
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());
         LineNumberReader input = new LineNumberReader(ir);
         //如果不读会有问题，被阻塞
         while (input.readLine() != null) {
-            ;
         }
         //destroy the stream
-        if (pro != null) {
-            pro.waitFor();
-            pro.destroy();
-        }
+        pro.waitFor();
+        pro.destroy();
     }
 
     private void addStoredFileIn7Zip(ArrayList<String> storedFiles) throws IOException, InterruptedException {
-        System.out.printf("rewrite the stored file into the 7zip, file count:%d\n", storedFiles.size());
+        System.out.printf("[addStoredFileIn7Zip]rewrite the stored file into the 7zip, file count:%d\n", storedFiles.size());
         String storedParentName = mStoredOutPutDir.getAbsolutePath() + File.separator;
         String outputName = m7zipOutPutDir.getAbsolutePath() + File.separator;
         for (String name : storedFiles) {
             FileOperation.copyFileUsingStream(new File(outputName + name), new File(storedParentName + name));
-
         }
         storedParentName = storedParentName + File.separator + "*";
-
         //极限压缩
         String cmd = Utils.isPresent(sevenZipPath) ? sevenZipPath : TypedValue.COMMAND_7ZIP;
-        cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + storedParentName + " -mx0";
-        Process pro = Runtime.getRuntime().exec(cmd);
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a -tzip", mSignedWith7ZipApk.getAbsolutePath(), storedParentName, "-mx0");
+        Process pro = pb.start();
+
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());
-        ;
         LineNumberReader input = new LineNumberReader(ir);
-        ;
         //如果不读会有问题，被阻塞
-        while (input.readLine() != null) {
-            ;
-        }
+        while (input.readLine() != null) { }
         //destroy the stream
-        if (pro != null) {
-            pro.waitFor();
-            pro.destroy();
-        }
+        pro.waitFor();
+        pro.destroy();
     }
 
     private void alignApk() throws IOException, InterruptedException {
@@ -179,10 +164,8 @@ public class ResourceRepackage {
             );
         }
         String cmd = Utils.isPresent(zipalignPath) ? zipalignPath : TypedValue.COMMAND_ZIPALIGIN;
-        cmd += " 4 " + before.getAbsolutePath() + " " + after.getAbsolutePath();
-        Process pro;
-        pro = Runtime.getRuntime().exec(cmd);
-
+        ProcessBuilder pb = new ProcessBuilder(cmd, "4", before.getAbsolutePath(), after.getAbsolutePath());
+        Process pro = pb.start();
         //destroy the stream
         pro.waitFor();
         pro.destroy();

@@ -44,4 +44,8 @@ public class Utils {
             dir.mkdirs();
         }
     }
+
+    public static String spaceSafePath(String path) {
+        return "\"" + path + "\"";
+    }
 }

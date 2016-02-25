@@ -49,13 +49,13 @@ public class ResourceApkBuilder {
     }
 
     private void insureFileName() {
-        mUnSignedApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_unsigned.apk");
+        mUnSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_unsigned.apk");
         //需要自己安装7zip
-        mSignedWith7ZipApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_signed_7zip.apk");
-        mSignedApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_signed.apk");
-        mAlignedApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_signed_aligned.apk");
-        mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath() + File.separator + mApkName + "_signed_7zip_aligned.apk");
-        m7zipOutPutDir = new File(mOutDir.getAbsolutePath() + File.separator + TypedValue.OUT_7ZIP_FILE_PATH);
+        mSignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_signed_7zip.apk");
+        mSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_signed.apk");
+        mAlignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_signed_aligned.apk");
+        mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_signed_7zip_aligned.apk");
+        m7zipOutPutDir = new File(mOutDir.getAbsolutePath(), TypedValue.OUT_7ZIP_FILE_PATH);
     }
 
     private void use7zApk(HashMap<String, Integer> compressData) throws IOException, InterruptedException {
@@ -90,10 +90,10 @@ public class ResourceApkBuilder {
         }
 
         addStoredFileIn7Zip(storedFiles);
-
+        System.out.println(mSignedWith7ZipApk.exists());
         if (!mSignedWith7ZipApk.exists()) {
             throw new IOException(String.format(
-                "7z repackage signed apk fail,you must install 7z command line version first, linux: p7zip, window: 7za, path=%s",
+                "[use7zApk]7z repackage signed apk fail,you must install 7z command line version first, linux: p7zip, window: 7za, path=%s",
                 mSignedWith7ZipApk.getAbsolutePath()));
         }
     }
@@ -105,15 +105,13 @@ public class ResourceApkBuilder {
             if (mSignedApk.exists()) {
                 mSignedApk.delete();
             }
-
             String cmd = "jarsigner -sigalg MD5withRSA -digestalg SHA1 -keystore " + config.mSignatureFile
                 + " -storepass " + config.mStorePass
                 + " -keypass " + config.mKeyPass
                 + " -signedjar " + mSignedApk.getAbsolutePath()
                 + " " + mUnSignedApk.getAbsolutePath()
                 + " " + config.mStoreAlias;
-            Process pro;
-            pro = Runtime.getRuntime().exec(cmd);
+            Process pro = Runtime.getRuntime().exec(cmd);
             //destroy the stream
             pro.waitFor();
             pro.destroy();
@@ -149,9 +147,9 @@ public class ResourceApkBuilder {
                 before.getAbsolutePath()));
         }
         String cmd = Utils.isPresent(config.mZipalignPath) ? config.mZipalignPath : TypedValue.COMMAND_ZIPALIGIN;
-        cmd += " 4 " + before.getAbsolutePath() + " " + after.getAbsolutePath();
-        Process pro;
-        pro = Runtime.getRuntime().exec(cmd);
+        ProcessBuilder pb = new ProcessBuilder(cmd, "4", before.getAbsolutePath(), after.getAbsolutePath());
+        Process pro = pb.start();
+
         //destroy the stream
         pro.waitFor();
         pro.destroy();
@@ -218,67 +216,41 @@ public class ResourceApkBuilder {
     }
 
     private void addStoredFileIn7Zip(ArrayList<String> storedFiles) throws IOException, InterruptedException {
-        System.out.printf("rewrite the stored file into the 7zip, file count:%d\n", storedFiles.size());
-
+        System.out.printf("[addStoredFileIn7Zip]rewrite the stored file into the 7zip, file count:%d\n", storedFiles.size());
         String storedParentName = mOutDir.getAbsolutePath() + File.separator + "storefiles" + File.separator;
         String outputName = m7zipOutPutDir.getAbsolutePath() + File.separator;
         for (String name : storedFiles) {
             FileOperation.copyFileUsingStream(new File(outputName + name), new File(storedParentName + name));
-
         }
-        Process pro = null;
-
         storedParentName = storedParentName + File.separator + "*";
-
         //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + storedParentName + " -mx0";
-        pro = Runtime.getRuntime().exec(cmd);
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a -tzip", mSignedWith7ZipApk.getAbsolutePath(), storedParentName, "-mx0");
+        Process pro = pb.start();
 
-        InputStreamReader ir;
-        LineNumberReader input;
-        ir = new InputStreamReader(pro.getInputStream());
-        input = new LineNumberReader(ir);
-
+        InputStreamReader ir = new InputStreamReader(pro.getInputStream());
+        LineNumberReader input = new LineNumberReader(ir);
         //如果不读会有问题，被阻塞
-        while (input.readLine() != null) {
-            ;
-        }
-
+        while (input.readLine() != null) { }
         //destroy the stream
-        if (pro != null) {
-            pro.waitFor();
-            pro.destroy();
-        }
+        pro.waitFor();
+        pro.destroy();
     }
 
     private void generalRaw7zip() throws IOException, InterruptedException {
-        System.out.printf("general the raw 7zip file\n");
-        Process pro;
         String outPath = m7zipOutPutDir.getAbsoluteFile().getAbsolutePath();
-
         String path = outPath + File.separator + "*";
-
         //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        cmd += " a -tzip " + mSignedWith7ZipApk.getAbsolutePath() + " " + path + " -mx9";
-        pro = Runtime.getRuntime().exec(cmd);
+        ProcessBuilder pb = new ProcessBuilder(cmd, " a -tzip", mSignedWith7ZipApk.getAbsolutePath(), path, "-mx9");
+        Process pro = pb.start();
 
-        InputStreamReader ir = null;
-        LineNumberReader input = null;
-
-        ir = new InputStreamReader(pro.getInputStream());
-
-        input = new LineNumberReader(ir);
-
+        InputStreamReader ir = new InputStreamReader(pro.getInputStream());
+        LineNumberReader input = new LineNumberReader(ir);
         //如果不读会有问题，被阻塞
-        while (input.readLine() != null) {
-            ;
-        }
+        while (input.readLine() != null) { }
         //destroy the stream
-        if (pro != null) {
-            pro.waitFor();
-            pro.destroy();
-        }
+        pro.waitFor();
+        pro.destroy();
     }
 }

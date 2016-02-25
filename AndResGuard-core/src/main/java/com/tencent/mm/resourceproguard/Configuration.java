@@ -78,8 +78,8 @@ public class Configuration {
         mOldFileMapping = new HashMap<>();
         mCompressPatterns = new HashSet<>();
         readXmlConfig(config);
-        this.m7zipPath = sevenzipPath;
-        this.mZipalignPath = zipAlignPath;
+        this.m7zipPath = Utils.spaceSafePath(sevenzipPath);
+        this.mZipalignPath = Utils.spaceSafePath(zipAlignPath);
     }
 
     /**
