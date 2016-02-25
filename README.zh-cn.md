@@ -45,7 +45,7 @@ andResGuard {
 }
 ```
 
-运行`andresguard/generate`的gradle任务，可以得到资源混淆的安装包
+运行`andresguard/resguard`的gradle任务，可以得到资源混淆的安装包
 命令行可直接运行```./gradlew resguard```
 
 **注意: 在build.gradle文件中请把andResGuard的相关配置放在签名信息的下面,我们会使用你的签名信息用户重新打包APK**
