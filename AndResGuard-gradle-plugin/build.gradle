@@ -25,14 +25,6 @@ repositories {
     mavenCentral()
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri('../local_repo'))
-        }
-    }
-}
-
 task sourcesJar(type: Jar) {
     from sourceSets.main.java.srcDirs
     classifier = 'sources'

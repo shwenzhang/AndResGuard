@@ -27,14 +27,6 @@ sourceSets {
 }
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri('../local_repo'))
-        }
-    }
-}
-
 task sourcesJar(type: Jar) {
     from sourceSets.main.java.srcDirs
     classifier = 'sources'
@@ -47,8 +39,6 @@ artifacts {
     archives javadocJar
     archives sourcesJar
 }
-
-
 
 bintray {
     user = properties.getProperty("bintray.user")
