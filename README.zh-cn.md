@@ -14,7 +14,7 @@
 
 ## 使用Gradle
 此工具已发布在Bintray
-```
+```gradle
 apply plugin: 'AndResGuard'
 
 buildscript {

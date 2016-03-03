@@ -25,7 +25,7 @@ AndResGuard is a command-line tool, it supports Window、Linux and Mac. We sugge
 ## How to use
 ### With Gradle
 This has been released on Bintray
-```
+```gradle
 apply plugin: 'AndResGuard'
 
 buildscript {
