@@ -642,6 +642,8 @@ public class ARSCDecoder {
                         );
                     }
                     FileOperation.copyFileUsingStream(resRawFile, resDestFile);
+                    //already copied
+                    mApkDecoder.removeCopiedResFile(resRawFile.toPath());
                     mTableStringsProguard.put(data, result);
                 }
             }

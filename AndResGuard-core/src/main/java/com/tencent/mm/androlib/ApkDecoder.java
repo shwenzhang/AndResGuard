@@ -13,6 +13,11 @@ import com.tencent.mm.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,6 +39,36 @@ public class ApkDecoder {
     private       File                     mOutTempDir;
     private       File                     mResMappingFile;
     private       HashMap<String, Integer> mCompressData;
+
+    private final HashSet<Path>            mRawResourceFiles = new HashSet<>();
+
+    private void copyOtherResFiles() throws IOException {
+        if (mRawResourceFiles.isEmpty())
+            return;
+
+        Path resPath = mRawResFile.toPath();
+        Path destPath = mOutResFile.toPath();
+
+        for (Path path : mRawResourceFiles) {
+            Path relativePath = resPath.relativize(path);
+            Path dest = destPath.resolve(relativePath);
+
+            System.out.printf("copy res file not in resources.arsc file:%s\n", relativePath.toString());
+            FileOperation.copyFileUsingStream(path.toFile(), dest.toFile());
+
+        }
+    }
+    class ResourceFilesVisitor extends SimpleFileVisitor<Path> {
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            mRawResourceFiles.add(file);
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    public void removeCopiedResFile(Path key) {
+        mRawResourceFiles.remove(key);
+    }
 
     public ApkDecoder(Configuration config) {
         this.config = config;
@@ -72,6 +107,9 @@ public class ApkDecoder {
         //这个需要混淆各个文件夹
         mRawResFile = new File(mOutDir.getAbsoluteFile().getAbsolutePath() + File.separator + TypedValue.UNZIP_FILE_PATH + File.separator + "res");
         mOutTempDir = new File(mOutDir.getAbsoluteFile().getAbsolutePath() + File.separator + TypedValue.UNZIP_FILE_PATH);
+
+        //这里纪录原始res目录的文件
+        Files.walkFileTree(mRawResFile.toPath(), new ResourceFilesVisitor());
 
         if (!mRawResFile.exists() || !mRawResFile.isDirectory()) {
             throw new IOException("can not found res dir in the apk or it is not a dir");
@@ -151,6 +189,10 @@ public class ApkDecoder {
             System.out.printf("decoding resources.arsc\n");
             RawARSCDecoder.decode(mApkFile.getDirectory().getFileInput("resources.arsc"));
             ResPackage[] pkgs = ARSCDecoder.decode(mApkFile.getDirectory().getFileInput("resources.arsc"), this);
+
+            //把没有纪录在resources.arsc的资源文件也拷进dest目录
+            copyOtherResFiles();
+
             ARSCDecoder.write(mApkFile.getDirectory().getFileInput("resources.arsc"), this, pkgs);
         }
     }
