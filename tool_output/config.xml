@@ -19,15 +19,21 @@
         <!--you must write the full package name, such as com.tencent.mm.R -->
         <!--for some reason, we should keep our icon better-->
         <!--and it support *, ?, such as com.tencent.mm.R.drawable.emoji_*, com.tencent.mm.R.drawable.emoji_?-->
-        <path value="com.xmonster.letsgo.R.drawable.icon"/>
-        <path value="com.xmonster.letsgo.R.string.umeng*"/>
-        <path value="com.xmonster.letsgo.R.layout.umeng*"/>
-        <path value="com.xmonster.letsgo.R.drawable.umeng*"/>
-        <path value="com.xmonster.letsgo.R.anim.umeng*"/>
-        <path value="com.xmonster.letsgo.R.color.umeng*"/>
-        <path value="com.xmonster.letsgo.R.style.*UM*"/>
-        <path value="com.xmonster.letsgo.R.style.umeng*"/>
-        <path value="com.xmonster.letsgo.R.id.umeng*"/>
+        <path value="<your_package_name>.R.drawable.icon"/>
+        <path value="<your_package_name>.R.string.com.crashlytics.*"/>
+        <path value="<your_package_name>.R.string.umeng*"/>
+        <path value="<your_package_name>.R.layout.umeng*"/>
+        <path value="<your_package_name>.R.drawable.umeng*"/>
+        <path value="<your_package_name>.R.anim.umeng*"/>
+        <path value="<your_package_name>.R.color.umeng*"/>
+        <path value="<your_package_name>.R.style.*UM*"/>
+        <path value="<your_package_name>.R.style.umeng*"/>
+        <path value="<your_package_name>.R.id.umeng*"/>
+        <path value="<your_package_name>.R.string.UM*"/>
+        <path value="<your_package_name>.R.string.tb_*"/>
+        <path value="<your_package_name>.R.layout.tb_*"/>
+        <path value="<your_package_name>.R.drawable.tb_*"/>
+        <path value="<your_package_name>.R.color.tb_*"/>
     </issue>
 
     <!--keepmapping, sometimes if we need to support incremental upgrade, we should keep the old mapping-->
