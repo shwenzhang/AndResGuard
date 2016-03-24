@@ -90,7 +90,9 @@ public class Configuration {
         mOldResMapping = new HashMap<>();
         mOldFileMapping = new HashMap<>();
         mCompressPatterns = new HashSet<>();
-        setSignData(param.signFile, param.keypass, param.storealias, param.storepass);
+        if (param.useSign) {
+            setSignData(param.signFile, param.keypass, param.storealias, param.storepass);
+        }
         if (param.mappingFile != null) {
             mUseKeepMapping = true;
             setKeepMappingData(param.mappingFile);

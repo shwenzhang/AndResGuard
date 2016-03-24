@@ -10,6 +10,7 @@ public class InputParam {
     public final File              mappingFile;
     public final boolean           use7zip;
     public final boolean           keepRoot;
+    public final boolean           useSign;
     public final String            metaName;
     public final ArrayList<String> whiteList;
     public final ArrayList<String> compressFilePattern;
@@ -25,6 +26,7 @@ public class InputParam {
     private InputParam(
         File mappingFile,
         boolean use7zip,
+        boolean useSign,
         boolean keepRoot,
         ArrayList<String> whiteList,
         ArrayList<String> compressFilePattern,
@@ -40,6 +42,7 @@ public class InputParam {
     ) {
         this.mappingFile = mappingFile;
         this.use7zip = use7zip;
+        this.useSign = useSign;
         this.keepRoot = keepRoot;
         this.whiteList = whiteList;
         this.compressFilePattern = compressFilePattern;
@@ -57,6 +60,7 @@ public class InputParam {
     public static class Builder {
         private File              mappingFile;
         private boolean           use7zip;
+        private boolean           useSign;
         private boolean           keepRoot;
         private ArrayList<String> whiteList;
         private ArrayList<String> compressFilePattern;
@@ -82,6 +86,11 @@ public class InputParam {
 
         public Builder setUse7zip(boolean use7zip) {
             this.use7zip = use7zip;
+            return this;
+        }
+
+        public Builder setUseSign(boolean useSign) {
+            this.useSign = useSign;
             return this;
         }
 
@@ -149,6 +158,7 @@ public class InputParam {
             return new InputParam(
                 mappingFile,
                 use7zip,
+                useSign,
                 keepRoot,
                 whiteList,
                 compressFilePattern,

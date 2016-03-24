@@ -43,11 +43,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
     @TaskAction
     def generate() {
         print configuration
-        InputParam inputParam = new InputParam.Builder()
-                .setSignFile(android.signingConfigs.release.storeFile)
-                .setKeypass(android.signingConfigs.release.keyPassword)
-                .setStorealias(android.signingConfigs.release.keyAlias)
-                .setStorepass(android.signingConfigs.release.storePassword)
+        InputParam.Builder builder = new InputParam.Builder()
                 .setMappingFile(configuration.mappingFile)
                 .setWhiteList(configuration.whiteList)
                 .setUse7zip(configuration.use7zip)
@@ -58,7 +54,15 @@ public class AndResGuardSchemaTask extends DefaultTask {
                 .setSevenZipPath(configuration.sevenZipPath)
                 .setOutBuilder(releaseFolder)
                 .setApkPath(releaseApkPath)
-                .create();
+                .setUseSign(configuration.useSign);
+
+        if (configuration.useSign) {
+            builder.setSignFile(android.signingConfigs.release.storeFile)
+                   .setKeypass(android.signingConfigs.release.keyPassword)
+                   .setStorealias(android.signingConfigs.release.keyAlias)
+                   .setStorepass(android.signingConfigs.release.storePassword)
+        }
+        InputParam inputParam = builder.create();
         Main.gradleRun(inputParam)
     }
 }
