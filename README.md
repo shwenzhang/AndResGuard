@@ -30,13 +30,14 @@ apply plugin: 'AndResGuard'
 
 buildscript {
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.4'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.5'
     }
 }
 
 andResGuard {
     mappingFile = null
     use7zip = false
+    useSign = true
     keepRoot = false
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
