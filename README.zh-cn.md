@@ -91,7 +91,7 @@ andResGuard {
 >
 > linux：sudo apt-get install p7zip-full
 >
-> mac:sudo brew install p7zip
+> mac：brew install p7zip
 
 -zipalign,      指定zipalign的路径，若已添加到环境变量不需要设置。应是全路径例如linux: /shwenzhang/sdk/tools/zipalign, Window需要加上.exe结尾。
 
