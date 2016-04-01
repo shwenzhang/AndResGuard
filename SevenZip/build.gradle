@@ -1,5 +1,4 @@
 //apply plugin: 'com.google.osdetector'
-apply plugin: 'java'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
@@ -23,7 +22,7 @@ bintray {
     dryRun = false //Whether to run this as dry-run, without deploying
     pkg {
         repo = "maven"
-        name = "Seven Zip bin file"
+        name = "Seven Zip"
         desc = 'Seven zip bin files'
         websiteUrl = 'https://github.com/shwenzhang/AndResGuard'
         issueTrackerUrl = 'https://github.com/shwenzhang/AndResGuard/issues'
