@@ -24,7 +24,7 @@ bintray {
     pkg {
         repo = "maven"
         name = "Seven Zip bin file"
-        desc = 'Android Resource Proguard Plugin'
+        desc = 'Seven zip bin files'
         websiteUrl = 'https://github.com/shwenzhang/AndResGuard'
         issueTrackerUrl = 'https://github.com/shwenzhang/AndResGuard/issues'
         vcsUrl = 'https://github.com/shwenzhang/AndResGuard.git'

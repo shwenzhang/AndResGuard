@@ -39,6 +39,9 @@ artifacts {
 }
 
 
+bintrayUpload.dependsOn tasks.getByPath(':AndResGuard-core:bintrayUpload')
+publishToMavenLocal.dependsOn tasks.getByPath(':AndResGuard-core:publishToMavenLocal')
+
 bintray {
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
