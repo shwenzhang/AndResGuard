@@ -99,12 +99,12 @@ we can see the help description, The easiest way is : `java -jar andresguard.jar
 
 - -7zip,          set the 7zip path, such as /home/shwenzhang/tools/7za, window will be end of 7za.exe.
 
-> Window：
-> set 7za to environment variables。Address：[http://sparanoid.com/lab/7z/download.html](http://sparanoid.com/lab/7z/download.html)
+> Window:
+> set 7za to environment variables。Address: [http://sparanoid.com/lab/7z/download.html](http://sparanoid.com/lab/7z/download.html)
 >
-> linux：sudo apt-get install p7zip-full
+> linux: sudo apt-get install p7zip-full
 >
-> mac:sudo brew install p7zip
+> mac: brew install p7zip
 
 - -zipalign,      set the zipalign, such as /home/shwenzhang/sdk/tools/zipalign, window will be end of zipalign.exe.
 
@@ -131,7 +131,7 @@ if you want to special 7za or zipalign path, you can input:
 	java -jar resourceproguard.jar input.apk
 	 -7zip /shwenzhang/tool/7za  -zipalign /shwenzhang/sdk/tools/zipalign
 
-if you just want to repackage an apk compress with 7z：
+if you just want to repackage an apk compress with 7z:
 
 	java -jar resourceproguard.jar -repackage input.apk -out output_directory
 	 -7zip /shwenzhang/tool/7za  -zipalign /shwenzhang/sdk/tools/zipalign   
@@ -153,7 +153,7 @@ There are five main configurations:property, whitelist, keepmapping, compress, s
 
 **1. Property**
 
-Common properties：
+Common properties:
 
 - --sevenzip, whether use 7zip to repackage the signed apk, you must install the 7z command line version first.
 
@@ -193,7 +193,7 @@ Compress can specify the compression method for each file(Stored or Deflate). Ge
 
 - --path,     you must use / separation, and it support *, ?, such as *.png, *.jpg, res/drawable-hdpi/welcome_?.png.
 
-The maximum confusion will be：
+The maximum confusion will be:
 
 1. paths:*.png, *.jpg, *.jpeg, *.gif
 
@@ -218,7 +218,7 @@ if you want to sign the apk, you should input following data, but if you want to
 
 ![](http://i.imgur.com/21yO1jY.gif)
 
-Warning： if you use -signature mode。these setting in config.xml will be overlayed.
+Warning: if you use -signature mode。these setting in config.xml will be overlayed.
 
 ## FQA
 
