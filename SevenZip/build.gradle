@@ -1,13 +1,7 @@
-apply plugin: 'com.google.osdetector'
-apply plugin: 'java'
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.google.gradle:osdetector-gradle-plugin:1.4.0'
-    }
-}
+//apply plugin: 'com.google.osdetector'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 
 Properties properties = new Properties()
@@ -18,12 +12,50 @@ try {
 }
 version = properties.getProperty("bintray.version")
 group = properties.getProperty("bintray.groupId")
+def appId = 'SevenZip'
 
-artifacts {
-    archives(artifactFile) {
-        classifier osdetector.classifier
-        type "exe"
-        extension "exe"
-        builtBy buildArtifact
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    publications = ['SevenZipPub']
+    dryRun = false //Whether to run this as dry-run, without deploying
+    pkg {
+        repo = "maven"
+        name = "Seven Zip"
+        desc = 'Seven zip bin files'
+        websiteUrl = 'https://github.com/shwenzhang/AndResGuard'
+        issueTrackerUrl = 'https://github.com/shwenzhang/AndResGuard/issues'
+        vcsUrl = 'https://github.com/shwenzhang/AndResGuard.git'
+        licenses = ["Apache-2.0"]
+    }
+}
+
+publishing {
+    publications {
+        SevenZipPub(MavenPublication) {
+            artifactId appId
+            groupId group
+            artifact("executable/SevenZip-linux-x86_32.exe") {
+                classifier "linux-x86_32"
+                extension "exe"
+            }
+            artifact("executable/SevenZip-linux-x86_64.exe") {
+                classifier "linux-x86_64"
+                extension "exe"
+            }
+            artifact("executable/SevenZip-windows-x86_32.exe") {
+                classifier "windows-x86_32"
+                extension "exe"
+            }
+            artifact("executable/SevenZip-windows-x86_64.exe") {
+                classifier "windows-x86_64"
+                extension "exe"
+            }
+            artifact("executable/SevenZip-osx-x86_64.exe") {
+                classifier "osx-x86_64"
+                extension "exe"
+            }
+        }
     }
 }
