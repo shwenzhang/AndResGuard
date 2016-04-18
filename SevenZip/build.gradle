@@ -22,7 +22,7 @@ bintray {
     dryRun = false //Whether to run this as dry-run, without deploying
     pkg {
         repo = "maven"
-        name = "Seven Zip"
+        name = "SevenZip"
         desc = 'Seven zip bin files'
         websiteUrl = 'https://github.com/shwenzhang/AndResGuard'
         issueTrackerUrl = 'https://github.com/shwenzhang/AndResGuard/issues'
