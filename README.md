@@ -30,7 +30,7 @@ apply plugin: 'AndResGuard'
 
 buildscript {
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.5'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.6'
     }
 }
 
