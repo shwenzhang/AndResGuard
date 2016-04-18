@@ -14,8 +14,7 @@ import org.gradle.api.tasks.TaskAction
 public class AndResGuardSchemaTask extends DefaultTask {
     def configuration
     def android
-    String releaseApkPath
-    String releaseFolder
+    def releaseApkPaths = []
 
     AndResGuardSchemaTask() {
         description = 'Assemble Resource Proguard APK'
@@ -25,12 +24,10 @@ public class AndResGuardSchemaTask extends DefaultTask {
             configuration = project.andResGuard
             android = project.extensions.android
             android.applicationVariants.all { variant ->
-                println variant.buildType.name
                 if (variant.buildType.name == 'release') {
                     this.dependsOn variant.assemble
                     variant.outputs.each { output ->
-                        releaseApkPath = output.outputFile
-                        releaseFolder = "${output.outputFile.parent}/AndResProguard/"
+                        releaseApkPaths << output.outputFile
                     }
                 }
             }
@@ -40,29 +37,37 @@ public class AndResGuardSchemaTask extends DefaultTask {
         }
     }
 
-    @TaskAction
-    def generate() {
-        print configuration
-        InputParam.Builder builder = new InputParam.Builder()
-                .setMappingFile(configuration.mappingFile)
-                .setWhiteList(configuration.whiteList)
-                .setUse7zip(configuration.use7zip)
-                .setMetaName(configuration.metaName)
-                .setKeepRoot(configuration.keepRoot)
-                .setCompressFilePattern(configuration.compressFilePattern)
-                .setZipAlign(configuration.zipAlignPath)
-                .setSevenZipPath(configuration.sevenZipPath)
-                .setOutBuilder(releaseFolder)
-                .setApkPath(releaseApkPath)
-                .setUseSign(configuration.useSign);
+    def useFolder(file) {
+        //remove .apk from filename
+        def fileName = file.name[0..-5]
+        return "${file.parent}/AndResProguard_${fileName}/"
+    }
 
-        if (configuration.useSign) {
-            builder.setSignFile(android.signingConfigs.release.storeFile)
-                   .setKeypass(android.signingConfigs.release.keyPassword)
-                   .setStorealias(android.signingConfigs.release.keyAlias)
-                   .setStorepass(android.signingConfigs.release.storePassword)
+    @TaskAction
+    def resuguard() {
+        print configuration
+        releaseApkPaths.each { path ->
+            InputParam.Builder builder = new InputParam.Builder()
+                    .setMappingFile(configuration.mappingFile)
+                    .setWhiteList(configuration.whiteList)
+                    .setUse7zip(configuration.use7zip)
+                    .setMetaName(configuration.metaName)
+                    .setKeepRoot(configuration.keepRoot)
+                    .setCompressFilePattern(configuration.compressFilePattern)
+                    .setZipAlign(configuration.zipAlignPath)
+                    .setSevenZipPath(configuration.sevenZipPath)
+                    .setOutBuilder(useFolder(path))
+                    .setApkPath(path.getAbsolutePath())
+                    .setUseSign(configuration.useSign);
+
+            if (configuration.useSign) {
+                builder.setSignFile(android.signingConfigs.release.storeFile)
+                        .setKeypass(android.signingConfigs.release.keyPassword)
+                        .setStorealias(android.signingConfigs.release.keyAlias)
+                        .setStorepass(android.signingConfigs.release.storePassword)
+            }
+            InputParam inputParam = builder.create();
+            Main.gradleRun(inputParam)
         }
-        InputParam inputParam = builder.create();
-        Main.gradleRun(inputParam)
     }
 }
