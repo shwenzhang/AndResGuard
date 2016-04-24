@@ -87,7 +87,7 @@ android {
 }
 
 andResGuard {
-    mappingFile = null
+    mappingFile = file("./resource_mapping_app-aaa-release.txt")
     use7zip = false
     useSign = true
     keepRoot = false

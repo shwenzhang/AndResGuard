@@ -6,7 +6,7 @@
 
 public class AndResGuardExtension {
 
-    String mappingFile;
+    File mappingFile;
     boolean use7zip;
     boolean useSign;
     String metaName;
