@@ -19,7 +19,7 @@ apply plugin: 'AndResGuard'
 
 buildscript {
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.6'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.7'
     }
 }
 
@@ -58,13 +58,17 @@ andResGuard {
         "*.gif",
         "resources.arsc"
     ]
-    zipAlignPath = 'your_zipalign_path'
-    sevenZipPath = 'your_7zip_path'
+     sevenzip {
+         artifact = 'com.tencent.mm:SevenZip:1.1.7'
+         //path = "/usr/local/bin/7za"
+    }
 }
 ```
 
 运行`andresguard/resguard`的gradle任务，可以得到资源混淆的安装包
 命令行可直接运行```./gradlew resguard```
+
+在设置`sevenzip`时, 你只需设置`artifact`或`path`. 支持同时设置,总以path的值为优先.
 
 **注意: 在build.gradle文件中请把andResGuard的相关配置放在签名信息的下面,我们会使用你的签名信息用户重新打包APK**
 
