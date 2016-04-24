@@ -46,6 +46,8 @@ public class AndResGuardSchemaTask extends DefaultTask {
     @TaskAction
     def resuguard() {
         print configuration
+        def zipAlignPath = "${android.getSdkDirectory().getAbsolutePath()}/build-tools/" +
+                "${android.buildToolsVersion}/zipalign"
         releaseApkPaths.each { path ->
             InputParam.Builder builder = new InputParam.Builder()
                     .setMappingFile(configuration.mappingFile)
@@ -54,7 +56,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
                     .setMetaName(configuration.metaName)
                     .setKeepRoot(configuration.keepRoot)
                     .setCompressFilePattern(configuration.compressFilePattern)
-                    .setZipAlign(configuration.zipAlignPath)
+                    .setZipAlign(zipAlignPath)
                     .setSevenZipPath(configuration.sevenZipPath)
                     .setOutBuilder(useFolder(path))
                     .setApkPath(path.getAbsolutePath())

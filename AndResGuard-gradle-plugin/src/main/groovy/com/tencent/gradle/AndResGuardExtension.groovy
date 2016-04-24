@@ -13,7 +13,6 @@ public class AndResGuardExtension {
     boolean keepRoot;
     Iterable<String> whiteList;
     Iterable<String> compressFilePattern;
-    String zipAlignPath;
     String sevenZipPath;
 
     public AndResGuardExtension() {
@@ -24,7 +23,6 @@ public class AndResGuardExtension {
         whiteList = []
         compressFilePattern = []
         mappingFile = null
-        zipAlignPath = "zipalign"
         sevenZipPath = "7za"
     }
 
@@ -36,7 +34,6 @@ public class AndResGuardExtension {
            | keepRoot = ${keepRoot}
            | whiteList = ${whiteList}
            | compressFilePattern = ${compressFilePattern}
-           | zipAlignPath = ${zipAlignPath}
            | 7zipPath = ${sevenZipPath}
         """.stripMargin()
     }
