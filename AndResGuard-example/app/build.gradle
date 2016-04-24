@@ -88,7 +88,7 @@ android {
 
 andResGuard {
     mappingFile = file("./resource_mapping_app-aaa-release.txt")
-    use7zip = false
+    use7zip = true
     useSign = true
     keepRoot = false
     // add <yourpackagename>.R.drawable.icon into whitelist.
@@ -111,8 +111,10 @@ andResGuard {
             "*.gif",
             "resources.arsc"
     ]
-    //FIXME:change to your 7za path
-    sevenZipPath = '/usr/local/bin/7za'
+    sevenzip {
+        artifact = 'com.tencent.mm:SevenZip:1.1.7'
+        //path = "/usr/local/bin/7za"
+    }
 }
 
 dependencies {

@@ -12,7 +12,7 @@ import org.gradle.api.tasks.TaskAction
  * @author Sim Sun (sunsj1231@gmail.com)
  */
 public class AndResGuardSchemaTask extends DefaultTask {
-    def configuration
+    def AndResGuardExtension configuration
     def android
     def releaseApkPaths = []
 
@@ -43,12 +43,18 @@ public class AndResGuardSchemaTask extends DefaultTask {
         return "${file.parent}/AndResProguard_${fileName}/"
     }
 
+    def getZipAlignPath() {
+        return "${android.getSdkDirectory().getAbsolutePath()}/build-tools/${android.buildToolsVersion}/zipalign"
+    }
+
     @TaskAction
     def resuguard() {
-        print configuration
-        def zipAlignPath = "${android.getSdkDirectory().getAbsolutePath()}/build-tools/" +
-                "${android.buildToolsVersion}/zipalign"
+        project.logger.info("[AndResGuard]zipaligin: path: " + getZipAlignPath())
+        project.logger.info("[AndResGuard]configuartion:$configuration")
+        def ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
+
         releaseApkPaths.each { path ->
+            def String absPath = path.getAbsolutePath()
             InputParam.Builder builder = new InputParam.Builder()
                     .setMappingFile(configuration.mappingFile)
                     .setWhiteList(configuration.whiteList)
@@ -56,10 +62,10 @@ public class AndResGuardSchemaTask extends DefaultTask {
                     .setMetaName(configuration.metaName)
                     .setKeepRoot(configuration.keepRoot)
                     .setCompressFilePattern(configuration.compressFilePattern)
-                    .setZipAlign(zipAlignPath)
-                    .setSevenZipPath(configuration.sevenZipPath)
+                    .setZipAlign(getZipAlignPath())
+                    .setSevenZipPath(sevenzip.path)
                     .setOutBuilder(useFolder(path))
-                    .setApkPath(path.getAbsolutePath())
+                    .setApkPath(absPath)
                     .setUseSign(configuration.useSign);
 
             if (configuration.useSign) {
