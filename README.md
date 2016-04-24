@@ -36,7 +36,7 @@ buildscript {
 
 andResGuard {
     mappingFile = null
-    use7zip = false
+    use7zip = true
     useSign = true
     keepRoot = false
     // add <yourpackagename>.R.drawable.icon into whitelist.
