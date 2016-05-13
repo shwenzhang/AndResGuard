@@ -14,6 +14,31 @@ buildscript {
     }
 }
 
+andResGuard {
+    mappingFile = file("./resource_mapping_app-aaa-release.txt")
+    use7zip = true
+    useSign = true
+    keepRoot = false
+    // add <yourpackagename>.R.drawable.icon into whitelist.
+    // because the launcher will get the icon with his name
+    whiteList = [
+            "R.drawable.icon",
+            //https://docs.fabric.io/android/crashlytics/build-tools.html
+            "R.string.com.crashlytics.*"
+    ]
+    compressFilePattern = [
+            "*.png",
+            "*.jpg",
+            "*.jpeg",
+            "*.gif",
+            "resources.arsc"
+    ]
+    sevenzip {
+        artifact = 'com.tencent.mm:SevenZip:1.1.7'
+        //path = "/usr/local/bin/7za"
+    }
+}
+
 repositories {
     jcenter()
     maven { url 'https://maven.fabric.io/public' }
@@ -86,30 +111,7 @@ android {
     }
 }
 
-andResGuard {
-    mappingFile = file("./resource_mapping_app-aaa-release.txt")
-    use7zip = true
-    useSign = true
-    keepRoot = false
-    // add <yourpackagename>.R.drawable.icon into whitelist.
-    // because the launcher will get the icon with his name
-    whiteList = [
-            "R.drawable.icon",
-            //https://docs.fabric.io/android/crashlytics/build-tools.html
-            "R.string.com.crashlytics.*"
-    ]
-    compressFilePattern = [
-            "*.png",
-            "*.jpg",
-            "*.jpeg",
-            "*.gif",
-            "resources.arsc"
-    ]
-    sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.1.7'
-        //path = "/usr/local/bin/7za"
-    }
-}
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
