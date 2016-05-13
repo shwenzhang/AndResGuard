@@ -15,7 +15,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
     def AndResGuardExtension configuration
     def android
     def releaseApkPaths = []
-
+    def signconfig
     AndResGuardSchemaTask() {
         description = 'Assemble Resource Proguard APK'
         group = 'andresguard'
@@ -29,6 +29,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
                     variant.outputs.each { output ->
                         releaseApkPaths << output.outputFile
                     }
+                    signconfig = variant.apkVariantData.variantConfiguration.getSigningConfig
                 }
             }
             if (!project.plugins.hasPlugin('com.android.application')) {
@@ -40,7 +41,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
     def useFolder(file) {
         //remove .apk from filename
         def fileName = file.name[0..-5]
-        return "${file.parent}/AndResProguard_${fileName}/"
+        return "${file.parent}/AndResGuard_${fileName}/"
     }
 
     def getZipAlignPath() {
@@ -67,12 +68,14 @@ public class AndResGuardSchemaTask extends DefaultTask {
                     .setOutBuilder(useFolder(path))
                     .setApkPath(absPath)
                     .setUseSign(configuration.useSign);
-
             if (configuration.useSign) {
-                builder.setSignFile(android.signingConfigs.release.storeFile)
-                        .setKeypass(android.signingConfigs.release.keyPassword)
-                        .setStorealias(android.signingConfigs.release.keyAlias)
-                        .setStorepass(android.signingConfigs.release.storePassword)
+                if (signconfig == null) {
+                    throw new GradleException("can't the get signconfig for release build")
+                }
+                builder.setSignFile(signconfig.storeFile)
+                        .setKeypass(signconfig.keyPassword)
+                        .setStorealias(signconfig.keyAlias)
+                        .setStorepass(signconfig.storePassword)
             }
             InputParam inputParam = builder.create();
             Main.gradleRun(inputParam)
