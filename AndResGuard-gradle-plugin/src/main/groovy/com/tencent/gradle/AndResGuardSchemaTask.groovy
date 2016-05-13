@@ -29,7 +29,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
                     variant.outputs.each { output ->
                         releaseApkPaths << output.outputFile
                     }
-                    signconfig = variant.apkVariantData.variantConfiguration.getSigningConfig
+                    signconfig = variant.apkVariantData.variantConfiguration.signingConfig
                 }
             }
             if (!project.plugins.hasPlugin('com.android.application')) {
