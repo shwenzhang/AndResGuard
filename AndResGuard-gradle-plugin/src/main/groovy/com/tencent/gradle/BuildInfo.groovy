@@ -7,9 +7,11 @@ package com.tencent.gradle
 class BuildInfo {
     def file
     def signConfig
+    def packageName
 
-    public BuildInfo(file, sign) {
-        this.file = file;
-        this.signConfig = sign;
+    public BuildInfo(file, sign, packageName) {
+        this.file = file
+        this.signConfig = sign
+        this.packageName = packageName
     }
 }

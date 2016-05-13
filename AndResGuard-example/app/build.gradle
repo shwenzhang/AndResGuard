@@ -94,15 +94,9 @@ andResGuard {
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
     whiteList = [
-            "andresguard.tencent.com.andresguard_example.R.drawable.icon",
-            "andresguard.tencent.com.andresguard_example.flavor2.R.drawable.icon",
-            "andresguard.tencent.com.andresguard_example.flavor1.R.drawable.icon",
-            "andresguard.tencent.com.andresguard_example.aaa.R.drawable.icon",
+            "R.drawable.icon",
             //https://docs.fabric.io/android/crashlytics/build-tools.html
-            "andresguard.tencent.com.andresguard_example.R.string.com.crashlytics.*",
-            "andresguard.tencent.com.andresguard_example.flavor2.R.string.com.crashlytics.*",
-            "andresguard.tencent.com.andresguard_example.flavor1.R.string.com.crashlytics.*",
-            "andresguard.tencent.com.andresguard_example.aaa.R.string.com.crashlytics.*"
+            "R.string.com.crashlytics.*"
     ]
     compressFilePattern = [
             "*.png",
@@ -120,8 +114,8 @@ andResGuard {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.2.0'
-    compile 'com.android.support:design:23.2.0'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:design:23.3.0'
     // Crashlytics Kit
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true

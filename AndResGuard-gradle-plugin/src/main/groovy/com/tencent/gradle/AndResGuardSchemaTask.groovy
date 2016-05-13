@@ -6,6 +6,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 
+import java.lang.reflect.Array
+
 /**
  * The configuration properties.
  *
@@ -29,7 +31,8 @@ public class AndResGuardSchemaTask extends DefaultTask {
                     variant.outputs.each { output ->
                         buildConfigs << new BuildInfo(
                                 output.outputFile,
-                                variant.apkVariantData.variantConfiguration.signingConfig
+                                variant.apkVariantData.variantConfiguration.signingConfig,
+                                variant.apkVariantData.variantConfiguration.applicationId
                         )
                     }
                 }
@@ -42,7 +45,7 @@ public class AndResGuardSchemaTask extends DefaultTask {
 
     static def useFolder(file) {
         //remove .apk from filename
-        def fileName = file.name[0..-5 as String]
+        def fileName = file.name[0..-5]
         return "${file.parent}/AndResGuard_${fileName}/"
     }
 
@@ -59,17 +62,25 @@ public class AndResGuardSchemaTask extends DefaultTask {
         buildConfigs.each { config ->
             def String absPath = config.file.getAbsolutePath()
             def signConfig = config.signConfig
-
+            def String packageName = config.packageName
+            ArrayList<String> whiteListFullName = new ArrayList<>();
+            configuration.whiteList.each { res ->
+                if (res.startsWith("R")) {
+                    whiteListFullName.add(packageName + "." + res)
+                } else {
+                    whiteListFullName.add(res)
+                }
+            }
             InputParam.Builder builder = new InputParam.Builder()
                     .setMappingFile(configuration.mappingFile)
-                    .setWhiteList(configuration.whiteList)
+                    .setWhiteList(whiteListFullName)
                     .setUse7zip(configuration.use7zip)
                     .setMetaName(configuration.metaName)
                     .setKeepRoot(configuration.keepRoot)
                     .setCompressFilePattern(configuration.compressFilePattern)
                     .setZipAlign(getZipAlignPath())
                     .setSevenZipPath(sevenzip.path)
-                    .setOutBuilder(useFolder(path))
+                    .setOutBuilder(useFolder(config.file))
                     .setApkPath(absPath)
                     .setUseSign(configuration.useSign);
 
