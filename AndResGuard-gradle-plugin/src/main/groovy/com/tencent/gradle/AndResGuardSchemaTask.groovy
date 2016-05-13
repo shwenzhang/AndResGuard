@@ -14,8 +14,8 @@ import org.gradle.api.tasks.TaskAction
 public class AndResGuardSchemaTask extends DefaultTask {
     def AndResGuardExtension configuration
     def android
-    def releaseApkPaths = []
-    def signconfig
+    def buildConfigs = []
+
     AndResGuardSchemaTask() {
         description = 'Assemble Resource Proguard APK'
         group = 'andresguard'
@@ -27,9 +27,11 @@ public class AndResGuardSchemaTask extends DefaultTask {
                 if (variant.buildType.name == 'release') {
                     this.dependsOn variant.assemble
                     variant.outputs.each { output ->
-                        releaseApkPaths << output.outputFile
+                        buildConfigs << new BuildInfo(
+                                output.outputFile,
+                                variant.apkVariantData.variantConfiguration.signingConfig
+                        )
                     }
-                    signconfig = variant.apkVariantData.variantConfiguration.signingConfig
                 }
             }
             if (!project.plugins.hasPlugin('com.android.application')) {
@@ -38,9 +40,9 @@ public class AndResGuardSchemaTask extends DefaultTask {
         }
     }
 
-    def useFolder(file) {
+    static def useFolder(file) {
         //remove .apk from filename
-        def fileName = file.name[0..-5]
+        def fileName = file.name[0..-5 as String]
         return "${file.parent}/AndResGuard_${fileName}/"
     }
 
@@ -54,8 +56,10 @@ public class AndResGuardSchemaTask extends DefaultTask {
         project.logger.info("[AndResGuard]configuartion:$configuration")
         def ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
 
-        releaseApkPaths.each { path ->
-            def String absPath = path.getAbsolutePath()
+        buildConfigs.each { config ->
+            def String absPath = config.file.getAbsolutePath()
+            def signConfig = config.signConfig
+
             InputParam.Builder builder = new InputParam.Builder()
                     .setMappingFile(configuration.mappingFile)
                     .setWhiteList(configuration.whiteList)
@@ -68,14 +72,15 @@ public class AndResGuardSchemaTask extends DefaultTask {
                     .setOutBuilder(useFolder(path))
                     .setApkPath(absPath)
                     .setUseSign(configuration.useSign);
+
             if (configuration.useSign) {
-                if (signconfig == null) {
-                    throw new GradleException("can't the get signconfig for release build")
+                if (signConfig == null) {
+                    throw new GradleException("can't the get signConfig for release build")
                 }
-                builder.setSignFile(signconfig.storeFile)
-                        .setKeypass(signconfig.keyPassword)
-                        .setStorealias(signconfig.keyAlias)
-                        .setStorepass(signconfig.storePassword)
+                builder.setSignFile(signConfig.storeFile)
+                        .setKeypass(signConfig.keyPassword)
+                        .setStorealias(signConfig.keyAlias)
+                        .setStorepass(signConfig.storePassword)
             }
             InputParam inputParam = builder.create();
             Main.gradleRun(inputParam)

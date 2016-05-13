@@ -28,7 +28,7 @@ crashlytics {
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
 
     signingConfigs {
@@ -49,15 +49,15 @@ android {
     }
 
     productFlavors {
-//        flavor2 {
-//            println("@@@THIS IS FLAVOR2@@@")
-//            applicationId 'andresguard.tencent.com.andresguard_example.flavor2'
-//        }
-//
-//        flavor1 {
-//            println("@@@THIS IS FLAVOR1@@@")
-//            applicationId 'andresguard.tencent.com.andresguard_example.flavor1'
-//        }
+        flavor2 {
+            println("@@@THIS IS FLAVOR2@@@")
+            applicationId 'andresguard.tencent.com.andresguard_example.flavor2'
+        }
+
+        flavor1 {
+            println("@@@THIS IS FLAVOR1@@@")
+            applicationId 'andresguard.tencent.com.andresguard_example.flavor1'
+        }
 
         aaa {
             println("@@@THIS IS aaa@@@")

@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/shwenzhang/AndResGuard#readme",
   "devDependencies": {
-    "cz-conventional-changelog": "^1.1.5"
+    "cz-conventional-changelog": "^1.1.6"
   },
   "config": {
     "commitizen": {
