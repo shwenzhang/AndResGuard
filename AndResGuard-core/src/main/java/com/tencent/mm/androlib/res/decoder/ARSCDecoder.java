@@ -146,7 +146,7 @@ public class ARSCDecoder {
                 HashMap<String, String> fileMapping = config.mOldFileMapping;
                 List<String> keepFileNames = new ArrayList<String>();
                 //这里面为了兼容以前，也需要用以前的文件名前缀，即res混淆成什么
-                String resRoot = null;
+                String resRoot = TypedValue.RES_FILE_PATH;
                 for (String name : fileMapping.values()) {
                     int dot = name.indexOf("/");
                     if (dot == -1) {
