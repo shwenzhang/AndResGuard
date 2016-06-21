@@ -178,7 +178,7 @@ public class FileOperation {
             BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER);
 
             byte[] buf = new byte[BUFFER];
-            int len = 0;
+            int len;
             while ((len = bis.read(buf, 0, BUFFER)) != -1) {
                 fos.write(buf, 0, len);
             }
@@ -221,7 +221,9 @@ public class FileOperation {
                 rootpath = rootpath.replace("\\", "/");
             }
             if (!compressData.containsKey(rootpath)) {
-                throw new IOException(String.format("do not have the compress data path=%s", rootpath));
+                System.err.printf(String.format("do not have the compress data path =%s in resource.asrc\n", rootpath));
+                //throw new IOException(String.format("do not have the compress data path=%s", rootpath));
+                return;
             }
             int compressMethod = compressData.get(rootpath);
             ZipEntry entry = new ZipEntry(rootpath);
