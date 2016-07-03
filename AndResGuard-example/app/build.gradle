@@ -15,14 +15,13 @@ buildscript {
 }
 
 andResGuard {
-    mappingFile = file("./resource_mapping_app-aaa-release.txt")
+    mappingFile = file("./resource_mapping.txt")
     use7zip = true
     useSign = true
     keepRoot = false
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
     whiteList = [
-            "R.drawable.icon",
             //https://docs.fabric.io/android/crashlytics/build-tools.html
             "R.string.com.crashlytics.*"
     ]
@@ -52,8 +51,8 @@ crashlytics {
 
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 24
+    buildToolsVersion "24.0.0"
 
 
     signingConfigs {
@@ -73,22 +72,22 @@ android {
         }
     }
 
-    productFlavors {
-        flavor2 {
-            println("@@@THIS IS FLAVOR2@@@")
-            applicationId 'andresguard.tencent.com.andresguard_example.flavor2'
-        }
-
-        flavor1 {
-            println("@@@THIS IS FLAVOR1@@@")
-            applicationId 'andresguard.tencent.com.andresguard_example.flavor1'
-        }
-
-        aaa {
-            println("@@@THIS IS aaa@@@")
-            applicationId 'andresguard.tencent.com.andresguard_example.aaa'
-        }
-    }
+//    productFlavors {
+//        flavor2 {
+//            println("@@@THIS IS FLAVOR2@@@")
+//            applicationId 'andresguard.tencent.com.andresguard_example.flavor2'
+//        }
+//
+//        flavor1 {
+//            println("@@@THIS IS FLAVOR1@@@")
+//            applicationId 'andresguard.tencent.com.andresguard_example.flavor1'
+//        }
+//
+//        aaa {
+//            println("@@@THIS IS aaa@@@")
+//            applicationId 'andresguard.tencent.com.andresguard_example.aaa'
+//        }
+//    }
 
     buildTypes {
         release {
@@ -105,9 +104,9 @@ android {
     defaultConfig {
         applicationId "andresguard.tencent.com.andresguard_example"
         minSdkVersion 14
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 24
+        versionCode 2
+        versionName "1.1"
     }
 }
 
@@ -116,8 +115,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.3.0'
-    compile 'com.android.support:design:23.3.0'
+    compile 'com.android.support:appcompat-v7:24.0.0'
+    compile 'com.android.support:design:24.0.0'
     // Crashlytics Kit
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true
