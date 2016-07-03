@@ -18,10 +18,11 @@ andResGuard {
     mappingFile = file("./resource_mapping.txt")
     use7zip = true
     useSign = true
-    keepRoot = false
+    keepRoot = true
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
     whiteList = [
+            "R.mipmap.ic_launcher",
             //https://docs.fabric.io/android/crashlytics/build-tools.html
             "R.string.com.crashlytics.*"
     ]
