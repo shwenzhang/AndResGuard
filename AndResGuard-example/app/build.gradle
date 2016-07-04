@@ -18,7 +18,7 @@ andResGuard {
     mappingFile = file("./resource_mapping.txt")
     use7zip = true
     useSign = true
-    keepRoot = true
+    keepRoot = false
     // add <yourpackagename>.R.drawable.icon into whitelist.
     // because the launcher will get the icon with his name
     whiteList = [

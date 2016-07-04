@@ -1,1 +1,6 @@
-
+res path mapping:
+    res/mipmap-hdpi-v4 -> res/mipmap-hdpi-v4
+    res/mipmap-mdpi-v4 -> res/mipmap-mdpi-v4
+    res/mipmap-xhdpi-v4 -> res/mipmap-xhdpi-v4
+    res/mipmap-xxhdpi-v4 -> res/mipmap-xxhdpi-v4
+    res/mipmap-xxxhdpi-v4 -> res/mipmap-xxxhdpi-v4
