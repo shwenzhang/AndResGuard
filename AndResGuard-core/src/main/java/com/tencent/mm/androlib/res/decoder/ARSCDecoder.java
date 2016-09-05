@@ -6,6 +6,7 @@ import com.tencent.mm.androlib.AndrolibException;
 import com.tencent.mm.androlib.ApkDecoder;
 import com.tencent.mm.androlib.res.data.ResPackage;
 import com.tencent.mm.androlib.res.data.ResType;
+import com.tencent.mm.androlib.res.util.StringUtil;
 import com.tencent.mm.resourceproguard.Configuration;
 import com.tencent.mm.util.ExtDataInput;
 import com.tencent.mm.util.ExtDataOutput;
@@ -587,8 +588,9 @@ public class ARSCDecoder {
         if (mPkg.isCanProguard() && flags && type == TypedValue.TYPE_STRING && mShouldProguardForType && mShouldProguardTypeSet.contains(mType.getName())) {
             if (mTableStringsProguard.get(data) == null) {
                 String raw = mTableStrings.get(data).toString();
-                String proguard = mPkg.getSpecRepplace(mResId);
+                if (StringUtil.isBlank(raw)) return;
 
+                String proguard = mPkg.getSpecRepplace(mResId);
                 //这个要写死这个，因为resources.arsc里面就是用这个
                 int secondSlash = raw.lastIndexOf("/");
                 if (secondSlash == -1) {
