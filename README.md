@@ -29,7 +29,7 @@ apply plugin: 'AndResGuard'
 
 buildscript {
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.9'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.10'
     }
 }
 
@@ -68,7 +68,7 @@ andResGuard {
         "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.1.9'
+        artifact = 'com.tencent.mm:SevenZip:1.1.10'
         //path = "/usr/local/bin/7za"
     }
 }
