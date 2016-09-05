@@ -34,7 +34,7 @@ andResGuard {
             "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.1.9'
+        artifact = 'com.tencent.mm:SevenZip:1.1.10'
         //path = "/usr/local/bin/7za"
     }
 }
@@ -53,7 +53,7 @@ crashlytics {
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.0"
+    buildToolsVersion "24.0.1"
 
 
     signingConfigs {
@@ -116,8 +116,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'com.android.support:design:24.0.0'
+    compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.android.support:design:24.2.0'
     // Crashlytics Kit
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true
