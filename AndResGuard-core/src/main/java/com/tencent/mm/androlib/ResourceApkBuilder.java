@@ -104,13 +104,15 @@ public class ResourceApkBuilder {
             if (mSignedApk.exists()) {
                 mSignedApk.delete();
             }
-            String cmd = "jarsigner -sigalg MD5withRSA -digestalg SHA1 -keystore " + config.mSignatureFile
-                + " -storepass " + config.mStorePass
-                + " -keypass " + config.mKeyPass
-                + " -signedjar " + mSignedApk.getAbsolutePath()
-                + " " + mUnSignedApk.getAbsolutePath()
-                + " " + config.mStoreAlias;
-            Process pro = Runtime.getRuntime().exec(cmd);
+            String[] argv = {
+                "jarsigner", "-sigalg", "MD5withRSA", "-digestalg", "SHA1", "-keystore", config.mSignatureFile.toString(),
+                "-storepass", config.mStorePass,
+                "-keypass", config.mKeyPass,
+                "-signedjar", mSignedApk.getAbsolutePath(),
+                mUnSignedApk.getAbsolutePath(),
+                config.mStoreAlias
+            };
+            Process pro = Runtime.getRuntime().exec(argv);
             //destroy the stream
             pro.waitFor();
             pro.destroy();
