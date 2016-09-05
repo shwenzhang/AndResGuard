@@ -37,3 +37,4 @@ local_repo
 tool_output/outapk
 
 node_modules/
+**/gradle.properties
