@@ -56,7 +56,7 @@ andResGuard {
         "R.color.tb_*",
         "R.style.*UM*",
         "R.style.umeng*",
-        "R.id.umeng*"
+        "R.id.umeng*",
         //umeng share for sina
         "R.drawable.sina*"
     ]
