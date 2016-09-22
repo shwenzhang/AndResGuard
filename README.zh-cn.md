@@ -29,11 +29,11 @@ andResGuard {
     useSign = true
     keepRoot = false
     whiteList = [
-        //for your icon
+        // for your icon
         "R.drawable.icon",
-        //for fabric
+        // for fabric
         "R.string.com.crashlytics.*",
-        //for umeng update
+        // for umeng update
         "R.string.umeng*",
         "R.string.UM*",
         "R.string.tb_*",
@@ -47,7 +47,7 @@ andResGuard {
         "R.style.*UM*",
         "R.style.umeng*",
         "R.id.umeng*",
-        //umeng share for sina
+        // umeng share for sina
         "R.drawable.sina*"
         // for google-services.json
         "R.string.google_app_id",
