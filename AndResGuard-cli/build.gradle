@@ -38,7 +38,7 @@ jar {
 // copy the jar to work directory
 task buildJar(type: Copy, dependsOn: [build, jar]) {
     from('build/libs') {
-        include '*.jar'
+        include '*' + version + '*.jar'
     }
     into('../tool_output')
 }
