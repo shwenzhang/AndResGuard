@@ -105,17 +105,25 @@ public class ResourceApkBuilder {
                 mSignedApk.delete();
             }
             String[] argv = {
-                "jarsigner", "-sigalg", "MD5withRSA", "-digestalg", "SHA1", "-keystore", config.mSignatureFile.toString(),
+                "jarsigner", "-sigalg", "MD5withRSA",
+                "-digestalg", "SHA1",
+                "-keystore", config.mSignatureFile.getAbsolutePath(),
                 "-storepass", config.mStorePass,
                 "-keypass", config.mKeyPass,
                 "-signedjar", mSignedApk.getAbsolutePath(),
                 mUnSignedApk.getAbsolutePath(),
                 config.mStoreAlias
             };
-            Process pro = Runtime.getRuntime().exec(argv);
-            //destroy the stream
-            pro.waitFor();
-            pro.destroy();
+            Process pro = null;
+            try {
+                pro = Runtime.getRuntime().exec(argv);
+                //destroy the stream
+                pro.waitFor();
+            } finally {
+                if (pro != null) {
+                    pro.destroy();
+                }
+            }
 
             if (!mSignedApk.exists()) {
                 throw new IOException("Can't Generate signed APK. Plz check your sign info is correct.");
