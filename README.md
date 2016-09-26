@@ -6,7 +6,7 @@
 
 *Read this in other languages: [English](README.md), [简体中文](README.zh-cn.md).*
 
-AndResGuard is a tool to proguard resource for Android, just like ProGuard in Java. It can change res/drawable/wechat to r/d/a, and rename the resource file wechat.png to a.png. Finally, it repackages the apk with 7zip, which can reduce the package size obviously.
+AndResGuard is a tooling for reducing your apk size, it works like ProGuard for Java source code, but only aim at resource files. It change res/drawable/wechat to r/d/a, and rename the resource file wechat.png to a.png. Finally, it repackages the apk with 7zip, which can reduce the package size obviously.
 
 AndResGuard is fast, and it does not need the source codes. Input a Android apk, then we can get a 'ResGuard' apk in a few seconds.
 
