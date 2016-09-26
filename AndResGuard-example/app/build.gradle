@@ -69,7 +69,7 @@ android {
         }
 
         debug {
-            storeFile file("../keystore/debug.keystore")
+            storeFile file("../keystore test/debug.keystore")
         }
     }
 
