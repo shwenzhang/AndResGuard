@@ -88,4 +88,6 @@ Or alternatively, you run ```./gradlew resguard``` in your terminal.
 
 The sevenzip can be set by 'path' or 'artifact'. Mutiple assignments are allowed, but the winner always is `path`.
 
+The output apk will be stored in `{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`
+   
 Looking for [more detail](doc/how_to_work.md)

@@ -79,4 +79,6 @@ andResGuard {
 
 在设置`sevenzip`时, 你只需设置`artifact`或`path`. 支持同时设置,总以path的值为优先.
 
+最终的混淆APK会生成在`{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`。
+    
 点击查看[更多细节和命令行使用方法](doc/how_to_work.zh-cn.md)
