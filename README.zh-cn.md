@@ -19,6 +19,9 @@
 apply plugin: 'AndResGuard'
 
 buildscript {
+    repositories {
+        jcenter()
+    }
     dependencies {
         classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.11'
     }
