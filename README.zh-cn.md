@@ -53,7 +53,7 @@ andResGuard {
         "R.style.umeng*",
         "R.id.umeng*",
         // umeng share for sina
-        "R.drawable.sina*"
+        "R.drawable.sina*",
         // for google-services.json
         "R.string.google_app_id",
         "R.string.gcm_defaultSenderId",
