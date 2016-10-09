@@ -93,4 +93,4 @@ The sevenzip can be set by 'path' or 'artifact'. Mutiple assignments are allowed
 
 The output apk will be stored in `{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`
    
-Looking for [more detail](doc/how_to_work.md)
+[Looking for more detail](doc/how_to_work.md)

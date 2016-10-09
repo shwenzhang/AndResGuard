@@ -62,6 +62,15 @@ andResGuard {
         "R.string.firebase_database_url",
         "R.string.google_api_key",
         "R.string.google_crash_reporting_api_key"
+        // umeng share for facebook
+        "R.layout.*facebook*",
+        "R.id.*facebook*",
+        // umeng share for messager
+        "R.layout.*messager*",
+        "R.id.*messager*",
+        // umeng share commond
+        "R.id.progress_bar_parent",
+        "R.id.webView"
     ]
     compressFilePattern = [
         "*.png",
@@ -84,4 +93,7 @@ andResGuard {
 
 最终的混淆APK会生成在`{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`。
     
-点击查看[更多细节和命令行使用方法](doc/how_to_work.zh-cn.md)
+**请使用Umeng_social_sdk的同学特别留意将资源加入白名单，否则会出现Crash。也欢迎大家PR自己的白名单**  
+
+[点击查看更多细节和命令行使用方法](doc/how_to_work.zh-cn.md)
+
