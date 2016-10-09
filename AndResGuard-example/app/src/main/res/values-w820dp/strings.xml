@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AndResGuard-example 820</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer 820</string>
+    <string name="navigation_drawer_close">Close navigation drawer 820</string>
+
+    <string name="action_settings">Settings 820</string>
+</resources>
