@@ -46,7 +46,7 @@ public class ARSCDecoder {
 
     private final static short  ENTRY_FLAG_COMPLEX = 0x0001;
     private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
-    private static final int    KNOWN_CONFIG_BYTES = 38;
+    private static final int    KNOWN_CONFIG_BYTES = 56;
 
     public static Map<Integer, String> mTableStringsProguard = new LinkedHashMap<>();
 
@@ -663,9 +663,9 @@ public class ARSCDecoder {
         mOut.writeInt(data);
     }
 
-    private void readConfigFlags() throws IOException,
-        AndrolibException {
+    private void readConfigFlags() throws IOException, AndrolibException {
         int size = mIn.readInt();
+        int read = 28;
         if (size < 28) {
             throw new AndrolibException("Config size < 28");
         }
@@ -686,7 +686,7 @@ public class ARSCDecoder {
         byte keyboard = mIn.readByte();
         byte navigation = mIn.readByte();
         byte inputFlags = mIn.readByte();
-		/* inputPad0 */
+        /* inputPad0 */
         mIn.skipBytes(1);
 
         short screenWidth = mIn.readShort();
@@ -699,10 +699,12 @@ public class ARSCDecoder {
         byte screenLayout = 0;
         byte uiMode = 0;
         short smallestScreenWidthDp = 0;
+
         if (size >= 32) {
             screenLayout = mIn.readByte();
             uiMode = mIn.readByte();
             smallestScreenWidthDp = mIn.readShort();
+            read = 32;
         }
 
         short screenWidthDp = 0;
@@ -710,30 +712,65 @@ public class ARSCDecoder {
         if (size >= 36) {
             screenWidthDp = mIn.readShort();
             screenHeightDp = mIn.readShort();
+            read = 36;
         }
 
-        short layoutDirection = 0;
-        if (size >= 38) {
-            layoutDirection = mIn.readShort();
+        char[] localeScript = null;
+        char[] localeVariant = null;
+        if (size >= 48) {
+            localeScript = readScriptOrVariantChar(4).toCharArray();
+            localeVariant = readScriptOrVariantChar(8).toCharArray();
+            read = 48;
+        }
+
+        byte screenLayout2 = 0;
+        if (size >= 52) {
+            screenLayout2 = mIn.readByte();
+            mIn.skipBytes(3); // reserved padding
+            read = 52;
+        }
+
+        if (size >= 56) {
+            mIn.skipBytes(4);
+            read = 56;
         }
 
         int exceedingSize = size - KNOWN_CONFIG_BYTES;
         if (exceedingSize > 0) {
             byte[] buf = new byte[exceedingSize];
+            read += exceedingSize;
             mIn.readFully(buf);
             BigInteger exceedingBI = new BigInteger(1, buf);
 
             if (exceedingBI.equals(BigInteger.ZERO)) {
-                LOGGER.fine(
-                    String.format("Config flags size > %d, but exceeding bytes are all zero, so it should be ok.",
-                        KNOWN_CONFIG_BYTES));
+                LOGGER.fine(String.format(
+                    "Config flags size > %d, but exceeding bytes are all zero, so it should be ok.",
+                    KNOWN_CONFIG_BYTES
+                ));
             } else {
-                LOGGER.warning(String.format("Config flags size > %d. Exceeding bytes: 0x%X.",
-                    KNOWN_CONFIG_BYTES, exceedingBI));
+                LOGGER.warning(String.format(
+                    "Config flags size > %d. Exceeding bytes: 0x%X.",
+                    KNOWN_CONFIG_BYTES, exceedingBI
+                ));
                 isInvalid = true;
             }
         }
 
+    }
+
+    private String readScriptOrVariantChar(int length) throws AndrolibException, IOException {
+        StringBuilder string = new StringBuilder(16);
+
+        while (length-- != 0) {
+            short ch = mIn.readByte();
+            if (ch == 0) {
+                break;
+            }
+            string.append((char) ch);
+        }
+        mIn.skipBytes(length);
+
+        return string.toString();
     }
 
     private void writeConfigFlags() throws IOException, AndrolibException {
