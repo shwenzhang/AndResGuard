@@ -29,6 +29,7 @@ buildscript {
 
 
 andResGuard {
+    // mappingFile = file("./resource_mapping.txt")
     mappingFile = null
     use7zip = true
     useSign = true
