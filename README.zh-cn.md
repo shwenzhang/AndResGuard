@@ -32,6 +32,7 @@ andResGuard {
     mappingFile = null
     use7zip = true
     useSign = true
+    // 打开这个开关，会keep住所有资源的原始路径，只混淆资源的名字
     keepRoot = false
     whiteList = [
         // for your icon

@@ -39,6 +39,7 @@ andResGuard {
     mappingFile = null
     use7zip = true
     useSign = true
+    // it will keep the origin path of your resources when it's true
     keepRoot = false
     whiteList = [
         // your icon
