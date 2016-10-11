@@ -94,7 +94,19 @@ andResGuard {
 
 最终的混淆APK会生成在`{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`。
     
-**请使用Umeng_social_sdk的同学特别留意将资源加入白名单，否则会出现Crash。也欢迎大家PR自己的白名单**  
+**请使用Umeng_social_sdk的同学特别留意将资源加入白名单，否则会出现Crash。也欢迎大家PR自己的白名单**
+    
+白名单机制只作用于资源的specsName，不会keep住资源的路径。如果想keep住资源原有的物理路径，可以使用`mappingFile`。
+例如我想keep住icon所有folder，可以在mappingFile指向的文件添加：
+
+```
+res path mapping:
+    res/mipmap-hdpi-v4 -> res/mipmap-hdpi-v4
+    res/mipmap-mdpi-v4 -> res/mipmap-mdpi-v4
+    res/mipmap-xhdpi-v4 -> res/mipmap-xhdpi-v4
+    res/mipmap-xxhdpi-v4 -> res/mipmap-xxhdpi-v4
+    res/mipmap-xxxhdpi-v4 -> res/mipmap-xxxhdpi-v4
+```
 
 [点击查看更多细节和命令行使用方法](doc/how_to_work.zh-cn.md)
 
