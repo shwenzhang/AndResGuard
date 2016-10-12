@@ -105,7 +105,7 @@ public class ResourceApkBuilder {
                 mSignedApk.delete();
             }
             String[] argv = {
-                "jarsigner", "-sigalg", "MD5withRSA",
+                "jarsigner",
                 "-digestalg", "SHA1",
                 "-keystore", config.mSignatureFile.getAbsolutePath(),
                 "-storepass", config.mStorePass,
