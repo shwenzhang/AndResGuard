@@ -6,9 +6,12 @@ import com.tencent.mm.util.TypedValue;
 import com.tencent.mm.util.Utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.security.Key;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -97,6 +100,26 @@ public class ResourceApkBuilder {
         }
     }
 
+    private String getSignatureAlgorithm() throws Exception {
+        FileInputStream fileIn = new FileInputStream(config.mSignatureFile);
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(fileIn, config.mStorePass.toCharArray());
+        Key key = keyStore.getKey(config.mStoreAlias, config.mKeyPass.toCharArray());
+        String keyAlgorithm = key.getAlgorithm();
+        String signatureAlgorithm;
+        if (keyAlgorithm.equalsIgnoreCase("DSA")) {
+            signatureAlgorithm = "SHA1withDSA";
+        } else if (keyAlgorithm.equalsIgnoreCase("RSA")) {
+            signatureAlgorithm = "SHA1withRSA";
+        } else if (keyAlgorithm.equalsIgnoreCase("EC")) {
+            signatureAlgorithm = "SHA1withECDSA";
+        } else {
+            throw new RuntimeException("private key is not a DSA or RSA key");
+        }
+        System.out.printf("signature Algorithm is: %s\n", signatureAlgorithm);
+        return signatureAlgorithm;
+    }
+
     private void signApk() throws IOException, InterruptedException {
         //尝试去对apk签名
         if (config.mUseSignAPk) {
@@ -104,8 +127,15 @@ public class ResourceApkBuilder {
             if (mSignedApk.exists()) {
                 mSignedApk.delete();
             }
+            String signatureAlgorithm = "MD5withRSA";
+            try {
+                signatureAlgorithm = getSignatureAlgorithm();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             String[] argv = {
                 "jarsigner",
+                "-sigalg", signatureAlgorithm,
                 "-digestalg", "SHA1",
                 "-keystore", config.mSignatureFile.getAbsolutePath(),
                 "-storepass", config.mStorePass,
