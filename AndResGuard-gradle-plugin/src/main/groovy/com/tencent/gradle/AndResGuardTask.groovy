@@ -4,6 +4,7 @@ import com.tencent.mm.resourceproguard.InputParam
 import com.tencent.mm.resourceproguard.Main
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.Task
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -11,33 +12,32 @@ import org.gradle.api.tasks.TaskAction
  *
  * @author Sim Sun (sunsj1231@gmail.com)
  */
-public class AndResGuardSchemaTask extends DefaultTask {
+public class AndResGuardTask extends DefaultTask {
     def AndResGuardExtension configuration
     def android
     def buildConfigs = []
 
-    AndResGuardSchemaTask() {
+    AndResGuardTask() {
         description = 'Assemble Resource Proguard APK'
         group = 'andresguard'
         outputs.upToDateWhen { false }
-        project.afterEvaluate {
-            configuration = project.andResGuard
-            android = project.extensions.android
-            android.applicationVariants.all { variant ->
-                if (variant.buildType.name == 'release') {
-                    this.dependsOn variant.assemble
-                    variant.outputs.each { output ->
-                        buildConfigs << new BuildInfo(
-                                output.outputFile,
-                                variant.apkVariantData.variantConfiguration.signingConfig,
-                                variant.apkVariantData.variantConfiguration.applicationId
-                        )
-                    }
+        android = project.extensions.android
+        configuration = project.andResGuard
+        android.applicationVariants.all { variant ->
+            variant.outputs.each { output ->
+                // resguard's length is 8, the postfix of name is the current buildType or Flavor.
+                if (this.name[8..-1].equalsIgnoreCase(variant.buildType.name as String)
+                        || this.name[8..-1].equalsIgnoreCase(variant.productFlavors.get(0).name as String)) {
+                    buildConfigs << new BuildInfo(
+                            output.outputFile,
+                            variant.apkVariantData.variantConfiguration.signingConfig,
+                            variant.apkVariantData.variantConfiguration.applicationId
+                    )
                 }
             }
-            if (!project.plugins.hasPlugin('com.android.application')) {
-                throw new GradleException('generateARGApk: Android Application plugin required')
-            }
+        }
+        if (!project.plugins.hasPlugin('com.android.application')) {
+            throw new GradleException('generateARGApk: Android Application plugin required')
         }
     }
 
@@ -52,9 +52,9 @@ public class AndResGuardSchemaTask extends DefaultTask {
     }
 
     @TaskAction
-    def resuguard() {
-        project.logger.info("[AndResGuard]zipaligin: path: " + getZipAlignPath())
-        project.logger.info("[AndResGuard]configuartion:$configuration")
+    def run() {
+        project.logger.error("[AndResGuard] zipaligin path: " + getZipAlignPath())
+        project.logger.info("[AndResGuard] configuartion:$configuration")
         def ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
 
         buildConfigs.each { config ->
@@ -94,5 +94,6 @@ public class AndResGuardSchemaTask extends DefaultTask {
             InputParam inputParam = builder.create();
             Main.gradleRun(inputParam)
         }
+        buildConfigs = []
     }
 }

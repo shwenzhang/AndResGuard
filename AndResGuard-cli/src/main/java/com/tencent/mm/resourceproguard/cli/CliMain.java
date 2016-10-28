@@ -189,10 +189,10 @@ public class CliMain extends Main {
             }
             return;
         }
-        System.out.printf("resourceprpguard begin\n");
+        System.out.printf("[AndResGuard] begin: %s, %s\n", outputFile, apkFileName);
         resourceProguard(outputFile, apkFileName);
-        System.out.printf("resources proguard done, total time cost: %fs\n", diffTimeFromBegin());
-        System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+        System.out.printf("[AndResGuard] done, total time cost: %fs\n", diffTimeFromBegin());
+        System.out.printf("[AndResGuard] done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
         clean();
     }
 
