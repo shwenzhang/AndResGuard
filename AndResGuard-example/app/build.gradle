@@ -12,7 +12,7 @@ buildscript {
         // The Fabric Gradle plugin uses an open ended version to react
         // quickly to Android tooling updates
         classpath 'io.fabric.tools:gradle:latest.integration'
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.13'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.14'
     }
 }
 
@@ -36,7 +36,7 @@ andResGuard {
             "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.1.12'
+        artifact = 'com.tencent.mm:SevenZip:1.1.13'
         //path = "/usr/local/bin/7za"
     }
 }
@@ -75,22 +75,22 @@ android {
         }
     }
 
-//    productFlavors {
-//        flavor2 {
-//            println("@@@THIS IS FLAVOR2@@@")
-//            applicationId 'andresguard.tencent.com.andresguard_example.flavor2'
-//        }
-//
-//        flavor1 {
-//            println("@@@THIS IS FLAVOR1@@@")
-//            applicationId 'andresguard.tencent.com.andresguard_example.flavor1'
-//        }
-//
-//        aaa {
-//            println("@@@THIS IS aaa@@@")
-//            applicationId 'andresguard.tencent.com.andresguard_example.aaa'
-//        }
-//    }
+    productFlavors {
+        flavor2 {
+            println("@@@THIS IS FLAVOR2@@@")
+            applicationId 'andresguard.tencent.com.andresguard_example.flavor2'
+        }
+
+        flavor1 {
+            println("@@@THIS IS FLAVOR1@@@")
+            applicationId 'andresguard.tencent.com.andresguard_example.flavor1'
+        }
+
+        aaa {
+            println("@@@THIS IS aaa@@@")
+            applicationId 'andresguard.tencent.com.andresguard_example.aaa'
+        }
+    }
 
     buildTypes {
         release {
@@ -99,6 +99,17 @@ android {
             shrinkResources true
             zipAlignEnabled true
             pseudoLocalesEnabled true
+            signingConfig signingConfigs.release
+        }
+
+        releaseLog {
+            buildConfigField "boolean", "DEBUG_MODE", "false"
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            debuggable true
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), "proguard-rules.pro"
             signingConfig signingConfigs.release
         }
     }
@@ -112,8 +123,6 @@ android {
         versionName "1.1"
     }
 }
-
-
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])

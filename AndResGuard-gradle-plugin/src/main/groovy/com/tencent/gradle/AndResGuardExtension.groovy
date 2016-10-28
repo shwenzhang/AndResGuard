@@ -26,7 +26,6 @@ public class AndResGuardExtension {
         mappingFile = null
     }
 
-
     Iterable<String> getCompressFilePattern() {
         return compressFilePattern
     }
