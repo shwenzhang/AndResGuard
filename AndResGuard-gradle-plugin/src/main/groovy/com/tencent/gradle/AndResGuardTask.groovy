@@ -53,7 +53,7 @@ public class AndResGuardTask extends DefaultTask {
 
     @TaskAction
     def run() {
-        project.logger.error("[AndResGuard] zipaligin path: " + getZipAlignPath())
+        project.logger.info("[AndResGuard] zipaligin path: " + getZipAlignPath())
         project.logger.info("[AndResGuard] configuartion:$configuration")
         def ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
 
