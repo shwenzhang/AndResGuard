@@ -27,7 +27,8 @@ public class AndResGuardTask extends DefaultTask {
             variant.outputs.each { output ->
                 // resguard's length is 8, the postfix of name is the current buildType or Flavor.
                 if (this.name[8..-1].equalsIgnoreCase(variant.buildType.name as String)
-                        || this.name[8..-1].equalsIgnoreCase(variant.productFlavors.get(0).name as String)) {
+                        || variant.productFlavors.size() > 0
+                        && this.name[8..-1].equalsIgnoreCase(variant.productFlavors.get(0).name as String)) {
                     buildConfigs << new BuildInfo(
                             output.outputFile,
                             variant.apkVariantData.variantConfiguration.signingConfig,
