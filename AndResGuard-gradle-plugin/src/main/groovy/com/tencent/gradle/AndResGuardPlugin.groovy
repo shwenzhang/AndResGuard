@@ -16,15 +16,15 @@ class AndResGuardPlugin implements Plugin<Project> {
         project.apply plugin: 'osdetector'
         project.extensions.create('andResGuard', AndResGuardExtension)
         project.extensions.add("sevenzip", new ExecutorExtension("sevenzip"))
-        project.extensions.android.productFlavors.all { flavor ->
-            createTask(project, flavor)
-        }
-
-        project.extensions.android.buildTypes.all { buildType ->
-            createTask(project, buildType)
-        }
 
         project.afterEvaluate {
+            project.extensions.android.productFlavors.all { flavor ->
+                createTask(project, flavor)
+            }
+
+            project.extensions.android.buildTypes.all { buildType ->
+                createTask(project, buildType)
+            }
             def ExecutorExtension sevenzip = project.extensions.findByName("sevenzip")
             sevenzip.loadArtifact(project)
         }
