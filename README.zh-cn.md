@@ -23,7 +23,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.13'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.14'
     }
 }
 
@@ -82,14 +82,15 @@ andResGuard {
         "resources.arsc"
     ]
      sevenzip {
-         artifact = 'com.tencent.mm:SevenZip:1.1.13'
+         artifact = 'com.tencent.mm:SevenZip:1.1.14'
          //path = "/usr/local/bin/7za"
     }
 }
 ```
 
-运行`andresguard/resguard`的gradle任务，可以得到资源混淆的安装包
-命令行可直接运行```./gradlew resguard```
+使用Android Studio的同学可以再 `andresguard` 下找到相关的构建任务; 
+命令行可直接运行```./gradlew resguard[BuildType | Flavor]```， 这里的任务命令规则和assemble一致。
+
 
 在设置`sevenzip`时, 你只需设置`artifact`或`path`. 支持同时设置,总以path的值为优先.
 

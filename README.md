@@ -31,7 +31,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.13'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.14'
     }
 }
 
@@ -80,19 +80,17 @@ andResGuard {
         "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.1.13'
+        artifact = 'com.tencent.mm:SevenZip:1.1.14'
         //path = "/usr/local/bin/7za"
     }
 }
 ```
 
-Run `andresguard/resguard` task to generate compressed APK. This can be done in two ways:
- 
 If you are using AndroidStudio, you can find the generate task option in ```andresguard``` group.
-Or alternatively, you run ```./gradlew resguard``` in your terminal.
+Or alternatively, you run ```./gradlew resguard[BuildType | Flavor]``` in your terminal.  
 
 The sevenzip can be set by 'path' or 'artifact'. Mutiple assignments are allowed, but the winner always is `path`.
-
+  
 The output apk will be stored in `{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`
    
 [Looking for more detail](doc/how_to_work.md)
