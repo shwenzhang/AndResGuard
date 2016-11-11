@@ -23,9 +23,6 @@ import java.io.File;
 import java.net.URI;
 
 
-/**
- * @author shwenzhang
- */
 public class ExtFile extends File {
     private Directory mDirectory;
 

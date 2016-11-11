@@ -111,3 +111,6 @@ res path mapping:
 
 [点击查看更多细节和命令行使用方法](doc/how_to_work.zh-cn.md)
 
+## 致谢
+
+[Apktool](https://github.com/iBotPeaches/Apktool) 使用了Apktool资源解码部分的代码
