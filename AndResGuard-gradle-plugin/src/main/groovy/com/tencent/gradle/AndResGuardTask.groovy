@@ -95,6 +95,5 @@ public class AndResGuardTask extends DefaultTask {
             InputParam inputParam = builder.create();
             Main.gradleRun(inputParam)
         }
-        buildConfigs = []
     }
 }
