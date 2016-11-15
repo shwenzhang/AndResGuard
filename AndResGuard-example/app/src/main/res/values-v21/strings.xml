@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AndResGuard-example-v21</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer v21</string>
+    <string name="navigation_drawer_close">Close navigation drawer v21</string>
+
+    <string name="action_settings">Settings v21</string>
+</resources>
