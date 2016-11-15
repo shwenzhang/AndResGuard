@@ -14,4 +14,11 @@ class BuildInfo {
         this.signConfig = sign
         this.packageName = packageName
     }
+
+    @Override
+    public String toString() {
+        """| file = ${file}
+           | packageName = ${packageName}
+        """.stripMargin()
+    }
 }

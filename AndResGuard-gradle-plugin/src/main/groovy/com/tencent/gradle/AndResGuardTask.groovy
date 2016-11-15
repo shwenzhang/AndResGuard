@@ -25,10 +25,11 @@ public class AndResGuardTask extends DefaultTask {
         configuration = project.andResGuard
         android.applicationVariants.all { variant ->
             variant.outputs.each { output ->
-                // resguard's length is 8, the postfix of name is the current buildType or Flavor.
-                if (this.name[8..-1].equalsIgnoreCase(variant.buildType.name as String)
-                        || variant.productFlavors.size() > 0
-                        && this.name[8..-1].equalsIgnoreCase(variant.productFlavors.get(0).name as String)) {
+                // remove "resguard"
+                String variantName = this.name["resguard".length()..-1]
+                if (variantName.equalsIgnoreCase(variant.buildType.name as String)
+                    || isTargetFlavor(variantName, variant.productFlavors, variant.buildType.name)
+                ) {
                     buildConfigs << new BuildInfo(
                             output.outputFile,
                             variant.apkVariantData.variantConfiguration.signingConfig,
@@ -40,6 +41,14 @@ public class AndResGuardTask extends DefaultTask {
         if (!project.plugins.hasPlugin('com.android.application')) {
             throw new GradleException('generateARGApk: Android Application plugin required')
         }
+    }
+
+    static def isTargetFlavor(variantName, flavors, buildType) {
+        if (flavors.size() > 0) {
+            String flavor = flavors.get(0).name
+            return variantName.equalsIgnoreCase(flavor) || variantName.equalsIgnoreCase([flavor, buildType].join(""))
+        }
+        return false
     }
 
     static def useFolder(file) {
@@ -54,8 +63,9 @@ public class AndResGuardTask extends DefaultTask {
 
     @TaskAction
     def run() {
-        project.logger.info("[AndResGuard] zipaligin path: " + getZipAlignPath())
         project.logger.info("[AndResGuard] configuartion:$configuration")
+        project.logger.info("[AndResGuard] BuildConfigs:$buildConfigs")
+
         def ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
 
         buildConfigs.each { config ->
