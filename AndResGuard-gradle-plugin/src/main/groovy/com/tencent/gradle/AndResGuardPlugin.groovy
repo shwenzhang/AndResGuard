@@ -25,16 +25,30 @@ class AndResGuardPlugin implements Plugin<Project> {
             project.extensions.android.buildTypes.all { buildType ->
                 createTask(project, buildType)
             }
+
+            project.extensions.android.productFlavors.all { flavor ->
+                project.extensions.android.buildTypes.all { buildType ->
+                    def variants = [flavor, buildType]
+                    createTask(project, variants)
+                }
+            }
+
             def ExecutorExtension sevenzip = project.extensions.findByName("sevenzip")
             sevenzip.loadArtifact(project)
         }
     }
 
-    private void createTask(Project project, variant) {
-        def typeName = new StringBuffer()
-                .append(Character.toUpperCase(variant.name.charAt(0)))
+    private static void dealWithPascalCaseTypeName(typeName, variant) {
+        typeName.append(Character.toUpperCase(variant.name.charAt(0)))
                 .append(variant.name[1..-1])
-                .toString()
+    }
+
+    private static void createTask(Project project, variants) {
+        def typeName = new StringBuffer()
+
+        variants.each { variant ->
+            dealWithPascalCaseTypeName(typeName, variant)
+        }
 
         def task = project.task("resguard${typeName}", type: AndResGuardTask)
         task.dependsOn "assemble${typeName}"
