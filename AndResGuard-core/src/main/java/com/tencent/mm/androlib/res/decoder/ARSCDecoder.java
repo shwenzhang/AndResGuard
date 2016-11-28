@@ -295,11 +295,16 @@ public class ARSCDecoder {
             mPkg.setCanProguard(true);
         }
         nextChunk();
-        while (mHeader.type == Header.TYPE_TYPE) {
-            readType();
+        while (mHeader.type == Header.TYPE_LIBRARY) {
+            readLibraryType();
+        }
+        while (mHeader.type == Header.TYPE_SPEC_TYPE) {
+            readTableTypeSpec();
         }
         return mPkg;
     }
+
+
 
     private void writePackage() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_PACKAGE);
@@ -331,8 +336,11 @@ public class ARSCDecoder {
             StringBlock.writeAll(mIn, mOut);
         }
         writeNextChunk(0);
-        while (mHeader.type == Header.TYPE_TYPE) {
-            writeType();
+        while (mHeader.type == Header.TYPE_LIBRARY) {
+            writeLibraryType();
+        }
+        while (mHeader.type == Header.TYPE_SPEC_TYPE) {
+            writeTableTypeSpec();
         }
     }
 
@@ -359,8 +367,26 @@ public class ARSCDecoder {
         }
     }
 
-    private void readType() throws AndrolibException, IOException {
-        checkChunkType(Header.TYPE_TYPE);
+    private void readLibraryType() throws AndrolibException, IOException {
+        checkChunkType(Header.TYPE_LIBRARY);
+        int libraryCount = mIn.readInt();
+
+        int packageId;
+        String packageName;
+
+        for (int i = 0; i < libraryCount; i++) {
+            packageId = mIn.readInt();
+            packageName = mIn.readNullEndedString(128, true);
+            LOGGER.info(String.format("Decoding Shared Library (%s), pkgId: %d", packageName, packageId));
+        }
+
+        while(nextChunk().type == Header.TYPE_TYPE) {
+            readTableTypeSpec();
+        }
+    }
+
+    private void readTableTypeSpec() throws AndrolibException, IOException {
+        checkChunkType(Header.TYPE_SPEC_TYPE);
         byte id = mIn.readByte();
         mIn.skipBytes(3);
         int entryCount = mIn.readInt();
@@ -384,15 +410,31 @@ public class ARSCDecoder {
         //如果是保持mapping的话，需要去掉某部分已经用过的mapping
         reduceFromOldMappingFile();
 
-        while (nextChunk().type == Header.TYPE_CONFIG) {
+        while (nextChunk().type == Header.TYPE_TYPE) {
             readConfig();
         }
-
-
     }
 
-    private void writeType() throws AndrolibException, IOException {
-        checkChunkType(Header.TYPE_TYPE);
+    private void writeLibraryType() throws AndrolibException, IOException {
+        checkChunkType(Header.TYPE_LIBRARY);
+        int libraryCount = mIn.readInt();
+
+        int packageId;
+        String packageName;
+
+        for (int i = 0; i < libraryCount; i++) {
+            packageId = mIn.readInt();
+            packageName = mIn.readNullEndedString(128, true);
+            LOGGER.info(String.format("write Decoding Shared Library (%s), pkgId: %d", packageName, packageId));
+        }
+
+        while(nextChunk().type == Header.TYPE_TYPE) {
+            writeTableTypeSpec();
+        }
+    }
+
+    private void writeTableTypeSpec() throws AndrolibException, IOException {
+        checkChunkType(Header.TYPE_SPEC_TYPE);
         byte id = mIn.readByte();
         mOut.writeByte(id);
         mResId = (0xff000000 & mResId) | id << 16;
@@ -404,14 +446,13 @@ public class ARSCDecoder {
         int[] entryOffsets = mIn.readIntArray(entryCount);
         mOut.writeIntArray(entryOffsets);
 
-        while (writeNextChunk(0).type == Header.TYPE_CONFIG) {
+        while (writeNextChunk(0).type == Header.TYPE_TYPE) {
             writeConfig();
         }
-
     }
 
     private void readConfig() throws IOException, AndrolibException {
-        checkChunkType(Header.TYPE_CONFIG);
+        checkChunkType(Header.TYPE_TYPE);
         /* typeId */
         mIn.skipInt();
         int entryCount = mIn.readInt();
@@ -428,7 +469,7 @@ public class ARSCDecoder {
     }
 
     private void writeConfig() throws IOException, AndrolibException {
-        checkChunkType(Header.TYPE_CONFIG);
+        checkChunkType(Header.TYPE_TYPE);
         /* typeId */
         mOut.writeInt(mIn.readInt());
         /* entryCount */
@@ -843,8 +884,8 @@ public class ARSCDecoder {
 
     public static class Header {
         public final static short TYPE_NONE = -1, TYPE_TABLE = 0x0002,
-            TYPE_PACKAGE                    = 0x0200, TYPE_TYPE = 0x0202,
-            TYPE_CONFIG                     = 0x0201;
+            TYPE_PACKAGE = 0x0200, TYPE_TYPE = 0x0201, TYPE_SPEC_TYPE = 0x0202, TYPE_LIBRARY = 0x0203;
+
         public final short type;
         public final int   chunkSize;
 
