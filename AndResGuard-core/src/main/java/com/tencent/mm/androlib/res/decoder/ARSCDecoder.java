@@ -270,7 +270,7 @@ public class ARSCDecoder {
     private ResPackage readPackage() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_PACKAGE);
         int id = (byte) mIn.readInt();
-        String name = mIn.readNulEndedString(128, true);
+        String name = mIn.readNullEndedString(128, true);
         //add log
         System.out.printf("reading packagename %s\n", name);
 
