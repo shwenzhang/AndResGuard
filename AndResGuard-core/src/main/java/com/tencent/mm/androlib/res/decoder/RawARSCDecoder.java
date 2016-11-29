@@ -57,7 +57,7 @@ public class RawARSCDecoder {
 
     private RawARSCDecoder(InputStream arscStream) throws AndrolibException, IOException {
         mIn = new ExtDataInput(new LEDataInputStream(arscStream));
-        mExistTypeNames = new HashMap<Integer, Set<String>>();
+        mExistTypeNames = new HashMap<>();
     }
 
     public static ResPackage[] decode(InputStream arscStream
@@ -94,7 +94,7 @@ public class RawARSCDecoder {
     private ResPackage readPackage() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_PACKAGE);
         int id = (byte) mIn.readInt();
-        String name = mIn.readNulEndedString(128, true);
+        String name = mIn.readNullEndedString(128, true);
         //add log
         /* typeNameStrings */
         mIn.skipInt();
@@ -109,15 +109,36 @@ public class RawARSCDecoder {
         mResId = id << 24;
         mPkg = new ResPackage(id, name);
         nextChunk();
-        while (mHeader.type == Header.TYPE_TYPE) {
-            readType();
+        while (mHeader.type == Header.TYPE_LIBRARY) {
+            readLibraryType();
+        }
+        while (mHeader.type == Header.TYPE_SPEC_TYPE) {
+            readTableTypeSpec();
         }
 
         return mPkg;
     }
 
-    private void readType() throws AndrolibException, IOException {
-        checkChunkType(Header.TYPE_TYPE);
+    private void readLibraryType() throws AndrolibException, IOException {
+        checkChunkType(Header.TYPE_LIBRARY);
+        int libraryCount = mIn.readInt();
+
+        int packageId;
+        String packageName;
+
+        for (int i = 0; i < libraryCount; i++) {
+            packageId = mIn.readInt();
+            packageName = mIn.readNullEndedString(128, true);
+            System.out.printf("Decoding Shared Library (%s), pkgId: %d\n", packageName, packageId);
+        }
+
+        while(nextChunk().type == Header.TYPE_TYPE) {
+            readTableTypeSpec();
+        }
+    }
+
+    private void readTableTypeSpec() throws AndrolibException, IOException {
+        checkChunkType(Header.TYPE_SPEC_TYPE);
         byte id = mIn.readByte();
         mIn.skipBytes(3);
         int entryCount = mIn.readInt();
@@ -126,13 +147,13 @@ public class RawARSCDecoder {
         mIn.skipBytes(entryCount * 4);
         mResId = (0xff000000 & mResId) | id << 16;
         mType = new ResType(mTypeNames.getString(id - 1), mPkg);
-        while (nextChunk().type == Header.TYPE_CONFIG) {
+        while (nextChunk().type == Header.TYPE_TYPE) {
             readConfig();
         }
     }
 
     private void readConfig() throws IOException, AndrolibException {
-        checkChunkType(Header.TYPE_CONFIG);
+        checkChunkType(Header.TYPE_TYPE);
         mIn.skipInt();
         int entryCount = mIn.readInt();
         int entriesStart = mIn.readInt();
@@ -310,7 +331,7 @@ public class RawARSCDecoder {
     private void putTypeSpecNameStrings(int type, String name) {
         Set<String> names = mExistTypeNames.get(type);
         if (names == null) {
-            names = new HashSet<String>();
+            names = new HashSet<>();
         }
         names.add(name);
         mExistTypeNames.put(type, names);
@@ -318,8 +339,8 @@ public class RawARSCDecoder {
 
     public static class Header {
         public final static short TYPE_NONE = -1, TYPE_TABLE = 0x0002,
-            TYPE_PACKAGE                    = 0x0200, TYPE_TYPE = 0x0202,
-            TYPE_CONFIG                     = 0x0201;
+            TYPE_PACKAGE = 0x0200, TYPE_TYPE = 0x0201, TYPE_SPEC_TYPE = 0x0202, TYPE_LIBRARY = 0x0203;
+
         public final short type;
         public final int   chunkSize;
 
