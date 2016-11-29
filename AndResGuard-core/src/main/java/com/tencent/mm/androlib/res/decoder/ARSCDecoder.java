@@ -221,7 +221,6 @@ public class ARSCDecoder {
         }
         for (int i = 0; i < packageCount; i++) {
             mCurPackageID = i;
-            System.out.printf("writeTable %d %d\n", mCurPackageID, mTableLenghtChange);
             writePackage();
         }
         //最后需要把整个的size重写回去
@@ -369,7 +368,7 @@ public class ARSCDecoder {
         for (int i = 0; i < libraryCount; i++) {
             packageId = mIn.readInt();
             packageName = mIn.readNullEndedString(128, true);
-            LOGGER.info(String.format("Decoding Shared Library (%s), pkgId: %d", packageName, packageId));
+            System.out.printf("Decoding Shared Library (%s), pkgId: %d\n", packageName, packageId);
         }
 
         while(nextChunk().type == Header.TYPE_TYPE) {

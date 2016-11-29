@@ -57,7 +57,7 @@ public class RawARSCDecoder {
 
     private RawARSCDecoder(InputStream arscStream) throws AndrolibException, IOException {
         mIn = new ExtDataInput(new LEDataInputStream(arscStream));
-        mExistTypeNames = new HashMap<Integer, Set<String>>();
+        mExistTypeNames = new HashMap<>();
     }
 
     public static ResPackage[] decode(InputStream arscStream
@@ -129,7 +129,7 @@ public class RawARSCDecoder {
         for (int i = 0; i < libraryCount; i++) {
             packageId = mIn.readInt();
             packageName = mIn.readNullEndedString(128, true);
-            LOGGER.info(String.format("Decoding Shared Library (%s), pkgId: %d", packageName, packageId));
+            System.out.printf("Decoding Shared Library (%s), pkgId: %d\n", packageName, packageId);
         }
 
         while(nextChunk().type == Header.TYPE_TYPE) {
