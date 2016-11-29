@@ -97,4 +97,4 @@ The outputted apk will be stored in `{App}/build/output/apk/AndResGuard_{apk_nam
 
 ## Thanks
 
-[Apktool](https://github.com/iBotPeaches/Apktool) Used ASRCDecoder.
+[Apktool](https://github.com/iBotPeaches/Apktool) Connor Tumbleson
