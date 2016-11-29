@@ -58,5 +58,4 @@ public class ExtDataOutput extends DataOutputDelegate {
                 "Expected: 0x%08x, got: 0x%08x", expected, value));
         }
     }
-
 }

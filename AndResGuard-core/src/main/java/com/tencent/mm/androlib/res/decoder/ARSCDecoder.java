@@ -114,20 +114,17 @@ public class ARSCDecoder {
         try {
             ARSCDecoder decoder = new ARSCDecoder(arscStream, apkDecoder);
             ResPackage[] pkgs = decoder.readTable();
-
             return pkgs;
         } catch (IOException ex) {
             throw new AndrolibException("Could not decode arsc file", ex);
         }
     }
 
-    public static void write(InputStream arscStream,
-                             ApkDecoder decoder, ResPackage[] pkgs)
+    public static void write(InputStream arscStream, ApkDecoder decoder, ResPackage[] pkgs)
         throws AndrolibException {
         try {
             ARSCDecoder writer = new ARSCDecoder(arscStream, decoder, pkgs);
             writer.writeTable();
-
         } catch (IOException ex) {
             throw new AndrolibException("Could not decode arsc file", ex);
         }
@@ -179,7 +176,6 @@ public class ARSCDecoder {
                     if (fileMapping.containsKey(raw)) {
                         mOldFileName.put(raw, fileMapping.get(raw));
                     } else {
-                        System.out.printf("can not find the file mapping %s\n", raw);
                         mOldFileName.put(raw, resRoot + "/" + mProguardBuilder.getReplaceString());
                     }
                 }
@@ -201,7 +197,6 @@ public class ARSCDecoder {
         mTableStrings = StringBlock.read(mIn);
         ResPackage[] packages = new ResPackage[packageCount];
         nextChunk();
-
         for (int i = 0; i < packageCount; i++) {
             packages[i] = readPackage();
         }
@@ -220,11 +215,13 @@ public class ARSCDecoder {
         mTableLenghtChange += StringBlock.writeTableNameStringBlock(mIn, mOut, mTableStringsProguard);
         writeNextChunk(0);
         if (packageCount != mPkgs.length) {
-            throw new AndrolibException(String.format(
-                "writeTable package count is different before %d, now %d", mPkgs.length, packageCount));
+            throw new AndrolibException(
+                String.format("writeTable package count is different before %d, now %d", mPkgs.length, packageCount)
+            );
         }
         for (int i = 0; i < packageCount; i++) {
             mCurPackageID = i;
+            System.out.printf("writeTable %d %d\n", mCurPackageID, mTableLenghtChange);
             writePackage();
         }
         //最后需要把整个的size重写回去
@@ -237,7 +234,6 @@ public class ARSCDecoder {
             mMappingWriter.write("    " + raw + " -> " + mOldFileName.get(raw));
             mMappingWriter.write("\n");
         }
-
         mMappingWriter.write("\n\n");
         mMappingWriter.write("res id mapping:\n");
         mMappingWriter.flush();
@@ -256,7 +252,6 @@ public class ARSCDecoder {
         writeNextChunkCheck(Header.TYPE_TABLE, mTableLenghtChange);
         int packageCount = mIn.readInt();
         mOut.writeInt(packageCount);
-        //add log
         StringBlock.writeAll(mIn, mOut);
 
         for (int i = 0; i < packageCount; i++) {
@@ -271,7 +266,6 @@ public class ARSCDecoder {
         checkChunkType(Header.TYPE_PACKAGE);
         int id = (byte) mIn.readInt();
         String name = mIn.readNullEndedString(128, true);
-        //add log
         System.out.printf("reading packagename %s\n", name);
 
         /* typeNameStrings */
@@ -303,8 +297,6 @@ public class ARSCDecoder {
         }
         return mPkg;
     }
-
-
 
     private void writePackage() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_PACKAGE);
@@ -418,17 +410,13 @@ public class ARSCDecoder {
     private void writeLibraryType() throws AndrolibException, IOException {
         checkChunkType(Header.TYPE_LIBRARY);
         int libraryCount = mIn.readInt();
-
-        int packageId;
-        String packageName;
-
+        mOut.writeInt(libraryCount);
         for (int i = 0; i < libraryCount; i++) {
-            packageId = mIn.readInt();
-            packageName = mIn.readNullEndedString(128, true);
-            LOGGER.info(String.format("write Decoding Shared Library (%s), pkgId: %d", packageName, packageId));
+            mOut.writeInt(mIn.readInt());/*packageId*/
+            mOut.writeBytes(mIn, 256); /*packageName*/
         }
-
-        while(nextChunk().type == Header.TYPE_TYPE) {
+        writeNextChunk(0);
+        while(mHeader.type == Header.TYPE_TYPE) {
             writeTableTypeSpec();
         }
     }
@@ -851,8 +839,7 @@ public class ARSCDecoder {
         }
     }
 
-    private void nextChunkCheckType(int expectedType) throws IOException,
-        AndrolibException {
+    private void nextChunkCheckType(int expectedType) throws IOException, AndrolibException {
         nextChunk();
         checkChunkType(expectedType);
     }
@@ -898,30 +885,28 @@ public class ARSCDecoder {
             short type;
             try {
                 type = in.readShort();
+                short count = in.readShort();
+                int size = in.readInt();
+                return new Header(type, size);
             } catch (EOFException ex) {
                 return new Header(TYPE_NONE, 0);
             }
-            in.skipBytes(2);
-
-            return new Header(type, in.readInt());
         }
 
         public static Header readAndWriteHeader(ExtDataInput in, ExtDataOutput out, int diffSize) throws IOException, AndrolibException {
-            short type = -1;
-            int size = -1;
+            short type;
+            int size;
             try {
                 type = in.readShort();
                 out.writeShort(type);
-                out.writeBytes(in, 2);
+                short count = in.readShort();
+                out.writeShort(count);
                 size = in.readInt();
                 size -= diffSize;
                 if (size <= 0) {
-                    throw new AndrolibException(String.format(
-                        "readAndWriteHeader size < 0: size=%d",
-                        size));
+                    throw new AndrolibException(String.format("readAndWriteHeader size < 0: size=%d", size));
                 }
                 out.writeInt(size);
-
             } catch (EOFException ex) {
                 return new Header(TYPE_NONE, 0);
             }
