@@ -41,7 +41,10 @@ class AndResGuardPlugin implements Plugin<Project> {
     }
 
     private static void createTask(Project project, variantName) {
-        def task = project.task("resguard${variantName}", type: AndResGuardTask)
-        task.dependsOn "assemble${variantName}"
+        def taskName = "resguard${variantName}"
+        if (project.tasks.findByPath(taskName) == null) {
+            def task = project.task(taskName, type: AndResGuardTask)
+            task.dependsOn "assemble${variantName}"
+        }
     }
 }
