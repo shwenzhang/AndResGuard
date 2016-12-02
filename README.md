@@ -31,7 +31,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.14'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.15'
     }
 }
 
@@ -80,7 +80,7 @@ andResGuard {
         "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.1.14'
+        artifact = 'com.tencent.mm:SevenZip:1.1.15'
         //path = "/usr/local/bin/7za"
     }
 }
@@ -90,9 +90,9 @@ If you are using `Android Studio`, you can find the generate task option in ```a
 Or alternatively, you run ```./gradlew resguard[BuildType | Flavor]``` in your terminal. The format of task name is as same as `assemble`.
 
 The sevenzip can be set by `path` or `artifact`. Mutiple assignments are allowed, but the winner is **always** `path`.
-  
+
 The outputted apk will be stored in `{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`.
-   
+
 [Looking for more detail](doc/how_to_work.md)
 
 ## Thanks

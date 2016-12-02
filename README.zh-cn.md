@@ -23,7 +23,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.14'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.1.15'
     }
 }
 
@@ -82,22 +82,22 @@ andResGuard {
         "resources.arsc"
     ]
      sevenzip {
-         artifact = 'com.tencent.mm:SevenZip:1.1.14'
+         artifact = 'com.tencent.mm:SevenZip:1.1.15'
          //path = "/usr/local/bin/7za"
     }
 }
 ```
 
-使用Android Studio的同学可以再 `andresguard` 下找到相关的构建任务; 
+使用Android Studio的同学可以再 `andresguard` 下找到相关的构建任务;
 命令行可直接运行```./gradlew resguard[BuildType | Flavor]```， 这里的任务命令规则和assemble一致。
 
 
 在设置`sevenzip`时, 你只需设置`artifact`或`path`. 支持同时设置,总以path的值为优先.
 
 最终的混淆APK会生成在`{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`。
-    
+
 **请使用Umeng_social_sdk的同学特别留意将资源加入白名单，否则会出现Crash。也欢迎大家PR自己的白名单**
-    
+
 白名单机制只作用于资源的specsName，不会keep住资源的路径。如果想keep住资源原有的物理路径，可以使用`mappingFile`。
 例如我想keep住icon所有folder，可以在mappingFile指向的文件添加：
 
