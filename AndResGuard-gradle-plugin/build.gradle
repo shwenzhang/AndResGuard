@@ -1,4 +1,5 @@
 apply plugin: 'groovy'
+apply plugin: 'com.ofg.uptodate'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
