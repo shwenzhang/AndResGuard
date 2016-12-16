@@ -13,7 +13,7 @@ class AndResGuardPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.apply plugin: 'osdetector'
+        project.apply plugin: 'com.google.osdetector'
         project.extensions.create('andResGuard', AndResGuardExtension)
         project.extensions.add("sevenzip", new ExecutorExtension("sevenzip"))
 

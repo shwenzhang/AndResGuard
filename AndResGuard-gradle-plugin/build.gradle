@@ -18,7 +18,7 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
     //compile group: 'com.tencent.mm', name: 'AndResGuard-core', version: version
-    compile 'com.google.gradle:osdetector-gradle-plugin:1.2.1'
+    compile 'com.google.gradle:osdetector-gradle-plugin:1.4.0'
     compile project(':AndResGuard-core')
 }
 
