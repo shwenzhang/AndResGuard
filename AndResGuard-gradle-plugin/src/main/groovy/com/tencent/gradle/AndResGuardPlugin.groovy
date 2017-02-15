@@ -12,7 +12,7 @@ import org.gradle.api.Project
 class AndResGuardPlugin implements Plugin<Project> {
 
     @Override
-    public void apply(Project project) {
+    void apply(Project project) {
         project.apply plugin: 'com.google.osdetector'
         project.extensions.create('andResGuard', AndResGuardExtension)
         project.extensions.add("sevenzip", new ExecutorExtension("sevenzip"))
@@ -35,8 +35,7 @@ class AndResGuardPlugin implements Plugin<Project> {
                 createTask(project, flavorName)
             }
 
-            def ExecutorExtension sevenzip = project.extensions.findByName("sevenzip")
-            sevenzip.loadArtifact(project)
+            project.extensions.findByName("sevenzip").loadArtifact(project)
         }
     }
 

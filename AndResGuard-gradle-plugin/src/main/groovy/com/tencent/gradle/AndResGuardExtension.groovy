@@ -6,7 +6,7 @@ package com.tencent.gradle
  * @author sim sun (sunsj1231@gmail.com)
  */
 
-public class AndResGuardExtension {
+class AndResGuardExtension {
 
     File mappingFile
     boolean use7zip
@@ -16,7 +16,7 @@ public class AndResGuardExtension {
     Iterable<String> whiteList
     Iterable<String> compressFilePattern
 
-    public AndResGuardExtension() {
+    AndResGuardExtension() {
         use7zip = false
         useSign = false
         metaName = "META-INF"
@@ -55,7 +55,7 @@ public class AndResGuardExtension {
     }
 
     @Override
-    public String toString() {
+    String toString() {
         """| use7zip = ${use7zip}
            | useSign = ${useSign}
            | metaName = ${metaName}

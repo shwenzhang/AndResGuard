@@ -6,19 +6,19 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
 
-public class ExecutorExtension implements Named {
+class ExecutorExtension implements Named {
 
     private final String name
 
     private String artifact
     private String path
 
-    public ExecutorExtension(String name) {
+    ExecutorExtension(String name) {
         this.name = name
     }
 
     @Override
-    public String getName() {
+    String getName() {
         return name
     }
 
@@ -26,22 +26,22 @@ public class ExecutorExtension implements Named {
      * Specifies an artifact spec for downloading the executable from
      * repositories. spec format: '<groupId>:<artifactId>:<version>'
      */
-    public setArtifact(String spec) {
+    def setArtifact(String spec) {
         this.artifact = spec
     }
 
     /**
      * Specifies a local path.
      */
-    public setPath(String path) {
+    def setPath(String path) {
         this.path = path
     }
 
-    public String getArtifact() {
+    String getArtifact() {
         return artifact
     }
 
-    public String getPath() {
+    String getPath() {
         return path
     }
 

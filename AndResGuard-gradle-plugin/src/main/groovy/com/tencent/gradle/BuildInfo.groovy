@@ -9,14 +9,14 @@ class BuildInfo {
     def signConfig
     def packageName
 
-    public BuildInfo(file, sign, packageName) {
+    BuildInfo(file, sign, packageName) {
         this.file = file
         this.signConfig = sign
         this.packageName = packageName
     }
 
     @Override
-    public String toString() {
+    String toString() {
         """| file = ${file}
            | packageName = ${packageName}
         """.stripMargin()

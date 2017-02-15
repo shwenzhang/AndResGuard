@@ -12,8 +12,8 @@ import org.gradle.api.tasks.TaskAction
  *
  * @author Sim Sun (sunsj1231@gmail.com)
  */
-public class AndResGuardTask extends DefaultTask {
-    def AndResGuardExtension configuration
+class AndResGuardTask extends DefaultTask {
+    AndResGuardExtension configuration
     def android
     def buildConfigs = []
 
@@ -43,7 +43,7 @@ public class AndResGuardTask extends DefaultTask {
         }
     }
 
-    static def isTargetFlavor(variantName, flavors, buildType) {
+    static isTargetFlavor(variantName, flavors, buildType) {
         if (flavors.size() > 0) {
             String flavor = flavors.get(0).name
             return variantName.equalsIgnoreCase(flavor) || variantName.equalsIgnoreCase([flavor, buildType].join(""))
@@ -51,7 +51,7 @@ public class AndResGuardTask extends DefaultTask {
         return false
     }
 
-    static def useFolder(file) {
+    static useFolder(file) {
         //remove .apk from filename
         def fileName = file.name[0..-5]
         return "${file.parent}/AndResGuard_${fileName}/"
@@ -62,17 +62,17 @@ public class AndResGuardTask extends DefaultTask {
     }
 
     @TaskAction
-    def run() {
+    run() {
         project.logger.info("[AndResGuard] configuartion:$configuration")
         project.logger.info("[AndResGuard] BuildConfigs:$buildConfigs")
 
-        def ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
+        ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
 
         buildConfigs.each { config ->
-            def String absPath = config.file.getAbsolutePath()
+            String absPath = config.file.getAbsolutePath()
             def signConfig = config.signConfig
-            def String packageName = config.packageName
-            ArrayList<String> whiteListFullName = new ArrayList<>();
+            String packageName = config.packageName
+            ArrayList<String> whiteListFullName = new ArrayList<>()
             configuration.whiteList.each { res ->
                 if (res.startsWith("R")) {
                     whiteListFullName.add(packageName + "." + res)
@@ -91,7 +91,7 @@ public class AndResGuardTask extends DefaultTask {
                     .setSevenZipPath(sevenzip.path)
                     .setOutBuilder(useFolder(config.file))
                     .setApkPath(absPath)
-                    .setUseSign(configuration.useSign);
+                    .setUseSign(configuration.useSign)
 
             if (configuration.useSign) {
                 if (signConfig == null) {
@@ -102,7 +102,7 @@ public class AndResGuardTask extends DefaultTask {
                         .setStorealias(signConfig.keyAlias)
                         .setStorepass(signConfig.storePassword)
             }
-            InputParam inputParam = builder.create();
+            InputParam inputParam = builder.create()
             Main.gradleRun(inputParam)
         }
     }
