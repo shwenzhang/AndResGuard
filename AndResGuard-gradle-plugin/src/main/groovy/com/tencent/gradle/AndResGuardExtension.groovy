@@ -8,13 +8,13 @@ package com.tencent.gradle
 
 public class AndResGuardExtension {
 
-    File mappingFile;
-    boolean use7zip;
-    boolean useSign;
-    String metaName;
-    boolean keepRoot;
-    Iterable<String> whiteList;
-    Iterable<String> compressFilePattern;
+    File mappingFile
+    boolean use7zip
+    boolean useSign
+    String metaName
+    boolean keepRoot
+    Iterable<String> whiteList
+    Iterable<String> compressFilePattern
 
     public AndResGuardExtension() {
         use7zip = false
