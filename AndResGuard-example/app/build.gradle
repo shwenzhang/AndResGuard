@@ -26,7 +26,8 @@ andResGuard {
     whiteList = [
             "R.mipmap.ic_launcher",
             //https://docs.fabric.io/android/crashlytics/build-tools.html
-            "R.string.com.crashlytics.*"
+            "R.string.com.crashlytics.*",
+            "R.id.*"
     ]
     compressFilePattern = [
             "*.png",
