@@ -37,7 +37,7 @@ andResGuard {
             "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.1.16'
+        artifact = 'com.tencent.mm:SevenZip:1.2.0'
         //path = "/usr/local/bin/7za"
     }
 }
@@ -66,7 +66,7 @@ android {
                 storePassword "testres"
                 keyAlias "testres"
                 keyPassword "testres"
-                //v2SigningEnabled false
+                v2SigningEnabled true
             } catch (ex) {
                 throw new InvalidUserDataException(ex.toString())
             }
