@@ -6,7 +6,6 @@ import com.tencent.mm.androlib.ResourceApkBuilder;
 import com.tencent.mm.androlib.res.decoder.ARSCDecoder;
 import com.tencent.mm.directory.DirectoryException;
 import com.tencent.mm.util.FileOperation;
-import com.tencent.mm.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,14 +16,15 @@ import java.io.IOException;
  * @author simsun
  */
 public class Main {
+
+
     public static final int ERRNO_ERRORS = 1;
     public static final int ERRNO_USAGE  = 2;
     protected static long          mRawApkSize;
     protected static String        mRunningLocation;
     protected static long          mBeginTime;
-    /**
-     * 是否通过命令行方式设置
-     */
+
+    /** 是否通过命令行方式设置 **/
     public boolean mSetSignThroughCmd    = false;
     public boolean mSetMappingThroughCmd = false;
     public String  m7zipPath             = null;
@@ -39,9 +39,9 @@ public class Main {
 
     private void run(InputParam inputParam) {
         loadConfigFromGradle(inputParam);
-        System.out.println("resourceprpguard begin");
-        resourceProguard(new File(inputParam.outFolder), inputParam.apkPath);
-        System.out.printf("resources proguard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+        System.out.println("AndResGuard starting...");
+        resourceProguard(new File(inputParam.outFolder), inputParam.apkPath, inputParam.signatureType);
+        System.out.printf("AndResGuard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
         clean();
     }
 
@@ -58,7 +58,7 @@ public class Main {
         }
     }
 
-    protected void resourceProguard(File outputFile, String apkFilePath) {
+    protected void resourceProguard(File outputFile, String apkFilePath, InputParam.SignatureType signatureType) {
         ApkDecoder decoder = new ApkDecoder(config);
         File apkFile = new File(apkFilePath);
         if (!apkFile.exists()) {
@@ -67,9 +67,10 @@ public class Main {
         }
         mRawApkSize = FileOperation.getFileSizes(apkFile);
         try {
+            /* 默认使用V1签名 */
             decodeResource(outputFile, decoder, apkFile);
-            buildApk(decoder, apkFile);
-        } catch (AndrolibException | IOException | DirectoryException | InterruptedException e) {
+            buildApk(decoder, apkFile, signatureType);
+        } catch (Exception e) {
             e.printStackTrace();
             goToError();
         }
@@ -86,16 +87,19 @@ public class Main {
         decoder.decode();
     }
 
-    private void buildApk(ApkDecoder decoder, File apkFile) throws AndrolibException, IOException, InterruptedException {
+    private void buildApk(ApkDecoder decoder, File apkFile, InputParam.SignatureType signatureType) throws Exception {
         ResourceApkBuilder builder = new ResourceApkBuilder(config);
         String apkBasename = apkFile.getName();
         apkBasename = apkBasename.substring(0, apkBasename.indexOf(".apk"));
         builder.setOutDir(mOutDir, apkBasename);
-        builder.buildApk(decoder.getCompressData());
-    }
-
-    public double diffApkSizeFromRaw(long size) {
-        return (mRawApkSize - size) / 1024.0;
+        switch (signatureType) {
+            case SchemaV1:
+                builder.buildApkV1sign(decoder.getCompressData());
+                break;
+            case SchemaV2:
+                builder.buildApkV2sign(decoder.getCompressData());
+                break;
+        }
     }
 
     protected void goToError() {

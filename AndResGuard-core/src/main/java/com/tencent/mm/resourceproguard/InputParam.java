@@ -3,10 +3,11 @@ package com.tencent.mm.resourceproguard;
 import java.io.File;
 import java.util.ArrayList;
 
-/**
- * Created by sun on 1/9/16.
- */
 public class InputParam {
+    public enum SignatureType {
+        SchemaV1, SchemaV2
+    }
+
     public final File              mappingFile;
     public final boolean           use7zip;
     public final boolean           keepRoot;
@@ -22,6 +23,7 @@ public class InputParam {
     public final String            storepass;
     public final String            zipAlignPath;
     public final String            sevenZipPath;
+    public final SignatureType     signatureType;
 
     private InputParam(
         File mappingFile,
@@ -38,7 +40,8 @@ public class InputParam {
         String storepass,
         String metaName,
         String zipAlignPath,
-        String sevenZipPath
+        String sevenZipPath,
+        SignatureType signatureType
     ) {
         this.mappingFile = mappingFile;
         this.use7zip = use7zip;
@@ -55,6 +58,7 @@ public class InputParam {
         this.metaName = metaName;
         this.zipAlignPath = zipAlignPath;
         this.sevenZipPath = sevenZipPath;
+        this.signatureType = signatureType;
     }
 
     public static class Builder {
@@ -73,10 +77,12 @@ public class InputParam {
         private String            metaName;
         private String            zipAlignPath;
         private String            sevenZipPath;
+        private SignatureType     signatureType;
 
         public Builder() {
             use7zip = false;
             keepRoot = false;
+            signatureType = SignatureType.SchemaV1;
         }
 
         public Builder setMappingFile(File mappingFile) {
@@ -154,6 +160,11 @@ public class InputParam {
             return this;
         }
 
+        public Builder setSignatureType(SignatureType signatureType) {
+            this.signatureType = signatureType;
+            return this;
+        }
+
         public InputParam create() {
             return new InputParam(
                 mappingFile,
@@ -170,7 +181,8 @@ public class InputParam {
                 storepass,
                 metaName,
                 zipAlignPath,
-                sevenZipPath
+                sevenZipPath,
+                signatureType
             );
         }
     }

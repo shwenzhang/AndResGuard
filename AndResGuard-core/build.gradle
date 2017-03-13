@@ -6,7 +6,7 @@ apply plugin: 'com.jfrog.bintray'
 Properties properties = new Properties()
 try {
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
-} catch (Exception e) {
+} catch (Exception ignore) {
     properties.load(project.rootProject.file('travis.properties').newDataInputStream())
 }
 version = properties.getProperty("bintray.version")
@@ -16,6 +16,7 @@ def appId = 'AndResGuard-core'
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.tools.build:apksig:2.3.0'
 }
 
 sourceSets {

@@ -101,6 +101,9 @@ class AndResGuardTask extends DefaultTask {
                         .setKeypass(signConfig.keyPassword)
                         .setStorealias(signConfig.keyAlias)
                         .setStorepass(signConfig.storePassword)
+                if (signConfig.v2SigningEnabled) {
+                    builder.setSignatureType(InputParam.SignatureType.SchemaV2);
+                }
             }
             InputParam inputParam = builder.create()
             Main.gradleRun(inputParam)

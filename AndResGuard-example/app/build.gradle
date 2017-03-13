@@ -12,7 +12,7 @@ buildscript {
         // The Fabric Gradle plugin uses an open ended version to react
         // quickly to Android tooling updates
         classpath 'io.fabric.tools:gradle:latest.integration'
-        classpath ('com.tencent.mm:AndResGuard-gradle-plugin:1.1.16') { changing=true }
+        classpath ('com.tencent.mm:AndResGuard-gradle-plugin:1.2.0') { changing=true }
     }
 }
 
@@ -66,6 +66,7 @@ android {
                 storePassword "testres"
                 keyAlias "testres"
                 keyPassword "testres"
+                //v2SigningEnabled false
             } catch (ex) {
                 throw new InvalidUserDataException(ex.toString())
             }
