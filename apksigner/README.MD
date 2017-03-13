@@ -1,0 +1,1 @@
+copied and modified from [apksiger](https://github.com/mcxiaoke/ApkSigner) 

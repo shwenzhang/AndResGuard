@@ -1,36 +1,48 @@
 package com.tencent.mm.androlib;
 
+import com.android.apksigner.ApkSignerTool;
 import com.tencent.mm.resourceproguard.Configuration;
 import com.tencent.mm.util.FileOperation;
 import com.tencent.mm.util.TypedValue;
 import com.tencent.mm.util.Utils;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.security.Key;
-import java.security.KeyStore;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * @author shwenzhang
+ *         <p>
+ *         modified:
+ * @author jonychina162
+ *         为了使用v2签名，引入了apksigner @see <a href="https://github.com/mcxiaoke/ApkSigner">apksigner</a>,即v2签名。
+ *         由于使用v2签名，会对整个包除了签名块验证完整性，即除了签名块的内容在签名之后包其他内容不允许再改动，因此修改了原有的签名逻辑，
+ *         现有逻辑：1. 7zip压缩 2. zipalign 3.sign 。
+ *         经验证使用7zip压缩的优势不再大，建议不再使用7zip
  */
 public class ResourceApkBuilder {
 
     private final Configuration config;
-    private       File          mOutDir;
-    private       File          m7zipOutPutDir;
+    private File mOutDir;
+    private File m7zipOutPutDir;
 
     private File mUnSignedApk;
     private File mSignedApk;
+
+    private File m7ZipApk;
     private File mSignedWith7ZipApk;
 
     private File mAlignedApk;
+    private File mSignedWithAlignedApk;
+
     private File mAlignedWith7ZipApk;
+    private File mSignedWith7ZipAlignedApk;
 
     private String mApkName;
 
@@ -46,18 +58,21 @@ public class ResourceApkBuilder {
     public void buildApk(HashMap<String, Integer> compressData) throws IOException, InterruptedException {
         insureFileName();
         generalUnsignApk(compressData);
-        signApk();
         use7zApk(compressData);
         alignApk();
+        signApk();
     }
 
     private void insureFileName() {
         mUnSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_unsigned.apk");
         //需要自己安装7zip
-        mSignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_signed_7zip.apk");
+        m7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip.apk");
         mSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_signed.apk");
-        mAlignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_signed_aligned.apk");
-        mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_signed_7zip_aligned.apk");
+        mAlignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_aligned.apk");
+        mSignedWithAlignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_aligned_signed.apk");
+        mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip_aligned.apk");
+        mSignedWith7ZipAlignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip_aligned_signed.apk");
+        mSignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip_signed.apk");
         m7zipOutPutDir = new File(mOutDir.getAbsolutePath(), TypedValue.OUT_7ZIP_FILE_PATH);
     }
 
@@ -68,14 +83,9 @@ public class ResourceApkBuilder {
         if (!config.mUseSignAPk) {
             throw new IOException("if you want to use 7z, you must enable useSign in the config file first");
         }
-        if (!mSignedApk.exists()) {
-            throw new IOException(
-                String.format("can not found the signed apk file to 7z, if you want to use 7z, " +
-                    "you must fill the sign data in the config file path=%s", mSignedApk.getAbsolutePath())
-            );
-        }
-        System.out.printf("use 7zip to repackage: %s, will cost much more time\n", mSignedWith7ZipApk.getName());
-        FileOperation.unZipAPk(mSignedApk.getAbsolutePath(), m7zipOutPutDir.getAbsolutePath());
+
+        System.out.printf("use 7zip to repackage: %s, will cost much more time\n", m7ZipApk.getName());
+        FileOperation.unZipAPk(mUnSignedApk.getAbsolutePath(), m7zipOutPutDir.getAbsolutePath());
         //首先一次性生成一个全部都是压缩的安装包
         generalRaw7zip();
 
@@ -93,66 +103,38 @@ public class ResourceApkBuilder {
         }
 
         addStoredFileIn7Zip(storedFiles);
-        if (!mSignedWith7ZipApk.exists()) {
+        if (!m7ZipApk.exists()) {
             throw new IOException(String.format(
-                "[use7zApk]7z repackage signed apk fail,you must install 7z command line version first, linux: p7zip, window: 7za, path=%s",
-                mSignedWith7ZipApk.getAbsolutePath()));
+                    "[use7zApk]7z repackage apk fail,you must install 7z command line version first, linux: p7zip, window: 7za, path=%s",
+                    m7ZipApk.getAbsolutePath()));
         }
-    }
-
-    private String getSignatureAlgorithm() throws Exception {
-        FileInputStream fileIn = new FileInputStream(config.mSignatureFile);
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        keyStore.load(fileIn, config.mStorePass.toCharArray());
-        Key key = keyStore.getKey(config.mStoreAlias, config.mKeyPass.toCharArray());
-        String keyAlgorithm = key.getAlgorithm();
-        String signatureAlgorithm;
-        if (keyAlgorithm.equalsIgnoreCase("DSA")) {
-            signatureAlgorithm = "SHA1withDSA";
-        } else if (keyAlgorithm.equalsIgnoreCase("RSA")) {
-            signatureAlgorithm = "SHA1withRSA";
-        } else if (keyAlgorithm.equalsIgnoreCase("EC")) {
-            signatureAlgorithm = "SHA1withECDSA";
-        } else {
-            throw new RuntimeException("private key is not a DSA or RSA key");
-        }
-        System.out.printf("signature Algorithm is: %s\n", signatureAlgorithm);
-        return signatureAlgorithm;
     }
 
     private void signApk() throws IOException, InterruptedException {
         //尝试去对apk签名
         if (config.mUseSignAPk) {
-            System.out.printf("signing apk: %s\n", mSignedApk.getName());
-            if (mSignedApk.exists()) {
-                mSignedApk.delete();
+            if (mUnSignedApk.exists()) {
+                System.out.printf("signing apk: %s\n", mSignedApk.getName());
+                Files.copy(mUnSignedApk.toPath(), mSignedApk.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                ApkSignerTool.main(getApkSignerArgv(mSignedApk.getAbsolutePath()));
             }
-            String signatureAlgorithm = "MD5withRSA";
-            try {
-                signatureAlgorithm = getSignatureAlgorithm();
-            } catch (Exception e) {
-                e.printStackTrace();
+
+            if (mAlignedApk.exists()) {
+                System.out.printf("signing apk: %s\n", mSignedWithAlignedApk.getName());
+                Files.copy(mAlignedApk.toPath(), mSignedWithAlignedApk.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                ApkSignerTool.main(getApkSignerArgv(mSignedWithAlignedApk.getAbsolutePath()));
             }
-            String[] argv = {
-                "jarsigner",
-                "-sigalg", signatureAlgorithm,
-                "-digestalg", "SHA1",
-                "-keystore", config.mSignatureFile.getAbsolutePath(),
-                "-storepass", config.mStorePass,
-                "-keypass", config.mKeyPass,
-                "-signedjar", mSignedApk.getAbsolutePath(),
-                mUnSignedApk.getAbsolutePath(),
-                config.mStoreAlias
-            };
-            Process pro = null;
-            try {
-                pro = Runtime.getRuntime().exec(argv);
-                //destroy the stream
-                pro.waitFor();
-            } finally {
-                if (pro != null) {
-                    pro.destroy();
-                }
+
+            if (mAlignedWith7ZipApk.exists()){
+                System.out.printf("signing apk: %s\n", mSignedWith7ZipAlignedApk.getName());
+                Files.copy(mAlignedApk.toPath(), mSignedWith7ZipAlignedApk.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                ApkSignerTool.main(getApkSignerArgv(mSignedWith7ZipAlignedApk.getAbsolutePath()));
+            }
+
+            if(m7ZipApk.exists()){
+                System.out.printf("signing apk: %s\n", mSignedWith7ZipApk.getName());
+                Files.copy(mAlignedApk.toPath(), mSignedWith7ZipApk.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                ApkSignerTool.main(getApkSignerArgv(mSignedWith7ZipApk.getAbsolutePath()));
             }
 
             if (!mSignedApk.exists()) {
@@ -161,18 +143,24 @@ public class ResourceApkBuilder {
         }
     }
 
+    private String[] getApkSignerArgv(String filePath) {
+        return new String[]{
+                "sign",
+                "--ks", config.mSignatureFile.getAbsolutePath(),
+                "--ks-pass",
+                "pass:" + config.mKeyPass,
+                "--ks-key-alias", config.mStoreAlias,
+                filePath
+        };
+    }
+
     private void alignApk() throws IOException, InterruptedException {
         //如果不签名就肯定不需要对齐了
         if (!config.mUseSignAPk) {
             return;
         }
-        if (mSignedWith7ZipApk.exists()) {
-            if (mSignedApk.exists()) {
-                alignApk(mSignedApk, mAlignedApk);
-            }
-            alignApk(mSignedWith7ZipApk, mAlignedWith7ZipApk);
-        } else if (mSignedApk.exists()) {
-            alignApk(mSignedApk, mAlignedApk);
+        if (mUnSignedApk.exists()) {
+            alignApk(mUnSignedApk, mAlignedApk);
         } else {
             throw new IOException("can not found any signed apk file");
         }
@@ -182,8 +170,8 @@ public class ResourceApkBuilder {
         System.out.printf("zipaligning apk: %s\n", before.getName());
         if (!before.exists()) {
             throw new IOException(String.format(
-                "can not found the raw apk file to zipalign, path=%s",
-                before.getAbsolutePath()));
+                    "can not found the raw apk file to zipalign, path=%s",
+                    before.getAbsolutePath()));
         }
         String cmd = Utils.isPresent(config.mZipalignPath) ? config.mZipalignPath : TypedValue.COMMAND_ZIPALIGIN;
         ProcessBuilder pb = new ProcessBuilder(cmd, "4", before.getAbsolutePath(), after.getAbsolutePath());
@@ -194,7 +182,7 @@ public class ResourceApkBuilder {
         pro.destroy();
         if (!after.exists()) {
             throw new IOException(
-                String.format("can not found the aligned apk file, the ZipAlign path is correct? path=%s", mAlignedApk.getAbsolutePath())
+                    String.format("can not found the aligned apk file, the ZipAlign path is correct? path=%s", mAlignedApk.getAbsolutePath())
             );
         }
     }
@@ -230,8 +218,8 @@ public class ResourceApkBuilder {
         System.out.printf("DestResDir %d rawResDir %d\n", FileOperation.getlist(destResDir), FileOperation.getlist(rawResDir));
         if (FileOperation.getlist(destResDir) != FileOperation.getlist(rawResDir)) {
             throw new IOException(String.format(
-                "the file count of %s, and the file count of %s is not equal, there must be some problem\n",
-                rawResDir.getAbsolutePath(), destResDir.getAbsolutePath()));
+                    "the file count of %s, and the file count of %s is not equal, there must be some problem\n",
+                    rawResDir.getAbsolutePath(), destResDir.getAbsolutePath()));
         }
         if (!destResDir.exists()) {
             System.err.printf("Missing res files, path=%s\n", destResDir.getAbsolutePath());
@@ -249,8 +237,8 @@ public class ResourceApkBuilder {
 
         if (!mUnSignedApk.exists()) {
             throw new IOException(String.format(
-                "can not found the unsign apk file path=%s",
-                mUnSignedApk.getAbsolutePath()));
+                    "can not found the unsign apk file path=%s",
+                    mUnSignedApk.getAbsolutePath()));
         }
     }
 
@@ -264,7 +252,7 @@ public class ResourceApkBuilder {
         storedParentName = storedParentName + File.separator + "*";
         //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", mSignedWith7ZipApk.getAbsolutePath(), storedParentName, "-mx0");
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", m7ZipApk.getAbsolutePath(), storedParentName, "-mx0");
         Process pro = pb.start();
 
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());
@@ -281,7 +269,7 @@ public class ResourceApkBuilder {
         String path = outPath + File.separator + "*";
         //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", mSignedWith7ZipApk.getAbsolutePath(), path, "-mx9");
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", m7ZipApk.getAbsolutePath(), path, "-mx9");
         Process pro = pb.start();
 
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());
