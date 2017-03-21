@@ -124,10 +124,15 @@ public class ResourceApkBuilder {
     }
 
     private String getSignatureAlgorithm() throws Exception {
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         FileInputStream fileIn = new FileInputStream(config.mSignatureFile);
-        KeyStore keyStore = KeyStore.getInstance("JKS");
         keyStore.load(fileIn, config.mStorePass.toCharArray());
         Key key = keyStore.getKey(config.mStoreAlias, config.mKeyPass.toCharArray());
+        if (key == null) {
+            throw new RuntimeException(
+                "Can't get private key, please check if storepass storealias and keypass are correct"
+            );
+        }
         String keyAlgorithm = key.getAlgorithm();
         String signatureAlgorithm;
         if (keyAlgorithm.equalsIgnoreCase("DSA")) {
