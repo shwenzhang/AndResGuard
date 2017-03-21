@@ -38,6 +38,7 @@ buildscript {
 andResGuard {
     // mappingFile = file("./resource_mapping.txt")
     mappingFile = null
+    // It will be invalid when you sign apk with schemaV2
     use7zip = true
     useSign = true
     // it will keep the origin path of your resources when it's true
