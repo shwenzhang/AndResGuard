@@ -4,7 +4,6 @@ import com.tencent.mm.resourceproguard.InputParam
 import com.tencent.mm.resourceproguard.Main
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.Task
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -101,8 +100,8 @@ class AndResGuardTask extends DefaultTask {
                         .setKeypass(signConfig.keyPassword)
                         .setStorealias(signConfig.keyAlias)
                         .setStorepass(signConfig.storePassword)
-                if (signConfig.v2SigningEnabled) {
-                    builder.setSignatureType(InputParam.SignatureType.SchemaV2);
+                if (signConfig.hasProperty('v2SigningEnabled') && signConfig.v2SigningEnabled) {
+                    builder.setSignatureType(InputParam.SignatureType.SchemaV2)
                 }
             }
             InputParam inputParam = builder.create()
