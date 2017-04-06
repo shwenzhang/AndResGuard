@@ -34,7 +34,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.0'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.1'
     }
 }
 
@@ -84,7 +84,7 @@ andResGuard {
         "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.0'
+        artifact = 'com.tencent.mm:SevenZip:1.2.1'
         //path = "/usr/local/bin/7za"
     }
 }
@@ -103,4 +103,4 @@ The outputted apk will be stored in `{App}/build/output/apk/AndResGuard_{apk_nam
 
 [Apktool](https://github.com/iBotPeaches/Apktool) Connor Tumbleson
 
-[v2sig](https://github.com/shwenzhang/AndResGuard/pull/133) @jonyChina162 
+[v2sig](https://github.com/shwenzhang/AndResGuard/pull/133) @jonyChina162

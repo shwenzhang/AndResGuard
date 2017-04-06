@@ -12,7 +12,7 @@ buildscript {
         // The Fabric Gradle plugin uses an open ended version to react
         // quickly to Android tooling updates
         classpath 'io.fabric.tools:gradle:latest.integration'
-        classpath ('com.tencent.mm:AndResGuard-gradle-plugin:1.2.0') { changing=true }
+        classpath ('com.tencent.mm:AndResGuard-gradle-plugin:1.2.1') { changing=true }
     }
 }
 
@@ -37,7 +37,7 @@ andResGuard {
             "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.0'
+        artifact = 'com.tencent.mm:SevenZip:1.2.1'
         //path = "/usr/local/bin/7za"
     }
 }
