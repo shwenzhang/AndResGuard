@@ -148,7 +148,7 @@ Sign主要是对处理后的文件重签名，需要我们输入签名文件位�
 ## Android资源混淆工具需要注意的问题 ##
 
 1. compress参数对混淆效果的影响
-若指定compess 参数.png、.gif以及*.jpg，resources.arsc会大大减少安装包体积。若要支持2.2，resources.arsc需保证压缩前小于1M。
+若指定compess 参数.png、.gif以及*.jpg，resources.arsc会大大减少安装包体积。若要支持Android2.2以及以下版本的设备，resources.arsc需保证压缩前小于1M。
 
 2. 操作系统对7z的影响
 实验证明，linux与mac的7z效果更好
