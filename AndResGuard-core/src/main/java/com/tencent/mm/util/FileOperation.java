@@ -195,7 +195,8 @@ public class FileOperation {
      *
      * @param resFileList file(dir) list
      * @param zipFile     output zip file
-     * @throws IOException
+     * @param compressData compress data
+     * @throws IOException io exception
      */
     public static void zipFiles(Collection<File> resFileList, File zipFile, HashMap<String, Integer> compressData) throws IOException {
         ZipOutputStream zipout = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile), BUFFER));
