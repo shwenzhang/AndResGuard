@@ -17,7 +17,6 @@ import java.io.IOException;
  */
 public class Main {
 
-
     public static final int ERRNO_ERRORS = 1;
     public static final int ERRNO_USAGE  = 2;
     protected static long          mRawApkSize;
@@ -38,11 +37,18 @@ public class Main {
     }
 
     private void run(InputParam inputParam) {
-        loadConfigFromGradle(inputParam);
-        System.out.println("AndResGuard starting...");
-        resourceProguard(new File(inputParam.outFolder), inputParam.apkPath, inputParam.signatureType);
-        System.out.printf("AndResGuard done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
-        clean();
+        synchronized (Main.class) {
+            loadConfigFromGradle(inputParam);
+            Thread currentThread = Thread.currentThread();
+            System.out.printf(
+                "\n-->AndResGuard starting! Current thread# id: %d, name: %s\n",
+                currentThread.getId(),
+                currentThread.getName()
+            );
+            resourceProguard(new File(inputParam.outFolder), inputParam.apkPath, inputParam.signatureType);
+            System.out.printf("<--AndResGuard Done! You can find the output in %s\n", mOutDir.getAbsolutePath());
+            clean();
+        }
     }
 
     protected void clean() {
