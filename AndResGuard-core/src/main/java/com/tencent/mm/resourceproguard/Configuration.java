@@ -30,22 +30,22 @@ import javax.xml.parsers.ParserConfigurationException;
  */
 public class Configuration {
 
-    protected static final String TAG_ISSUE               = "issue";
-    protected static final String ATTR_VALUE              = "value";
-    protected static final String ATTR_ID                 = "id";
-    protected static final String ATTR_ACTIVE             = "isactive";
-    protected static final String PROPERTY_ISSUE          = "property";
-    protected static final String WHITELIST_ISSUE         = "whitelist";
-    protected static final String COMPRESS_ISSUE          = "compress";
-    protected static final String MAPPING_ISSUE           = "keepmapping";
-    protected static final String SIGN_ISSUE              = "sign";
-    protected static final String ATTR_7ZIP               = "seventzip";
-    protected static final String ATTR_KEEPROOT           = "keeproot";
-    protected static final String ATTR_SIGNFILE           = "metaname";
-    protected static final String ATTR_SIGNFILE_PATH      = "path";
-    protected static final String ATTR_SIGNFILE_KEYPASS   = "keypass";
-    protected static final String ATTR_SIGNFILE_STOREPASS = "storepass";
-    protected static final String ATTR_SIGNFILE_ALIAS     = "alias";
+    private static final String TAG_ISSUE               = "issue";
+    private static final String ATTR_VALUE              = "value";
+    private static final String ATTR_ID                 = "id";
+    private static final String ATTR_ACTIVE             = "isactive";
+    private static final String PROPERTY_ISSUE          = "property";
+    private static final String WHITELIST_ISSUE         = "whitelist";
+    private static final String COMPRESS_ISSUE          = "compress";
+    private static final String MAPPING_ISSUE           = "keepmapping";
+    private static final String SIGN_ISSUE              = "sign";
+    private static final String ATTR_7ZIP               = "seventzip";
+    private static final String ATTR_KEEPROOT           = "keeproot";
+    private static final String ATTR_SIGNFILE           = "metaname";
+    private static final String ATTR_SIGNFILE_PATH      = "path";
+    private static final String ATTR_SIGNFILE_KEYPASS   = "keypass";
+    private static final String ATTR_SIGNFILE_STOREPASS = "storepass";
+    private static final String ATTR_SIGNFILE_ALIAS     = "alias";
 
     public final HashMap<String, HashMap<String, HashSet<Pattern>>>        mWhiteList;
     public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping;
@@ -70,6 +70,12 @@ public class Configuration {
 
     /**
      * use by command line with xml config
+     * @param config xml config file
+     * @param sevenzipPath 7zip bin file path
+     * @param zipAlignPath zipalign bin file path
+     * @throws IOException io exception
+     * @throws ParserConfigurationException parse exception
+     * @throws SAXException sax exception
      */
     public Configuration(File config, String sevenzipPath, String zipAlignPath)
         throws IOException, ParserConfigurationException, SAXException {
@@ -84,6 +90,8 @@ public class Configuration {
 
     /**
      * use by gradle
+     * @param param {@link InputParam} parameter
+     * @throws IOException io exception
      */
     public Configuration(InputParam param) throws IOException {
         mWhiteList = new HashMap<>();

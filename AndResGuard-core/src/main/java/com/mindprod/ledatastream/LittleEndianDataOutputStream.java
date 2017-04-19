@@ -62,7 +62,8 @@ public class LittleEndianDataOutputStream extends FilterOutputStream
      * array; equivalent to {@code ByteBuffer.allocate(8).putLong(value).array()}.
      * For example, the input value {@code 0x1213141516171819L} would yield the
      * byte array {@code {0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19}}.
-     *
+     * @param value long
+     * @return byte array
      */
     public static byte[] toByteArray(long value) {
         // Note that this code needs to stay compatible with GWT, which has known

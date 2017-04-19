@@ -162,39 +162,41 @@ public class CliMain extends Main {
     }
 
     private void run(String[] args) {
-        if (args.length < 1) {
-            goToError();
-        }
-        ReadArgs readArgs = new ReadArgs(args).invoke();
-        File configFile = readArgs.getConfigFile();
-        File signatureFile = readArgs.getSignatureFile();
-        File mappingFile = readArgs.getMappingFile();
-        String keypass = readArgs.getKeypass();
-        String storealias = readArgs.getStorealias();
-        String storepass = readArgs.getStorepass();
-        String signedFile = readArgs.getSignedFile();
-        File outputFile = readArgs.getOutputFile();
-        String apkFileName = readArgs.getApkFileName();
-        loadConfigFromXml(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
-
-        //对于repackage模式，不管之前的东东，直接return
-        if (signedFile != null) {
-            ResourceRepackage repackage = new ResourceRepackage(config.mZipalignPath, config.m7zipPath, new File(signedFile));
-            try {
-                if (outputFile != null) {
-                    repackage.setOutDir(outputFile);
-                }
-                repackage.repackageApk();
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+        synchronized (CliMain.class) {
+            if (args.length < 1) {
+                goToError();
             }
-            return;
+            ReadArgs readArgs = new ReadArgs(args).invoke();
+            File configFile = readArgs.getConfigFile();
+            File signatureFile = readArgs.getSignatureFile();
+            File mappingFile = readArgs.getMappingFile();
+            String keypass = readArgs.getKeypass();
+            String storealias = readArgs.getStorealias();
+            String storepass = readArgs.getStorepass();
+            String signedFile = readArgs.getSignedFile();
+            File outputFile = readArgs.getOutputFile();
+            String apkFileName = readArgs.getApkFileName();
+            loadConfigFromXml(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
+
+            //对于repackage模式，不管之前的东东，直接return
+            if (signedFile != null) {
+                ResourceRepackage repackage = new ResourceRepackage(config.mZipalignPath, config.m7zipPath, new File(signedFile));
+                try {
+                    if (outputFile != null) {
+                        repackage.setOutDir(outputFile);
+                    }
+                    repackage.repackageApk();
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+            System.out.printf("[AndResGuard] begin: %s, %s\n", outputFile, apkFileName);
+            resourceProguard(outputFile, apkFileName, InputParam.SignatureType.SchemaV1);
+            System.out.printf("[AndResGuard] done, total time cost: %fs\n", diffTimeFromBegin());
+            System.out.printf("[AndResGuard] done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
+            clean();
         }
-        System.out.printf("[AndResGuard] begin: %s, %s\n", outputFile, apkFileName);
-        resourceProguard(outputFile, apkFileName, InputParam.SignatureType.SchemaV1);
-        System.out.printf("[AndResGuard] done, total time cost: %fs\n", diffTimeFromBegin());
-        System.out.printf("[AndResGuard] done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
-        clean();
     }
 
     private void loadConfigFromXml(File configFile, File signatureFile, File mappingFile, String keypass, String storealias, String storepass) {
