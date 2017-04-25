@@ -20,7 +20,7 @@ Some uses of `AndResGuard` are:
 
 `AndResGuard` is a command-line tool, it supports Windows, Linux and Mac. We suggest you to use 7zip in Linux or Mac platform for a higher compression ratio.
 
-**Note: Signature schemaV2 will make 7zip compressing invalid.
+**Note: Signature schemeV2 will make 7zip compressing invalid.
 If you really care about your APK size, please disable v2Signing in your signingConfigs**
 
 ## How to use
@@ -41,7 +41,7 @@ buildscript {
 andResGuard {
     // mappingFile = file("./resource_mapping.txt")
     mappingFile = null
-    // It will be invalid when you sign apk with schemaV2
+    // It will be invalid when you sign apk with schemeV2
     use7zip = true
     useSign = true
     // it will keep the origin path of your resources when it's true
