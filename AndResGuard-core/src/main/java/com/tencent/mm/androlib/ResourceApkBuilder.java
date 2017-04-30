@@ -175,12 +175,13 @@ public class ResourceApkBuilder {
         String[] params = new String[]{
             "sign",
             "--ks", config.mSignatureFile.getAbsolutePath(),
-            "--ks-pass",
-            "pass:" + config.mKeyPass,
+            "--ks-pass", "pass:" + config.mStorePass,
             "--ks-key-alias", config.mStoreAlias,
+            "--key-pass","pass:" + config.mKeyPass,
             "--out", signedApk.getAbsolutePath(),
             unSignedApk.getAbsolutePath()
         };
+        //dumpParams(params);
         ApkSignerTool.main(params);
     }
 
@@ -202,6 +203,7 @@ public class ResourceApkBuilder {
             unSignedApk.getAbsolutePath(),
             config.mStoreAlias
         };
+        //dumpParams(argv);
         Process pro = null;
         try {
             pro = Runtime.getRuntime().exec(argv);
@@ -212,6 +214,14 @@ public class ResourceApkBuilder {
                 pro.destroy();
             }
         }
+    }
+
+    private void dumpParams(String[] params) {
+        StringBuilder sb = new StringBuilder();
+        for (String param : params) {
+            sb.append(param).append(" ");
+        }
+        System.out.println(sb.toString());
     }
 
     private void alignApks() throws IOException, InterruptedException {
