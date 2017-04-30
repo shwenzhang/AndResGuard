@@ -62,10 +62,10 @@ android {
     signingConfigs {
         release {
             try {
-                storeFile file("../keystore test/release.keystore")
-                storePassword "testres"
-                keyAlias "testres"
-                keyPassword "testres"
+                storeFile file("../keystore test/testKey.jks")
+                storePassword "testtest"
+                keyAlias "test"
+                keyPassword "admin@test"
                 v2SigningEnabled true
             } catch (ex) {
                 throw new InvalidUserDataException(ex.toString())
