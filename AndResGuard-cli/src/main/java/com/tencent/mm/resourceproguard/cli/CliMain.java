@@ -209,15 +209,14 @@ public class CliMain extends Main {
             }
         }
         try {
-            config = new Configuration(configFile, m7zipPath, mZipalignPath);
-
-            //需要检查命令行的设置
-            if (mSetSignThroughCmd) {
-                config.setSignData(signatureFile, keypass, storealias, storepass);
+            //不需要检查命令行的设置
+            if (!mSetSignThroughCmd) {
+                signatureFile = null;
             }
-            if (mSetMappingThroughCmd) {
-                config.setKeepMappingData(mappingFile);
+            if (!mSetMappingThroughCmd) {
+                mappingFile = null;
             }
+            config = new Configuration(configFile, m7zipPath, mZipalignPath, mappingFile, signatureFile, keypass, storealias, storepass);
         } catch (IOException | ParserConfigurationException | SAXException e) {
             e.printStackTrace();
             goToError();
