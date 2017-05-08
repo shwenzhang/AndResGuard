@@ -70,19 +70,33 @@ public class Configuration {
 
     /**
      * use by command line with xml config
-     * @param config xml config file
-     * @param sevenzipPath 7zip bin file path
-     * @param zipAlignPath zipalign bin file path
-     * @throws IOException io exception
+     *
+     * @param config        xml config file
+     * @param sevenzipPath  7zip bin file path
+     * @param zipAlignPath  zipalign bin file path
+     * @param mappingFile   mapping file
+     * @param signatureFile signature file
+     * @param keypass       signature key password
+     * @param storealias    signature store alias
+     * @param storepass     signature store password
+     * @throws IOException                  io exception
      * @throws ParserConfigurationException parse exception
-     * @throws SAXException sax exception
+     * @throws SAXException                 sax exception
      */
-    public Configuration(File config, String sevenzipPath, String zipAlignPath)
-        throws IOException, ParserConfigurationException, SAXException {
+    public Configuration(File config, String sevenzipPath, String zipAlignPath, File mappingFile,
+                         File signatureFile, String keypass, String storealias, String storepass)
+            throws IOException, ParserConfigurationException, SAXException {
         mWhiteList = new HashMap<>();
         mOldResMapping = new HashMap<>();
         mOldFileMapping = new HashMap<>();
         mCompressPatterns = new HashSet<>();
+        if (signatureFile != null) {
+            setSignData(signatureFile, keypass, storealias, storepass);
+        }
+        if (mappingFile != null) {
+            setKeepMappingData(mappingFile);
+        }
+        // setSignData and setKeepMappingData must before readXmlConfig or it will read
         readXmlConfig(config);
         this.m7zipPath = sevenzipPath;
         this.mZipalignPath = zipAlignPath;
