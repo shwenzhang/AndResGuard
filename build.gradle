@@ -14,4 +14,17 @@ allprojects {
     repositories {
         jcenter()
     }
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = rootProject.ext.javaVersion
+        targetCompatibility = rootProject.ext.javaVersion
+    }
+
+    tasks.withType(GroovyCompile) {
+        sourceCompatibility = rootProject.ext.javaVersion
+        targetCompatibility = rootProject.ext.javaVersion
+    }
+}
+
+ext {
+    javaVersion = JavaVersion.VERSION_1_7
 }
