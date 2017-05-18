@@ -60,6 +60,9 @@ public class StringBlock {
     /**
      * Reads whole (including chunk type) string block from stream. Stream must
      * be at the chunk type.
+     * @param reader reader
+     * @return stringblock
+     * @throws IOException ioexcetpion
      */
     public static StringBlock read(ExtDataInput reader) throws IOException {
         reader.skipCheckChunkTypeInt(CHUNK_STRINGPOOL_TYPE, CHUNK_NULL_TYPE);
@@ -334,6 +337,9 @@ public class StringBlock {
     /**
      * Reads whole (including chunk type) string block from stream. Stream must
      * be at the chunk type.
+     * @param reader ExtDataInput reader
+     * @param out ExtDataOutput out
+     * @throws IOException ioexception
      */
     public static void writeAll(ExtDataInput reader, ExtDataOutput out) throws IOException {
         out.writeCheckChunkTypeInt(reader, CHUNK_STRINGPOOL_TYPE, CHUNK_NULL_TYPE);
@@ -395,6 +401,7 @@ public class StringBlock {
 
     /**
      * Returns number of strings in block.
+     * @return int number of strings in block.
      */
     public int getCount() {
         return m_stringOffsets != null ? m_stringOffsets.length : 0;
@@ -402,6 +409,8 @@ public class StringBlock {
 
     /**
      * Returns raw string (without any styling information) at specified index.
+     * @param index index
+     * @return raw string
      */
     public String getString(int index) {
         if (index < 0 || m_stringOffsets == null || index >= m_stringOffsets.length) {
@@ -426,6 +435,8 @@ public class StringBlock {
      * Not yet implemented.
      * <p>
      * Returns string with style information (if any).
+     * @param index index
+     * @return string with style information (if any).
      */
     public CharSequence get(int index) {
         return getString(index);
@@ -433,6 +444,8 @@ public class StringBlock {
 
     /**
      * Finds index of the string. Returns -1 if the string was not found.
+     * @param string input string
+     * @return index of the string
      */
     public int find(String string) {
         if (string == null) {
