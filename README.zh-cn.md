@@ -75,7 +75,11 @@ andResGuard {
         "R.id.*messager*",
         // umeng share commond
         "R.id.progress_bar_parent",
-        "R.id.webView"
+        "R.id.webView",
+        // for getui
+        "R.drawable.push",
+        "R.drawable.push_small",
+        "R.layout.getui_notification"
     ]
     compressFilePattern = [
         "*.png",

@@ -74,7 +74,11 @@ andResGuard {
         "R.string.ga_trackingId",
         "R.string.firebase_database_url",
         "R.string.google_api_key",
-        "R.string.google_crash_reporting_api_key"
+        "R.string.google_crash_reporting_api_key",
+        // for getui
+        "R.drawable.push",
+        "R.drawable.push_small",
+        "R.layout.getui_notification"
     ]
     compressFilePattern = [
         "*.png",
