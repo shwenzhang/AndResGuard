@@ -43,43 +43,14 @@ andResGuard {
         "R.drawable.icon",
         // for fabric
         "R.string.com.crashlytics.*",
-        // for umeng update
-        "R.string.umeng*",
-        "R.string.UM*",
-        "R.string.tb_*",
-        "R.layout.umeng*",
-        "R.layout.tb_*",
-        "R.drawable.umeng*",
-        "R.drawable.tb_*",
-        "R.anim.umeng*",
-        "R.color.umeng*",
-        "R.color.tb_*",
-        "R.style.*UM*",
-        "R.style.umeng*",
-        "R.id.umeng*",
-        // umeng share for sina
-        "R.drawable.sina*",
-        // for google-services.json
+        // for google-services
         "R.string.google_app_id",
         "R.string.gcm_defaultSenderId",
         "R.string.default_web_client_id",
         "R.string.ga_trackingId",
         "R.string.firebase_database_url",
         "R.string.google_api_key",
-        "R.string.google_crash_reporting_api_key",
-        // umeng share for facebook
-        "R.layout.*facebook*",
-        "R.id.*facebook*",
-        // umeng share for messager
-        "R.layout.*messager*",
-        "R.id.*messager*",
-        // umeng share commond
-        "R.id.progress_bar_parent",
-        "R.id.webView",
-        // for getui
-        "R.drawable.push",
-        "R.drawable.push_small",
-        "R.layout.getui_notification"
+        "R.string.google_crash_reporting_api_key"
     ]
     compressFilePattern = [
         "*.png",
@@ -94,16 +65,14 @@ andResGuard {
     }
 }
 ```
-
 使用Android Studio的同学可以再 `andresguard` 下找到相关的构建任务;
 命令行可直接运行```./gradlew resguard[BuildType | Flavor]```， 这里的任务命令规则和assemble一致。
-
 
 在设置`sevenzip`时, 你只需设置`artifact`或`path`. 支持同时设置,总以path的值为优先.
 
 最终的混淆APK会生成在`{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`。
 
-**请使用Umeng_social_sdk的同学特别留意将资源加入白名单，否则会出现Crash。也欢迎大家PR自己的白名单**
+**请使用Umeng_social_sdk的同学特别留意将资源加入白名单，否则会出现Crash。可以在[white_list.md](doc/white_list.md)查看更多sdk的白名单配置，也欢迎大家PR自己的白名单**
 
 白名单机制只作用于资源的specsName，不会keep住资源的路径。如果想keep住资源原有的物理路径，可以使用`mappingFile`。
 例如我想keep住icon所有folder，可以在mappingFile指向的文件添加：
