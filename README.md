@@ -98,6 +98,10 @@ res path mapping:
 
 [Looking for more detail](doc/how_to_work.md)
 
+## Known Issue
+
+1. The first element of list which returned by `AssetManager#list(String path)` is empty string when you're using the APK which is compressed by 7zip. [#162](https://github.com/shwenzhang/AndResGuard/issues/162) 
+ 
 ## Thanks
 
 [Apktool](https://github.com/iBotPeaches/Apktool) Connor Tumbleson
