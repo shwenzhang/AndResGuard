@@ -5,7 +5,7 @@
         <!--whether use 7zip to repackage the signed apk, you must install the 7z command line version in window -->
         <!--sudo apt-get install p7zip-full in linux -->
         <!--and you must write the sign data fist, and i found that if we use linux, we can get a better result -->
-        <seventzip value="false"/>
+        <seventzip value="true"/>
         <!--the sign data file name in your apk, default must be META-INF-->
         <!--generally, you do not need to change it if you dont change the meta file name in your apk-->
         <metaname value="META-INF"/>
