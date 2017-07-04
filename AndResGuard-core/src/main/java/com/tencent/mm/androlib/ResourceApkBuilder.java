@@ -88,7 +88,7 @@ public class ResourceApkBuilder {
         if (!config.mUse7zip) {
             return;
         }
-        if (!config.mUseSignAPk) {
+        if (!config.mUseSignAPK) {
             throw new IOException("if you want to use 7z, you must enable useSign in the config file first");
         }
         if (!mSignedApk.exists()) {
@@ -149,7 +149,7 @@ public class ResourceApkBuilder {
     }
 
     private void signApkV1(File unSignedApk, File signedApk) throws IOException, InterruptedException {
-        if (config.mUseSignAPk) {
+        if (config.mUseSignAPK) {
             System.out.printf("signing apk: %s\n", signedApk.getName());
             if (signedApk.exists()) {
                 signedApk.delete();
@@ -162,7 +162,7 @@ public class ResourceApkBuilder {
     }
 
     private void signApkV2(File unSignedApk, File signedApk) throws Exception {
-        if (config.mUseSignAPk) {
+        if (config.mUseSignAPK) {
             System.out.printf("signing apk: %s\n", signedApk.getName());
             signWithV2sign(unSignedApk, signedApk);
             if (!signedApk.exists()) {
@@ -226,7 +226,7 @@ public class ResourceApkBuilder {
 
     private void alignApks() throws IOException, InterruptedException {
         //如果不签名就肯定不需要对齐了
-        if (!config.mUseSignAPk) {
+        if (!config.mUseSignAPK) {
             return;
         }
         if (!mSignedApk.exists() && !mSignedWith7ZipApk.exists()) {

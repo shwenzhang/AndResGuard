@@ -56,7 +56,7 @@ public class Configuration {
     public boolean mUse7zip        = true;
     public boolean mKeepRoot       = false;
     public String  mMetaName       = "META-INF";
-    public boolean mUseSignAPk     = false;
+    public boolean mUseSignAPK     = false;
     public boolean mUseKeepMapping = false;
     public File    mSignatureFile;
     public File    mOldMappingFile;
@@ -135,8 +135,8 @@ public class Configuration {
     }
 
     public void setSignData(File signatureFile, String keypass, String storealias, String storepass) throws IOException {
-        mUseSignAPk = true;
-        if (mUseSignAPk) {
+        mUseSignAPK = true;
+        if (mUseSignAPK) {
             mSignatureFile = signatureFile;
             if (!mSignatureFile.exists()) {
                 throw new IOException(
@@ -204,8 +204,8 @@ public class Configuration {
                         readCompressFromXml(node);
                     }
                 } else if (id.equals(SIGN_ISSUE)) {
-                    mUseSignAPk = active;
-                    if (mUseSignAPk) {
+                    mUseSignAPK |= active;
+                    if (mUseSignAPK) {
                         readSignFromXml(node);
                     }
                 } else if (id.equals(MAPPING_ISSUE)) {

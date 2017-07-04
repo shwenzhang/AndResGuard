@@ -166,16 +166,16 @@ public class CliMain extends Main {
             if (args.length < 1) {
                 goToError();
             }
-            ReadArgs readArgs = new ReadArgs(args).invoke();
-            File configFile = readArgs.getConfigFile();
-            File signatureFile = readArgs.getSignatureFile();
-            File mappingFile = readArgs.getMappingFile();
-            String keypass = readArgs.getKeypass();
-            String storealias = readArgs.getStorealias();
-            String storepass = readArgs.getStorepass();
-            String signedFile = readArgs.getSignedFile();
-            File outputFile = readArgs.getOutputFile();
-            String apkFileName = readArgs.getApkFileName();
+            final ReadArgs readArgs = new ReadArgs(args).invoke();
+            final File configFile = readArgs.getConfigFile();
+            final File signatureFile = readArgs.getSignatureFile();
+            final File mappingFile = readArgs.getMappingFile();
+            final String keypass = readArgs.getKeypass();
+            final String storealias = readArgs.getStorealias();
+            final String storepass = readArgs.getStorepass();
+            final String signedFile = readArgs.getSignedFile();
+            final File outputFile = readArgs.getOutputFile();
+            final String apkFileName = readArgs.getApkFileName();
             loadConfigFromXml(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
 
             //对于repackage模式，不管之前的东东，直接return
