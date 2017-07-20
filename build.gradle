@@ -27,4 +27,24 @@ allprojects {
 
 ext {
     javaVersion = JavaVersion.VERSION_1_7
+
+    GROUP = 'com.tencent.mm'
+    VERSION_NAME = "${ANDRESGUARD_VESSION}"
+
+    POM_PACKAGING = "pom"
+    POM_DESCRIPTION = "Android Resource Proguard Core Lib"
+
+    POM_URL = "https://github.com/shwenzhang/AndResGuard"
+    POM_SCM_URL = "https://github.com/shwenzhang/AndResGuard.git"
+    POM_ISSUE_URL = 'https://github.com/shwenzhang/AndResGuard/issues'
+
+    POM_LICENCE_NAME = "Apache-2.0"
+    POM_LICENCE_URL = " http://www.apache.org/licenses/"
+    POM_LICENCE_DIST = "repo"
+
+    POM_DEVELOPER_ID="Tencent Wechat"
+    POM_DEVELOPER_NAME="Tencent Wechat, Inc."
+
+    BINTRAY_LICENCE= ["Apache-2.0"]
+    BINTRAY_ORGANIZATION = "wemobiledev"
 }

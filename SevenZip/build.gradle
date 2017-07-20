@@ -1,40 +1,16 @@
 //apply plugin: 'com.google.osdetector'
-apply plugin: 'com.jfrog.bintray'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
 
-Properties properties = new Properties()
-try {
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-} catch (Exception e) {
-    properties.load(project.rootProject.file('travis.properties').newDataInputStream())
-}
-version = properties.getProperty("bintray.version")
-group = properties.getProperty("bintray.groupId")
-def appId = 'SevenZip'
+version rootProject.ext.VERSION_NAME
+group rootProject.ext.GROUP
 
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    publications = ['SevenZipPub']
-    dryRun = false //Whether to run this as dry-run, without deploying
-    pkg {
-        repo = "maven"
-        name = "SevenZip"
-        desc = 'Seven zip bin files'
-        websiteUrl = 'https://github.com/shwenzhang/AndResGuard'
-        issueTrackerUrl = 'https://github.com/shwenzhang/AndResGuard/issues'
-        vcsUrl = 'https://github.com/shwenzhang/AndResGuard.git'
-        licenses = ["Apache-2.0"]
-    }
-}
 
 publishing {
     publications {
-        SevenZipPub(MavenPublication) {
-            artifactId appId
+        ResguardPub(MavenPublication) {
+            artifactId POM_ARTIFACT_ID
             groupId group
             artifact("executable/SevenZip-linux-x86_32.exe") {
                 classifier "linux-x86_32"
@@ -59,3 +35,5 @@ publishing {
         }
     }
 }
+
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

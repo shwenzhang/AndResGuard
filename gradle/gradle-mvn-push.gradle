@@ -1,0 +1,48 @@
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
+def getBintrayUser() {
+    return hasProperty('BINTRAY_USER') ? BINTRAY_USER : readPropertyFromLocalProperties('BINTRAY_USER')
+}
+
+def getBintrayKey() {
+    return hasProperty('BINTRAY_APIKEY') ? BINTRAY_APIKEY : readPropertyFromLocalProperties('BINTRAY_APIKEY')
+}
+
+def readPropertyFromLocalProperties(String key) {
+    Properties properties = new Properties()
+    try {
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    } catch (Exception ignore) {
+    }
+    return properties.getProperty(key)
+}
+
+bintray {
+    user = getBintrayUser()
+    key = getBintrayKey()
+    configurations = ['archives']
+    publications = ['ResguardPub']
+
+    pkg {
+        repo = 'maven'
+        userOrg = BINTRAY_ORGANIZATION
+        name = "${GROUP}:${POM_ARTIFACT_ID}"
+        desc = POM_DESCRIPTION
+        licenses = BINTRAY_LICENCE
+        vcsUrl = POM_SCM_URL
+        websiteUrl = POM_URL
+        issueTrackerUrl = POM_ISSUE_URL
+        publicDownloadNumbers = true
+        publish = true
+        dryRun = false
+    }
+}
+
+
+
+task buildAndPublishRepo(dependsOn: ['build', 'uploadArchives']) {
+    doLast {
+        println "*published to repo: ${project.group}:${project.name}:${project.version}"
+    }
+}

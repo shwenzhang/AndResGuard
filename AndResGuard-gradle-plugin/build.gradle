@@ -1,19 +1,7 @@
 apply plugin: 'groovy'
-apply plugin: 'com.ofg.uptodate'
-apply plugin: 'maven'
-apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
 
-
-Properties properties = new Properties()
-try {
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-} catch (Exception e) {
-    properties.load(project.rootProject.file('travis.properties').newDataInputStream())
-}
-version = properties.getProperty("bintray.version")
-group = properties.getProperty("bintray.groupId")
-def appId = 'AndResGuard-gradle-plugin'
+version rootProject.ext.VERSION_NAME
+group rootProject.ext.GROUP
 
 dependencies {
     compile gradleApi()
@@ -27,44 +15,5 @@ repositories {
     mavenCentral()
 }
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
-
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    publications = ['AndResPorguard']
-    dryRun = false //Whether to run this as dry-run, without deploying
-    pkg {
-        repo = "maven"
-        name = "AndResGuard-gradle-plugin"
-        desc = 'Android Resource Proguard Plugin'
-        websiteUrl = 'https://github.com/shwenzhang/AndResGuard'
-        issueTrackerUrl = 'https://github.com/shwenzhang/AndResGuard/issues'
-        vcsUrl = 'https://github.com/shwenzhang/AndResGuard.git'
-        licenses = ["Apache-2.0"]
-        publish = true
-    }
-}
-
-publishing {
-    publications {
-        AndResPorguard(MavenPublication) {
-            from components.java
-            groupId group
-            artifactId appId
-        }
-    }
-}
+apply from: rootProject.file('gradle/java-artifacts.gradle')
+apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

@@ -2,14 +2,8 @@ apply plugin: 'java'
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
-Properties properties = new Properties()
-try {
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-} catch (Exception e) {
-    properties.load(project.rootProject.file('travis.properties').newDataInputStream())
-}
-version = properties.getProperty("bintray.version")
-group = properties.getProperty("bintray.groupId")
+version rootProject.ext.VERSION_NAME
+group rootProject.ext.GROUP
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
