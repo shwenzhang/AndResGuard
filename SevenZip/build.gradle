@@ -1,11 +1,25 @@
 //apply plugin: 'com.google.osdetector'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
-
+apply plugin: 'java'
 
 version rootProject.ext.VERSION_NAME
 group rootProject.ext.GROUP
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
 
 publishing {
     publications {
