@@ -37,7 +37,7 @@ andResGuard {
             "resources.arsc"
     ]
     sevenzip {
-        artifact = "com.tencent.mm:SevenZip:${ANDRESGUARD_VERSION}"
+        artifact = "com.tencent.mm:SevenZip:${ANDRESGUARD_SEVENZIP_VERSION}"
         //path = "/usr/local/bin/7za"
     }
 }
@@ -124,6 +124,55 @@ android {
         versionCode 2
         versionName "1.1"
     }
+}
+
+task createVersionInformation  {
+    def resDir = new File(buildDir, 'generated/buildinfo/')
+    def destDir = new File(resDir, 'META-INF/')
+
+    android {
+        sourceSets {
+            main.resources {
+                srcDir resDir
+            }
+        }
+    }
+
+    doLast {
+        destDir.mkdirs()
+        def vfile = new File(destDir, 'BUILD_INFO')
+
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'log', '-1', '--format=%H'
+            standardOutput = stdout
+        }
+        def git_hash = stdout.toString().trim()
+
+        stdout.reset()
+        exec {
+            commandLine 'git', 'config', 'remote.origin.url'
+            standardOutput = stdout
+        }
+        def remote = stdout.toString().trim()
+
+        def dirty = exec {
+            commandLine 'git', 'diff-index', '--quiet', 'HEAD'
+            ignoreExitValue true
+        }
+        dirty = dirty.getExitValue() == 0 ?
+                ' (Clean workspace)' : '-DIRTY using dirty workspace!'
+
+        def repo_info = "$remote at $git_hash$dirty"
+
+        vfile.text = "$repo_info\n"
+    }
+}
+
+project.afterEvaluate {
+    tasks.findAll { task ->
+        task.name.startsWith('merge') && task.name.endsWith('Resources')
+    }.each { t -> t.dependsOn createVersionInformation }
 }
 
 dependencies {
