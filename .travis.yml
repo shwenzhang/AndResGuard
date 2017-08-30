@@ -1,7 +1,6 @@
 language: java
 script: "./gradlew check"
 jdk:
-  - oraclejdk7
   - oraclejdk8
 notifications:
   webhooks:
