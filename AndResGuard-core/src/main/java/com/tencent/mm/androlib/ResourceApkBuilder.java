@@ -262,7 +262,7 @@ public class ResourceApkBuilder {
     }
 
     private void generalUnsignApk(HashMap<String, Integer> compressData) throws IOException, InterruptedException {
-        System.out.printf("general unsigned apk: %s\n", mUnSignedApk.getName());
+        System.out.printf("General unsigned apk: %s\n", mUnSignedApk.getName());
         File tempOutDir = new File(mOutDir.getAbsolutePath(), TypedValue.UNZIP_FILE_PATH);
         if (!tempOutDir.exists()) {
             System.err.printf("Missing apk unzip files, path=%s\n", tempOutDir.getAbsolutePath());
@@ -270,10 +270,14 @@ public class ResourceApkBuilder {
         }
 
         File[] unzipFiles = tempOutDir.listFiles();
+        assert unzipFiles != null;
         List<File> collectFiles = new ArrayList<>();
         for (File f : unzipFiles) {
             String name = f.getName();
-            if (name.equals("res") || name.equals(config.mMetaName) || name.equals("resources.arsc")) {
+            if (name.equals("res") || name.equals("resources.arsc")) {
+                continue;
+            } else if (name.equals(config.mMetaName)) {
+                addNonSignatureFiles(collectFiles, f);
                 continue;
             }
             collectFiles.add(f);
@@ -285,7 +289,7 @@ public class ResourceApkBuilder {
             destResDir = new File(mOutDir.getAbsolutePath(), TypedValue.RES_FILE_PATH);
         }
 
-        /**
+        /*
          * NOTE:文件数量应该是一样的，如果不一样肯定有问题
          */
         File rawResDir = new File(tempOutDir.getAbsolutePath() + File.separator + "res");
@@ -307,12 +311,27 @@ public class ResourceApkBuilder {
             System.exit(-1);
         }
         collectFiles.add(rawARSCFile);
-        FileOperation.zipFiles(collectFiles, mUnSignedApk, compressData);
+        FileOperation.zipFiles(collectFiles, tempOutDir, mUnSignedApk, compressData);
 
         if (!mUnSignedApk.exists()) {
             throw new IOException(String.format(
                 "can not found the unsign apk file path=%s",
                 mUnSignedApk.getAbsolutePath()));
+        }
+    }
+
+    private void addNonSignatureFiles(List<File> collectFiles, File metaFolder) {
+        File[] metaFiles = metaFolder.listFiles();
+        if (metaFiles != null) {
+            for (File metaFile : metaFiles) {
+                String metaFileName = metaFile.getName();
+                // Ignore signature files
+                if (!metaFileName.endsWith(".MF") && !metaFileName.endsWith(".RSA")
+                  && !metaFileName.endsWith(".SF")) {
+                    System.out.println(String.format("add meta file %s", metaFile.getAbsolutePath()));
+                    collectFiles.add(metaFile);
+                }
+            }
         }
     }
 
