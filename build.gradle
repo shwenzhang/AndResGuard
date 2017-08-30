@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.6'
         classpath 'com.ofg:uptodate-gradle-plugin:1.6.2'
     }
@@ -26,7 +26,7 @@ allprojects {
 }
 
 ext {
-    javaVersion = JavaVersion.VERSION_1_7
+    javaVersion = JavaVersion.VERSION_1_8
 
     GROUP = 'com.tencent.mm'
     VERSION_NAME = "${ANDRESGUARD_VESSION}"
