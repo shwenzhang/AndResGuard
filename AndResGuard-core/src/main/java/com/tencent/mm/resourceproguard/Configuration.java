@@ -136,17 +136,15 @@ public class Configuration {
 
     public void setSignData(File signatureFile, String keypass, String storealias, String storepass) throws IOException {
         mUseSignAPK = true;
-        if (mUseSignAPK) {
-            mSignatureFile = signatureFile;
-            if (!mSignatureFile.exists()) {
-                throw new IOException(
-                    String.format("the signature file do not exit, raw path= %s\n", mSignatureFile.getAbsolutePath())
-                );
-            }
-            mKeyPass = keypass;
-            mStoreAlias = storealias;
-            mStorePass = storepass;
+        mSignatureFile = signatureFile;
+        if (!mSignatureFile.exists()) {
+            throw new IOException(
+                String.format("the signature file do not exit, raw path= %s\n", mSignatureFile.getAbsolutePath())
+            );
         }
+        mKeyPass = keypass;
+        mStoreAlias = storealias;
+        mStorePass = storepass;
     }
 
     public void setKeepMappingData(File mappingFile) throws IOException {
@@ -189,32 +187,39 @@ public class Configuration {
                     System.err.println("Invalid config file: Missing required issue id attribute");
                     continue;
                 }
-                boolean active = isActive != null ? isActive.equals("true") : false;
+                boolean active = isActive != null && isActive.equals("true");
 
-                if (id.equals(PROPERTY_ISSUE)) {
-                    readPropertyFromXml(node);
-                } else if (id.equals(WHITELIST_ISSUE)) {
-                    mUseWhiteList = active;
-                    if (mUseWhiteList) {
-                        readWhiteListFromXml(node);
-                    }
-                } else if (id.equals(COMPRESS_ISSUE)) {
-                    mUseCompress = active;
-                    if (mUseCompress) {
-                        readCompressFromXml(node);
-                    }
-                } else if (id.equals(SIGN_ISSUE)) {
-                    mUseSignAPK |= active;
-                    if (mUseSignAPK) {
-                        readSignFromXml(node);
-                    }
-                } else if (id.equals(MAPPING_ISSUE)) {
-                    mUseKeepMapping = active;
-                    if (mUseKeepMapping) {
-                        loadMappingFilesFromXml(node);
-                    }
-                } else {
-                    System.err.println("unknown issue " + id);
+                switch (id) {
+                    case PROPERTY_ISSUE:
+                        readPropertyFromXml(node);
+                        break;
+                    case WHITELIST_ISSUE:
+                        mUseWhiteList = active;
+                        if (mUseWhiteList) {
+                            readWhiteListFromXml(node);
+                        }
+                        break;
+                    case COMPRESS_ISSUE:
+                        mUseCompress = active;
+                        if (mUseCompress) {
+                            readCompressFromXml(node);
+                        }
+                        break;
+                    case SIGN_ISSUE:
+                        mUseSignAPK |= active;
+                        if (mUseSignAPK) {
+                            readSignFromXml(node);
+                        }
+                        break;
+                    case MAPPING_ISSUE:
+                        mUseKeepMapping = active;
+                        if (mUseKeepMapping) {
+                            loadMappingFilesFromXml(node);
+                        }
+                        break;
+                    default:
+                        System.err.println("unknown issue " + id);
+                        break;
                 }
             }
         } finally {
