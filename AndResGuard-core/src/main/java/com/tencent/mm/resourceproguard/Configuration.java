@@ -134,7 +134,7 @@ public class Configuration {
         this.mZipalignPath = param.zipAlignPath;
     }
 
-    public void setSignData(File signatureFile, String keypass, String storealias, String storepass) throws IOException {
+    private void setSignData(File signatureFile, String keypass, String storealias, String storepass) throws IOException {
         mUseSignAPK = true;
         mSignatureFile = signatureFile;
         if (!mSignatureFile.exists()) {
@@ -147,7 +147,7 @@ public class Configuration {
         mStorePass = storepass;
     }
 
-    public void setKeepMappingData(File mappingFile) throws IOException {
+    private void setKeepMappingData(File mappingFile) throws IOException {
         if (mUseKeepMapping) {
             mOldMappingFile = mappingFile;
 
@@ -160,7 +160,7 @@ public class Configuration {
         }
     }
 
-    void readXmlConfig(File xmlConfigFile)
+    private void readXmlConfig(File xmlConfigFile)
         throws IOException, ParserConfigurationException, SAXException {
         if (!xmlConfigFile.exists()) {
             return;
@@ -310,24 +310,30 @@ public class Configuration {
                         );
                     }
 
-                    if (tagName.equals(ATTR_SIGNFILE_PATH)) {
-                        mSignatureFile = new File(vaule);
-                        if (!mSignatureFile.exists()) {
-                            throw new IOException(
-                                String.format("the signature file do not exit, raw path= %s\n", mSignatureFile.getAbsolutePath())
-                            );
-                        }
-                    } else if (tagName.equals(ATTR_SIGNFILE_STOREPASS)) {
-                        mStorePass = vaule;
-                        mStorePass = mStorePass.trim();
-                    } else if (tagName.equals(ATTR_SIGNFILE_KEYPASS)) {
-                        mKeyPass = vaule;
-                        mKeyPass = mKeyPass.trim();
-                    } else if (tagName.equals(ATTR_SIGNFILE_ALIAS)) {
-                        mStoreAlias = vaule;
-                        mStoreAlias = mStoreAlias.trim();
-                    } else {
-                        System.err.println("unknown tag " + tagName);
+                    switch (tagName) {
+                        case ATTR_SIGNFILE_PATH:
+                            mSignatureFile = new File(vaule);
+                            if (!mSignatureFile.exists()) {
+                                throw new IOException(
+                                  String.format("the signature file do not exit, raw path= %s\n", mSignatureFile.getAbsolutePath())
+                                );
+                            }
+                            break;
+                        case ATTR_SIGNFILE_STOREPASS:
+                            mStorePass = vaule;
+                            mStorePass = mStorePass.trim();
+                            break;
+                        case ATTR_SIGNFILE_KEYPASS:
+                            mKeyPass = vaule;
+                            mKeyPass = mKeyPass.trim();
+                            break;
+                        case ATTR_SIGNFILE_ALIAS:
+                            mStoreAlias = vaule;
+                            mStoreAlias = mStoreAlias.trim();
+                            break;
+                        default:
+                            System.err.println("unknown tag " + tagName);
+                            break;
                     }
                 }
             }
@@ -398,16 +404,20 @@ public class Configuration {
                         );
                     }
 
-                    if (tagName.equals(ATTR_7ZIP)) {
-                        mUse7zip = vaule.equals("true");
-                    } else if (tagName.equals(ATTR_KEEPROOT)) {
-                        mKeepRoot = vaule.equals("true");
-                        System.out.println("mKeepRoot " + mKeepRoot);
-                    } else if (tagName.equals(ATTR_SIGNFILE)) {
-                        mMetaName = vaule;
-                        mMetaName = mMetaName.trim();
-                    } else {
-                        System.err.println("unknown tag " + tagName);
+                    switch (tagName) {
+                        case ATTR_7ZIP:
+                            mUse7zip = vaule.equals("true");
+                            break;
+                        case ATTR_KEEPROOT:
+                            mKeepRoot = vaule.equals("true");
+                            System.out.println("mKeepRoot " + mKeepRoot);
+                            break;
+                        case ATTR_SIGNFILE:
+                            mMetaName = vaule.trim();
+                            break;
+                        default:
+                            System.err.println("unknown tag " + tagName);
+                            break;
                     }
                 }
             }
