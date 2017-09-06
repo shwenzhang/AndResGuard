@@ -24,6 +24,7 @@ public class InputParam {
     public final String            zipAlignPath;
     public final String            sevenZipPath;
     public final SignatureType     signatureType;
+    public final String            finalApkBackupPath;
 
     private InputParam(
         File mappingFile,
@@ -41,7 +42,8 @@ public class InputParam {
         String metaName,
         String zipAlignPath,
         String sevenZipPath,
-        SignatureType signatureType
+        SignatureType signatureType,
+        String finalApkBackupPath
     ) {
         this.mappingFile = mappingFile;
         this.use7zip = use7zip;
@@ -59,6 +61,7 @@ public class InputParam {
         this.zipAlignPath = zipAlignPath;
         this.sevenZipPath = sevenZipPath;
         this.signatureType = signatureType;
+        this.finalApkBackupPath = finalApkBackupPath;
     }
 
     public static class Builder {
@@ -78,6 +81,7 @@ public class InputParam {
         private String            zipAlignPath;
         private String            sevenZipPath;
         private SignatureType     signatureType;
+        private String            finalApkBackupPath;
 
         public Builder() {
             use7zip = false;
@@ -165,6 +169,11 @@ public class InputParam {
             return this;
         }
 
+        public Builder setFinalApkBackupPath(String finalApkBackupPath) {
+            this.finalApkBackupPath = finalApkBackupPath;
+            return this;
+        }
+
         public InputParam create() {
             return new InputParam(
                 mappingFile,
@@ -182,7 +191,8 @@ public class InputParam {
                 metaName,
                 zipAlignPath,
                 sevenZipPath,
-                signatureType
+                signatureType,
+                finalApkBackupPath
             );
         }
     }

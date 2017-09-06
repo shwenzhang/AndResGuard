@@ -24,10 +24,12 @@ public class Main {
     protected static long          mBeginTime;
 
     /** 是否通过命令行方式设置 **/
-    public boolean mSetSignThroughCmd    = false;
-    public boolean mSetMappingThroughCmd = false;
-    public String  m7zipPath             = null;
-    public String  mZipalignPath         = null;
+    public boolean mSetSignThroughCmd;
+    public boolean mSetMappingThroughCmd;
+    public String  m7zipPath;
+    public String  mZipalignPath;
+    public String  mFinalApkBackPath;
+
     protected        Configuration config;
     protected        File          mOutDir;
 
@@ -39,6 +41,7 @@ public class Main {
     private void run(InputParam inputParam) {
         synchronized (Main.class) {
             loadConfigFromGradle(inputParam);
+            this.mFinalApkBackPath = inputParam.finalApkBackupPath;
             Thread currentThread = Thread.currentThread();
             System.out.printf(
                 "\n-->AndResGuard starting! Current thread# id: %d, name: %s\n",
@@ -68,7 +71,7 @@ public class Main {
         ApkDecoder decoder = new ApkDecoder(config);
         File apkFile = new File(apkFilePath);
         if (!apkFile.exists()) {
-            System.err.printf("the input apk %s does not exit", apkFile.getAbsolutePath());
+            System.err.printf("The input apk %s does not exist", apkFile.getAbsolutePath());
             goToError();
         }
         mRawApkSize = FileOperation.getFileSizes(apkFile);
@@ -97,13 +100,13 @@ public class Main {
         ResourceApkBuilder builder = new ResourceApkBuilder(config);
         String apkBasename = apkFile.getName();
         apkBasename = apkBasename.substring(0, apkBasename.indexOf(".apk"));
-        builder.setOutDir(mOutDir, apkBasename);
+        builder.setOutDir(mOutDir, apkBasename, mFinalApkBackPath);
         switch (signatureType) {
             case SchemaV1:
-                builder.buildApkV1sign(decoder.getCompressData());
+                builder.buildApkWithV1sign(decoder.getCompressData());
                 break;
             case SchemaV2:
-                builder.buildApkV2sign(decoder.getCompressData());
+                builder.buildApkWithV2sign(decoder.getCompressData());
                 break;
         }
     }

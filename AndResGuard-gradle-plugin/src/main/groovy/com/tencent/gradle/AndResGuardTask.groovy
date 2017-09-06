@@ -79,6 +79,7 @@ class AndResGuardTask extends DefaultTask {
                     whiteListFullName.add(res)
                 }
             }
+
             InputParam.Builder builder = new InputParam.Builder()
                     .setMappingFile(configuration.mappingFile)
                     .setWhiteList(whiteListFullName)
@@ -91,6 +92,12 @@ class AndResGuardTask extends DefaultTask {
                     .setOutBuilder(useFolder(config.file))
                     .setApkPath(absPath)
                     .setUseSign(configuration.useSign)
+
+            if (configuration.finalApkBackupPath != null && configuration.finalApkBackupPath.length() > 0) {
+                builder.setFinalApkBackupPath(configuration.finalApkBackupPath)
+            } else {
+                builder.setFinalApkBackupPath(absPath)
+            }
 
             if (configuration.useSign) {
                 if (signConfig == null) {

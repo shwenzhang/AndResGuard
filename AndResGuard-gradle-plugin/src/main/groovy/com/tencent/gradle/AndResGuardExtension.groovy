@@ -15,6 +15,7 @@ class AndResGuardExtension {
     boolean keepRoot
     Iterable<String> whiteList
     Iterable<String> compressFilePattern
+    String finalApkBackupPath
 
     AndResGuardExtension() {
         use7zip = false
@@ -24,6 +25,7 @@ class AndResGuardExtension {
         whiteList = []
         compressFilePattern = []
         mappingFile = null
+        finalApkBackupPath = null
     }
 
     Iterable<String> getCompressFilePattern() {
@@ -54,6 +56,10 @@ class AndResGuardExtension {
         return whiteList
     }
 
+    String getFinalApkBackupPath() {
+        return finalApkBackupPath
+    }
+
     @Override
     String toString() {
         """| use7zip = ${use7zip}
@@ -62,6 +68,7 @@ class AndResGuardExtension {
            | keepRoot = ${keepRoot}
            | whiteList = ${whiteList}
            | compressFilePattern = ${compressFilePattern}
+           | finalApkBackupPath = ${finalApkBackupPath}
         """.stripMargin()
     }
 }

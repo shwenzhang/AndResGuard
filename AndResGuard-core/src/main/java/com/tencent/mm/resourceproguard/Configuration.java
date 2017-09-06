@@ -65,8 +65,8 @@ public class Configuration {
     public String  mKeyPass;
     public String  mStorePass;
     public String  mStoreAlias;
-    public String m7zipPath;
-    public String mZipalignPath;
+    public String  m7zipPath;
+    public String  mZipalignPath;
 
     /**
      * use by command line with xml config

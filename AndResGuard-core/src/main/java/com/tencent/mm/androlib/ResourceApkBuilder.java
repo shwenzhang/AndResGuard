@@ -1,6 +1,6 @@
 package com.tencent.mm.androlib;
 
-import apksigner.ApkSignerTool;
+import com.tencent.mm.androlib.res.util.StringUtil;
 import com.tencent.mm.resourceproguard.Configuration;
 import com.tencent.mm.util.FileOperation;
 import com.tencent.mm.util.TypedValue;
@@ -16,6 +16,8 @@ import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import apksigner.ApkSignerTool;
 
 /**
  * @author shwenzhang
@@ -39,25 +41,36 @@ public class ResourceApkBuilder {
     private File mAlignedWith7ZipApk;
 
     private String mApkName;
+    private String finalApkBackupPath;
 
     public ResourceApkBuilder(Configuration config) {
         this.config = config;
     }
 
-    public void setOutDir(File outDir, String apkName) throws AndrolibException {
-        mOutDir = outDir;
-        mApkName = apkName;
+    public void setOutDir(File outDir, String apkName, String finalApkBackupPath) throws AndrolibException {
+        this.mOutDir = outDir;
+        this.mApkName = apkName;
+        this.finalApkBackupPath = finalApkBackupPath;
     }
 
-    public void buildApkV1sign(HashMap<String, Integer> compressData) throws IOException, InterruptedException {
+    public void buildApkWithV1sign(HashMap<String, Integer> compressData) throws IOException, InterruptedException {
         insureFileNameV1();
         generalUnsignApk(compressData);
         signApkV1(mUnSignedApk , mSignedApk);
         use7zApk(compressData);
         alignApks();
+        copyFinalApkV1();
     }
 
-    public void buildApkV2sign(HashMap<String, Integer> compressData) throws Exception {
+    private void copyFinalApkV1() throws IOException {
+        if (mSignedWith7ZipApk.exists() && StringUtil.isPresent(finalApkBackupPath)) {
+            FileOperation.copyFileUsingStream(mAlignedWith7ZipApk, new File(finalApkBackupPath));
+        } else if (mSignedApk.exists()) {
+            FileOperation.copyFileUsingStream(mAlignedApk, new File(finalApkBackupPath));
+        }
+    }
+
+    public void buildApkWithV2sign(HashMap<String, Integer> compressData) throws Exception {
         insureFileNameV2();
         generalUnsignApk(compressData);
         /*
@@ -67,6 +80,14 @@ public class ResourceApkBuilder {
          */
         alignApk(mUnSignedApk, mAlignedApk);
         signApkV2(mAlignedApk, mSignedApk);
+        copyFinalApkV2();
+    }
+
+    private void copyFinalApkV2() throws IOException {
+        if (mSignedApk.exists() && StringUtil.isPresent(finalApkBackupPath)) {
+            System.out.println(String.format("Backup Final APk to %s", finalApkBackupPath));
+            FileOperation.copyFileUsingStream(mSignedApk, new File(finalApkBackupPath));
+        }
     }
 
     private void insureFileNameV1() {
