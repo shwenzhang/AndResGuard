@@ -39,3 +39,4 @@ tool_output/outapk
 node_modules/
 classes
 AndResGuard-example/true
+final.apk
