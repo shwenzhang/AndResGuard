@@ -42,6 +42,8 @@ public class StringBlock {
     private static final CharsetDecoder UTF16LE_DECODER       = Charset.forName("UTF-16LE").newDecoder();
     private static final CharsetDecoder UTF8_DECODER          = Charset.forName("UTF-8").newDecoder();
     private static final Logger         LOGGER                = Logger.getLogger(StringBlock.class.getName());
+
+    // ResChunk_header = header.type (0x0001) + header.headerSize (0x001C)
     private static final int            CHUNK_STRINGPOOL_TYPE = 0x001C0001;
     private static final int            UTF8_FLAG             = 0x00000100;
     private static final int            CHUNK_NULL_TYPE       = 0x00000000;
@@ -83,11 +85,10 @@ public class StringBlock {
             block.m_styleOffsets = reader.readIntArray(styleCount);
         }
         {
-            int size = ((stylesOffset == 0) ? chunkSize : stylesOffset)    - stringsOffset;
+            int size = ((stylesOffset == 0) ? chunkSize : stylesOffset) - stringsOffset;
 
             if ((size % 4) != 0) {
-                throw new IOException("String data size is not multiple of 4 ("
-                    + size + ").");
+                throw new IOException("String data size is not multiple of 4 (" + size + ").");
             }
             block.m_strings = new byte[size];
 
@@ -96,8 +97,7 @@ public class StringBlock {
         if (stylesOffset != 0) {
             int size = (chunkSize - stylesOffset);
             if ((size % 4) != 0) {
-                throw new IOException("Style data size is not multiple of 4 ("
-                    + size + ").");
+                throw new IOException("Style data size is not multiple of 4 (" + size + ").");
             }
             block.m_styles = reader.readIntArray(size / 4);
         }
@@ -152,7 +152,7 @@ public class StringBlock {
                 byte[] tempByte = name.getBytes(Charset.forName("UTF-8"));
                 if (name.length() != tempByte.length) {
                     throw new AndrolibException(
-                        String.format("writeSpecNameStringBlock lenght is different  name %d, tempByte %d\n", name.length(), tempByte.length)
+                        String.format("writeSpecNameStringBlock UTF-8 length is different name %d, tempByte %d\n", name.length(), tempByte.length)
                     );
                 }
                 System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
@@ -166,7 +166,7 @@ public class StringBlock {
                 byte[] tempByte = name.getBytes(Charset.forName("UTF-16LE"));
                 if ((name.length() * 2) != tempByte.length) {
                     throw new AndrolibException(
-                        String.format("writeSpecNameStringBlock lenght is different  name %d, tempByte %d\n", name.length(), tempByte.length)
+                        String.format("writeSpecNameStringBlock UTF-16LE length is different name %d, tempByte %d\n", name.length(), tempByte.length)
                     );
                 }
                 System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
@@ -278,7 +278,7 @@ public class StringBlock {
                     byte[] tempByte = name.getBytes(Charset.forName("UTF-8"));
                     if (name.length() != tempByte.length) {
                         throw new AndrolibException(String.format(
-                            "writeTableNameStringBlock lenght is different  name %d, tempByte %d\n", name.length(), tempByte.length));
+                            "writeTableNameStringBlock UTF-8 length is different  name %d, tempByte %d\n", name.length(), tempByte.length));
                     }
                     System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
                     offset += name.length();
@@ -291,7 +291,7 @@ public class StringBlock {
                     byte[] tempByte = name.getBytes(Charset.forName("UTF-16LE"));
                     if ((name.length() * 2) != tempByte.length) {
                         throw new AndrolibException(String.format(
-                            "writeTableNameStringBlock lenght is different  name %d, tempByte %d\n", name.length(), tempByte.length));
+                            "writeTableNameStringBlock UTF-16LE length is different  name %d, tempByte %d\n", name.length(), tempByte.length));
                     }
                     System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
                     offset += tempByte.length;
@@ -351,34 +351,36 @@ public class StringBlock {
     private static final int[] getUtf8(byte[] array, int offset) {
         int val = array[offset];
         int length;
-
+        // We skip the utf16 length of the string
         if ((val & 0x80) != 0) {
             offset += 2;
         } else {
             offset += 1;
         }
+        // And we read only the utf-8 encoded length of the string
         val = array[offset];
+        offset += 1;
         if ((val & 0x80) != 0) {
-            offset += 2;
-        } else {
+            int low = (array[offset] & 0xFF);
+            length = ((val & 0x7F) << 8) + low;
             offset += 1;
+        } else {
+            length = val;
         }
-        length = 0;
-        while (array[offset + length] != 0) {
-            length++;
-        }
-        return new int[]{offset, length};
+        return new int[] { offset, length};
     }
 
     private static final int[] getUtf16(byte[] array, int offset) {
         int val = ((array[offset + 1] & 0xFF) << 8 | array[offset] & 0xFF);
 
-        if (val == 0x8000) {
+        if ((val & 0x8000) != 0) {
             int high = (array[offset + 3] & 0xFF) << 8;
             int low = (array[offset + 2] & 0xFF);
-            return new int[]{4, (high + low) * 2};
+            int len_value =  ((val & 0x7FFF) << 16) + (high + low);
+            return new int[] {4, len_value * 2};
+
         }
-        return new int[]{2, val * 2};
+        return new int[] {2, val * 2};
     }
 
     private static final int getShort(byte[] array, int offset) {
