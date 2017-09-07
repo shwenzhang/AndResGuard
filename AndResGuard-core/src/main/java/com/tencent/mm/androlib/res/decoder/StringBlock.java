@@ -152,7 +152,7 @@ public class StringBlock {
                 byte[] tempByte = name.getBytes(Charset.forName("UTF-8"));
                 if (name.length() != tempByte.length) {
                     throw new AndrolibException(
-                        String.format("writeSpecNameStringBlock UTF-8 length is different name %d, tempByte %d\n", name.length(), tempByte.length)
+                        String.format("writeSpecNameStringBlock %s UTF-8 length is different name %d, tempByte %d\n", name, name.length(), tempByte.length)
                     );
                 }
                 System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
@@ -166,7 +166,7 @@ public class StringBlock {
                 byte[] tempByte = name.getBytes(Charset.forName("UTF-16LE"));
                 if ((name.length() * 2) != tempByte.length) {
                     throw new AndrolibException(
-                        String.format("writeSpecNameStringBlock UTF-16LE length is different name %d, tempByte %d\n", name.length(), tempByte.length)
+                        String.format("writeSpecNameStringBlock %s UTF-16LE length is different name %d, tempByte %d\n", name, name.length(), tempByte.length)
                     );
                 }
                 System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
