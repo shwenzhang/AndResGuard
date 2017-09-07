@@ -23,7 +23,7 @@ public class Utils {
         return !isPresent(iterator);
     }
 
-    public static String convetToPatternString(String input) {
+    public static String convertToPatternString(String input) {
         //将.换成\\.
         if (input.contains(".")) {
             input = input.replaceAll("\\.", "\\\\.");

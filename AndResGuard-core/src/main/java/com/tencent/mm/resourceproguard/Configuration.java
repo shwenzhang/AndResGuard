@@ -282,7 +282,7 @@ public class Configuration {
             patterns = new HashSet<>();
         }
 
-        name = Utils.convetToPatternString(name);
+        name = Utils.convertToPatternString(name);
         Pattern pattern = Pattern.compile(name);
         patterns.add(pattern);
         typeMap.put(typeName, patterns);
@@ -361,7 +361,7 @@ public class Configuration {
                 String.format("Invalid config file: Missing required attribute %s\n", ATTR_VALUE)
             );
         }
-        value = Utils.convetToPatternString(value);
+        value = Utils.convertToPatternString(value);
         Pattern pattern = Pattern.compile(value);
         mCompressPatterns.add(pattern);
     }
