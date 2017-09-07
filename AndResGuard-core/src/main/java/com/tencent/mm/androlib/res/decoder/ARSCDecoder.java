@@ -238,8 +238,8 @@ public class ARSCDecoder {
         mMappingWriter.flush();
     }
 
-    private void generalResIDMapping(String packagename, String typename, String specname, String replace) throws IOException {
-        mMappingWriter.write("    " + packagename + ".R." + typename + "." + specname + " -> " + packagename + ".R." + typename + "." + replace);
+    private void generalResIDMapping(String packageName, String typeName, String specName, String replace) throws IOException {
+        mMappingWriter.write("    " + packageName + ".R." + typeName + "." + specName + " -> " + packageName + ".R." + typeName + "." + replace);
         mMappingWriter.write("\n");
         mMappingWriter.flush();
     }
@@ -499,7 +499,6 @@ public class ARSCDecoder {
                     HashMap<String, HashMap<String, HashSet<Pattern>>> whiteList = config.mWhiteList;
                     String packName = mPkg.getName();
                     if (whiteList.containsKey(packName)) {
-
                         HashMap<String, HashSet<Pattern>> typeMaps = whiteList.get(packName);
                         String typeName = mType.getName();
 
@@ -519,10 +518,7 @@ public class ARSCDecoder {
                                 }
                             }
                         }
-
                     }
-
-
                 }
 
                 String replaceString = null;
@@ -563,14 +559,7 @@ public class ARSCDecoder {
             }
         }
 
-        boolean readDirect;
-        if ((flags & ENTRY_FLAG_COMPLEX) == 0) {
-            readDirect = true;
-            readValue(readDirect, specNamesId);
-        } else {
-            readDirect = false;
-            readComplexEntry(readDirect, specNamesId);
-        }
+        readValue((flags & ENTRY_FLAG_COMPLEX) == 0, specNamesId);
     }
 
     private void writeEntry() throws IOException, AndrolibException {
