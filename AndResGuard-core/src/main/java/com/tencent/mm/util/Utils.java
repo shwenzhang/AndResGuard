@@ -1,7 +1,12 @@
 package com.tencent.mm.util;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by sun on 1/9/16.
@@ -24,24 +29,99 @@ public class Utils {
     }
 
     public static String convertToPatternString(String input) {
-        //将.换成\\.
-        if (input.contains(".")) {
-            input = input.replaceAll("\\.", "\\\\.");
-        }
-        //将？换成.,将*换成.*
-        if (input.contains("?")) {
-            input = input.replaceAll("\\?", "\\.");
-        }
-        if (input.contains("*")) {
-            input = input.replace("*", ".+");
-        }
-        return input;
+        // ?	Zero or one character
+        // *	Zero or more of character
+        // +	One or more of character
+        final String[] searchList      = new String[] { ".",   "?",  "*",  "+"};
+        final String[] replacementList = new String[] { "\\.", ".?", ".*", ".+"};
+        return replaceEach(input, searchList, replacementList);
     }
 
     public static void cleanDir(File dir) {
         if (dir.exists()) {
             FileOperation.deleteDir(dir);
             dir.mkdirs();
+        }
+    }
+
+    private static String replaceEach(String text, String[] searchList, String[] replacementList) {
+        // TODO: throw new IllegalArgumentException() if any param doesn't make sense
+        //validateParams(text, searchList, replacementList);
+
+        SearchTracker tracker = new SearchTracker(text, searchList, replacementList);
+        if (!tracker.hasNextMatch(0)) {
+            return text;
+        }
+
+        StringBuilder buf = new StringBuilder(text.length() * 2);
+        int start = 0;
+
+        do {
+            SearchTracker.MatchInfo matchInfo = tracker.matchInfo;
+            int textIndex = matchInfo.textIndex;
+            String pattern = matchInfo.pattern;
+            String replacement = matchInfo.replacement;
+
+            buf.append(text.substring(start, textIndex));
+            buf.append(replacement);
+
+            start = textIndex + pattern.length();
+        } while (tracker.hasNextMatch(start));
+
+        return buf.append(text.substring(start)).toString();
+    }
+
+    private static class SearchTracker {
+
+        private final String text;
+
+        private final Map<String, String> patternToReplacement = new HashMap<>();
+        private final Set<String> pendingPatterns = new HashSet<>();
+
+        private MatchInfo matchInfo = null;
+
+        private static class MatchInfo {
+            private final String pattern;
+            private final String replacement;
+            private final int textIndex;
+
+            private MatchInfo(String pattern, String replacement, int textIndex) {
+                this.pattern = pattern;
+                this.replacement = replacement;
+                this.textIndex = textIndex;
+            }
+        }
+
+        private SearchTracker(String text, String[] searchList, String[] replacementList) {
+            this.text = text;
+            for (int i = 0; i < searchList.length; ++i) {
+                String pattern = searchList[i];
+                patternToReplacement.put(pattern, replacementList[i]);
+                pendingPatterns.add(pattern);
+            }
+        }
+
+        boolean hasNextMatch(int start) {
+            int textIndex = -1;
+            String nextPattern = null;
+
+            for (String pattern : new ArrayList<>(pendingPatterns)) {
+                int matchIndex = text.indexOf(pattern, start);
+                if (matchIndex == -1) {
+                    pendingPatterns.remove(pattern);
+                } else {
+                    if (textIndex == -1 || matchIndex < textIndex) {
+                        textIndex = matchIndex;
+                        nextPattern = pattern;
+                    }
+                }
+            }
+
+            if (nextPattern != null) {
+                matchInfo = new MatchInfo(nextPattern, patternToReplacement.get(nextPattern), textIndex);
+                return true;
+            }
+            return false;
         }
     }
 }

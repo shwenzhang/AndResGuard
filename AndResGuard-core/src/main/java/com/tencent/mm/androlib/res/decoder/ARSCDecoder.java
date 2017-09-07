@@ -507,7 +507,7 @@ public class ARSCDecoder {
                             for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
                                 Pattern p = it.next();
                                 if (p.matcher(specName).matches()) {
-                                    //System.out.println(String.format("[match] matcher %s ,typeName %s, specName :%s", p.pattern(), typeName, specName));
+                                    System.out.println(String.format("[match] matcher %s ,typeName %s, specName :%s", p.pattern(), typeName, specName));
                                     mPkg.putSpecNamesReplace(mResId, specName);
                                     mPkg.putSpecNamesblock(specName);
                                     mProguardBuilder.setInWhiteList(mCurEntryID, true);

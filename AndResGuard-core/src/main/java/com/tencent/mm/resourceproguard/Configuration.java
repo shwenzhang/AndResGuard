@@ -286,6 +286,7 @@ public class Configuration {
         Pattern pattern = Pattern.compile(name);
         patterns.add(pattern);
         typeMap.put(typeName, patterns);
+        System.out.println(String.format("Utils typeName %s format %s", typeName, name));
         mWhiteList.put(packageName, typeMap);
     }
 
