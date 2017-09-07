@@ -238,8 +238,8 @@ public class ARSCDecoder {
         mMappingWriter.flush();
     }
 
-    private void generalResIDMapping(String packageName, String typeName, String specName, String replace) throws IOException {
-        mMappingWriter.write("    " + packageName + ".R." + typeName + "." + specName + " -> " + packageName + ".R." + typeName + "." + replace);
+    private void generalResIDMapping(String packageName, String typename, String specName, String replace) throws IOException {
+        mMappingWriter.write("    " + packageName + ".R." + typename + "." + specName + " -> " + packageName + ".R." + typename + "." + replace);
         mMappingWriter.write("\n");
         mMappingWriter.flush();
     }
@@ -501,13 +501,13 @@ public class ARSCDecoder {
                     if (whiteList.containsKey(packName)) {
                         HashMap<String, HashSet<Pattern>> typeMaps = whiteList.get(packName);
                         String typeName = mType.getName();
-
                         if (typeMaps.containsKey(typeName)) {
                             String specName = mSpecNames.get(specNamesId).toString();
                             HashSet<Pattern> patterns = typeMaps.get(typeName);
                             for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
                                 Pattern p = it.next();
                                 if (p.matcher(specName).matches()) {
+                                    //System.out.println(String.format("[match] matcher %s ,typeName %s, specName :%s", p.pattern(), typeName, specName));
                                     mPkg.putSpecNamesReplace(mResId, specName);
                                     mPkg.putSpecNamesblock(specName);
                                     mProguardBuilder.setInWhiteList(mCurEntryID, true);
@@ -559,7 +559,11 @@ public class ARSCDecoder {
             }
         }
 
-        readValue((flags & ENTRY_FLAG_COMPLEX) == 0, specNamesId);
+        if ((flags & ENTRY_FLAG_COMPLEX) == 0) {
+            readValue(true, specNamesId);
+        } else {
+            readComplexEntry(false, specNamesId);
+        }
     }
 
     private void writeEntry() throws IOException, AndrolibException {
@@ -585,6 +589,10 @@ public class ARSCDecoder {
         }
     }
 
+    /**
+     * @param flags whether read direct
+     * @param specNamesId
+     */
     private void readComplexEntry(boolean flags, int specNamesId) throws IOException,
         AndrolibException {
         int parent = mIn.readInt();
@@ -606,6 +614,10 @@ public class ARSCDecoder {
         }
     }
 
+    /**
+     * @param flags whether read direct
+     * @param specNamesId
+     */
     private void readValue(boolean flags, int specNamesId) throws IOException, AndrolibException {
         /* size */
         mIn.skipCheckShort((short) 8);
