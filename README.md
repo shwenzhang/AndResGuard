@@ -34,7 +34,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.3'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.5'
     }
 }
 
@@ -46,6 +46,7 @@ andResGuard {
     useSign = true
     // it will keep the origin path of your resources when it's true
     keepRoot = false
+
     whiteList = [
         // your icon
         "R.drawable.icon",
@@ -68,10 +69,18 @@ andResGuard {
         "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.3'
+        artifact = 'com.tencent.mm:SevenZip:1.2.5'
         //path = "/usr/local/bin/7za"
     }
 }
+```
+
+The whiteList and compressFilePattern support wildcard include ? * +.
+
+```
+?	Zero or one character
+*	Zero or more of character
++	One or more of character
 ```
 
 If you are using `Android Studio`, you can find the generate task option in ```andresguard``` group.
@@ -100,8 +109,8 @@ res path mapping:
 
 ## Known Issue
 
-1. The first element of list which returned by `AssetManager#list(String path)` is empty string when you're using the APK which is compressed by 7zip. [#162](https://github.com/shwenzhang/AndResGuard/issues/162) 
- 
+1. The first element of list which returned by `AssetManager#list(String path)` is empty string when you're using the APK which is compressed by 7zip. [#162](https://github.com/shwenzhang/AndResGuard/issues/162)
+
 ## Thanks
 
 [Apktool](https://github.com/iBotPeaches/Apktool) Connor Tumbleson

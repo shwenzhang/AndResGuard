@@ -25,7 +25,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.3'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.5'
     }
 }
 
@@ -59,12 +59,21 @@ andResGuard {
         "*.gif",
         "resources.arsc"
     ]
-     sevenzip {
-         artifact = 'com.tencent.mm:SevenZip:1.2.3'
+    sevenzip {
+         artifact = 'com.tencent.mm:SevenZip:1.2.5'
          //path = "/usr/local/bin/7za"
     }
 }
 ```
+
+compressFilePattern和compressFilePattern中的通配符支持? + *
+
+```
+?	Zero or one character
+*	Zero or more of character
++	One or more of character
+```
+
 使用Android Studio的同学可以再 `andresguard` 下找到相关的构建任务;
 命令行可直接运行```./gradlew resguard[BuildType | Flavor]```， 这里的任务命令规则和assemble一致。
 
