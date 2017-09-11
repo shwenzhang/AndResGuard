@@ -1,38 +1,27 @@
 ### Umeng sdk
 ```
-"R.string.umeng*",
-"R.string.UM*",
-"R.string.tb_*",
-"R.layout.umeng*",
-"R.layout.tb_*",
-"R.drawable.umeng*",
-"R.drawable.tb_*",
-"R.anim.umeng*",
-"R.color.umeng*",
-"R.color.tb_*",
-"R.style.*UM*",
-"R.style.umeng*",
-"R.id.umeng*",
-```
-### umeng share for sina
-```
-"R.drawable.sina*",
-```
-### umeng share for facebook
-```
-"R.layout.*facebook*",
-"R.id.*facebook*",
-```
-### umeng share for messager
-
-```
-"R.layout.*messager*",
-"R.id.*messager*",
-```
-## umeng share
-```
-"R.id.progress_bar_parent",
-"R.id.webView",
+"R.anim.umeng*"
+"R.string.umeng*"
+"R.string.UM*"
+"R.string.tb_*"
+"R.layout.umeng*"
+"R.layout.socialize_*"
+"R.layout.*messager*"
+"R.layout.tb_*"
+"R.color.umeng*"
+"R.color.tb_*"
+"R.style.*UM*"
+"R.style.umeng*"
+"R.drawable.umeng*"
+"R.drawable.tb_*"
+"R.drawable.sina*"
+"R.drawable.qq_*"
+"R.drawable.tb_*"
+"R.id.umeng*"
+"R.id.*messager*"
+"R.id.progress_bar_parent"
+"R.id.socialize_*"
+"R.id.webView"
 ```
 ### google-services
 ```
