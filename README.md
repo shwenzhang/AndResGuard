@@ -72,6 +72,12 @@ andResGuard {
         artifact = 'com.tencent.mm:SevenZip:1.2.5'
         //path = "/usr/local/bin/7za"
     }
+
+    /**
+    * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
+    * to the path which assemble[Task] write to
+    **/
+    finalApkBackupPath = "${project.rootDir}/final.apk"
 }
 ```
 

@@ -63,6 +63,11 @@ andResGuard {
          artifact = 'com.tencent.mm:SevenZip:1.2.5'
          //path = "/usr/local/bin/7za"
     }
+
+    /**
+    * 可选： 如果不设置则会默认覆盖assemble输出的apk
+    **/
+    finalApkBackupPath = "${project.rootDir}/final.apk"
 }
 ```
 
