@@ -4,5 +4,5 @@ set storepass=testres
 set keypass=testres
 set alias=testres
 set zipalign=D:\soft\dev\android\sdk\build-tools\23.0.2\zipalign.exe
-"%jdkpath%" -jar AndResGuard-cli-1.2.5.jar input.apk -config config.xml -out outapk -signature "%storepath%" "%storepass%" "%keypass%" "%alias%" -zipalign "%zipalign%"
+"%jdkpath%" -jar AndResGuard-cli-1.2.6.jar input.apk -config config.xml -out outapk -signature "%storepath%" "%storepass%" "%keypass%" "%alias%" -zipalign "%zipalign%"
 pause
