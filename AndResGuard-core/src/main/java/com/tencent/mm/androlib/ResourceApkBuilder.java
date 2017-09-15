@@ -63,10 +63,13 @@ public class ResourceApkBuilder {
     }
 
     private void copyFinalApkV1() throws IOException {
-        if (mSignedWith7ZipApk.exists() && StringUtil.isPresent(finalApkBackupPath)) {
-            FileOperation.copyFileUsingStream(mAlignedWith7ZipApk, new File(finalApkBackupPath));
-        } else if (mSignedApk.exists()) {
-            FileOperation.copyFileUsingStream(mAlignedApk, new File(finalApkBackupPath));
+        if (StringUtil.isPresent(finalApkBackupPath)) {
+            System.out.println(String.format("Backup Final APk(V1) to %s", finalApkBackupPath));
+            if (mSignedWith7ZipApk.exists()) {
+                FileOperation.copyFileUsingStream(mAlignedWith7ZipApk, new File(finalApkBackupPath));
+            } else if (mSignedApk.exists()) {
+                FileOperation.copyFileUsingStream(mAlignedApk, new File(finalApkBackupPath));
+            }
         }
     }
 
@@ -85,7 +88,7 @@ public class ResourceApkBuilder {
 
     private void copyFinalApkV2() throws IOException {
         if (mSignedApk.exists() && StringUtil.isPresent(finalApkBackupPath)) {
-            System.out.println(String.format("Backup Final APk to %s", finalApkBackupPath));
+            System.out.println(String.format("Backup Final APk(V2) to %s", finalApkBackupPath));
             FileOperation.copyFileUsingStream(mSignedApk, new File(finalApkBackupPath));
         }
     }
