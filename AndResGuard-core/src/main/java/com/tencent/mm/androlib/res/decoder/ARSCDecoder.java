@@ -630,14 +630,14 @@ public class ARSCDecoder {
         if (mPkg.isCanProguard() && flags && type == TypedValue.TYPE_STRING && mShouldProguardForType && mShouldProguardTypeSet.contains(mType.getName())) {
             if (mTableStringsProguard.get(data) == null) {
                 String raw = mTableStrings.get(data).toString();
-                if (StringUtil.isBlank(raw)) return;
+                if (StringUtil.isBlank(raw) || raw.equalsIgnoreCase("null")) return;
 
                 String proguard = mPkg.getSpecRepplace(mResId);
                 //这个要写死这个，因为resources.arsc里面就是用这个
                 int secondSlash = raw.lastIndexOf("/");
                 if (secondSlash == -1) {
                     throw new AndrolibException(
-                        String.format("can not find \\ or raw string in res path=%s", raw)
+                        String.format("can not find \\ or raw string in res path = %s", raw)
                     );
                 }
 
