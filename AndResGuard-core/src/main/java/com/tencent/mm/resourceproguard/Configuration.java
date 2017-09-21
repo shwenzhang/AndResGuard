@@ -46,6 +46,7 @@ public class Configuration {
     private static final String ATTR_SIGNFILE_KEYPASS   = "keypass";
     private static final String ATTR_SIGNFILE_STOREPASS = "storepass";
     private static final String ATTR_SIGNFILE_ALIAS     = "alias";
+    public static final String  DEFAULT_DIGEST_ALG      = "SHA1";
 
     public final HashMap<String, HashMap<String, HashSet<Pattern>>>        mWhiteList;
     public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping;
@@ -67,7 +68,7 @@ public class Configuration {
     public String  mStoreAlias;
     public String  m7zipPath;
     public String  mZipalignPath;
-
+    public final String  digestAlg;
     /**
      * use by command line with xml config
      *
@@ -83,13 +84,15 @@ public class Configuration {
      * @throws ParserConfigurationException parse exception
      * @throws SAXException                 sax exception
      */
-    public Configuration(File config, String sevenzipPath, String zipAlignPath, File mappingFile,
-                         File signatureFile, String keypass, String storealias, String storepass)
-            throws IOException, ParserConfigurationException, SAXException {
+    public Configuration(
+      File config, String sevenzipPath, String zipAlignPath, File mappingFile,
+      File signatureFile, String keypass, String storealias, String storepass)
+      throws IOException, ParserConfigurationException, SAXException {
         mWhiteList = new HashMap<>();
         mOldResMapping = new HashMap<>();
         mOldFileMapping = new HashMap<>();
         mCompressPatterns = new HashSet<>();
+        digestAlg = DEFAULT_DIGEST_ALG;
         if (signatureFile != null) {
             setSignData(signatureFile, keypass, storealias, storepass);
         }
@@ -112,6 +115,7 @@ public class Configuration {
         mOldResMapping = new HashMap<>();
         mOldFileMapping = new HashMap<>();
         mCompressPatterns = new HashSet<>();
+        this.digestAlg = param.digestAlg;
         if (param.useSign) {
             setSignData(param.signFile, param.keypass, param.storealias, param.storepass);
         }
@@ -134,7 +138,11 @@ public class Configuration {
         this.mZipalignPath = param.zipAlignPath;
     }
 
-    private void setSignData(File signatureFile, String keypass, String storealias, String storepass) throws IOException {
+    private void setSignData(
+      File signatureFile,
+      String keypass,
+      String storealias,
+      String storepass) throws IOException {
         mUseSignAPK = true;
         mSignatureFile = signatureFile;
         if (!mSignatureFile.exists()) {

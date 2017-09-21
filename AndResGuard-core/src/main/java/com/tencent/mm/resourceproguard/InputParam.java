@@ -1,7 +1,11 @@
 package com.tencent.mm.resourceproguard;
 
+import com.tencent.mm.androlib.res.util.StringUtil;
+
 import java.io.File;
 import java.util.ArrayList;
+
+import sun.security.krb5.Config;
 
 public class InputParam {
     public enum SignatureType {
@@ -25,6 +29,7 @@ public class InputParam {
     public final String            sevenZipPath;
     public final SignatureType     signatureType;
     public final String            finalApkBackupPath;
+    public final String            digestAlg;
 
     private InputParam(
         File mappingFile,
@@ -43,7 +48,8 @@ public class InputParam {
         String zipAlignPath,
         String sevenZipPath,
         SignatureType signatureType,
-        String finalApkBackupPath
+        String finalApkBackupPath,
+        String digestAlg
     ) {
         this.mappingFile = mappingFile;
         this.use7zip = use7zip;
@@ -62,6 +68,7 @@ public class InputParam {
         this.sevenZipPath = sevenZipPath;
         this.signatureType = signatureType;
         this.finalApkBackupPath = finalApkBackupPath;
+        this.digestAlg = digestAlg;
     }
 
     public static class Builder {
@@ -82,6 +89,7 @@ public class InputParam {
         private String            sevenZipPath;
         private SignatureType     signatureType;
         private String            finalApkBackupPath;
+        private String            digestAlg;
 
         public Builder() {
             use7zip = false;
@@ -174,6 +182,16 @@ public class InputParam {
             return this;
         }
 
+        public Builder setDigestAlg(String digestAlg) {
+            if (StringUtil.isPresent(digestAlg)) {
+                this.digestAlg = digestAlg;
+            } else {
+                this.digestAlg = Configuration.DEFAULT_DIGEST_ALG;
+            }
+
+            return this;
+        }
+
         public InputParam create() {
             return new InputParam(
                 mappingFile,
@@ -192,7 +210,8 @@ public class InputParam {
                 zipAlignPath,
                 sevenZipPath,
                 signatureType,
-                finalApkBackupPath
+                finalApkBackupPath,
+                digestAlg
             );
         }
     }

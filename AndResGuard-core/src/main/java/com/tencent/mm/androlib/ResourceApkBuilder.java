@@ -219,7 +219,7 @@ public class ResourceApkBuilder {
         String[] argv = {
             "jarsigner",
             "-sigalg", signatureAlgorithm,
-            "-digestalg", "SHA1",
+            "-digestalg", config.digestAlg,
             "-keystore", config.mSignatureFile.getAbsolutePath(),
             "-storepass", config.mStorePass,
             "-keypass", config.mKeyPass,

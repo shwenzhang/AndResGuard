@@ -92,6 +92,7 @@ class AndResGuardTask extends DefaultTask {
                     .setOutBuilder(useFolder(config.file))
                     .setApkPath(absPath)
                     .setUseSign(configuration.useSign)
+                    .setDigestAlg(configuration.digestalg)
 
             if (configuration.finalApkBackupPath != null && configuration.finalApkBackupPath.length() > 0) {
                 builder.setFinalApkBackupPath(configuration.finalApkBackupPath)
