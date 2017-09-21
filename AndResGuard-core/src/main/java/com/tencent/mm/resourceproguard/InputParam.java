@@ -5,8 +5,6 @@ import com.tencent.mm.androlib.res.util.StringUtil;
 import java.io.File;
 import java.util.ArrayList;
 
-import sun.security.krb5.Config;
-
 public class InputParam {
     public enum SignatureType {
         SchemaV1, SchemaV2
