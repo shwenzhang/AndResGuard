@@ -68,6 +68,12 @@ andResGuard {
     * 可选： 如果不设置则会默认覆盖assemble输出的apk
     **/
     finalApkBackupPath = "${project.rootDir}/final.apk"
+
+    /**
+    * 可选: 指定v1签名时生成jar文件的摘要算法
+    * 默认值为“SHA1”
+    **/
+    digestalg = "SHA256"
 }
 ```
 

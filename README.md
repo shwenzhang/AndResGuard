@@ -78,6 +78,12 @@ andResGuard {
     * to the path which assemble[Task] write to
     **/
     finalApkBackupPath = "${project.rootDir}/final.apk"
+
+    /**
+    * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
+    * Only works in V1signing, default value is "SHA1"
+    **/
+    digestalg = "SHA256"
 }
 ```
 
