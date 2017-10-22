@@ -62,8 +62,8 @@ crashlytics {
 
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
 
 
     signingConfigs {
@@ -120,6 +120,8 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), "proguard-rules.pro"
             signingConfig signingConfigs.release
+
+            matchingFallbacks = ['release']
         }
     }
 
@@ -127,7 +129,7 @@ android {
     defaultConfig {
         applicationId "andresguard.tencent.com.andresguard_example"
         minSdkVersion 14
-        targetSdkVersion 24
+        targetSdkVersion 26
         versionCode 2
         versionName "1.1"
     }
@@ -183,17 +185,17 @@ project.afterEvaluate {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile project(':libres')
-    compile 'com.android.support:appcompat-v7:25.0.1'
-    compile 'com.android.support:design:25.0.1'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    implementation project(':libres')
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
     // Crashlytics Kit
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
         transitive = true
     }
     // NDK Kit
-    compile('com.crashlytics.sdk.android:crashlytics-ndk:1.1.5@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics-ndk:1.1.5@aar') {
         transitive = true
     }
 }
