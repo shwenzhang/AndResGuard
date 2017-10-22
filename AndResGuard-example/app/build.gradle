@@ -195,7 +195,7 @@ dependencies {
         transitive = true
     }
     // NDK Kit
-    implementation('com.crashlytics.sdk.android:crashlytics-ndk:1.1.5@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics-ndk:1.1.6@aar') {
         transitive = true
     }
 }
