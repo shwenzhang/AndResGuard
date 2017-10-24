@@ -8,7 +8,7 @@ group rootProject.ext.GROUP
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.tools.build:apksig:2.3.1'
+    compile 'com.android.tools.build:apksig:2.3.3'
 }
 
 sourceSets {
