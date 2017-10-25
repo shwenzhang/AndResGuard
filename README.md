@@ -87,7 +87,7 @@ andResGuard {
 }
 ```
 
-**If you're using Android Studio 3.0, please user the version 1.2.8-RC1**
+**If you're using Android Studio 3.0, please use the version 1.2.8-RC1**
 
 The whiteList and compressFilePattern support wildcard include ? * +.
 
