@@ -31,8 +31,8 @@ class AndResGuardTask extends DefaultTask {
                 ) {
                     buildConfigs << new BuildInfo(
                             output.outputFile,
-                            variant.apkVariantData.variantConfiguration.signingConfig,
-                            variant.apkVariantData.variantConfiguration.applicationId
+                            variant.variantData.variantConfiguration.signingConfig,
+                            variant.variantData.variantConfiguration.applicationId
                     )
                 }
             }
