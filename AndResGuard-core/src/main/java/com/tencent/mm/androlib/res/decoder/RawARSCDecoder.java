@@ -95,15 +95,10 @@ public class RawARSCDecoder {
         checkChunkType(Header.TYPE_PACKAGE);
         int id = (byte) mIn.readInt();
         String name = mIn.readNullEndedString(128, true);
-        //add log
-        /* typeNameStrings */
-        mIn.skipInt();
-        /* typeNameCount */
-        mIn.skipInt();
-        /* specNameStrings */
-        mIn.skipInt();
-        /* specNameCount */
-        mIn.skipInt();
+        /* typeNameStrings */ mIn.skipInt();
+        /* typeNameCount */  mIn.skipInt();
+        /* specNameStrings */ mIn.skipInt();
+        /* specNameCount */ mIn.skipInt();
         mTypeNames = StringBlock.read(mIn);
         mSpecNames = StringBlock.read(mIn);
         mResId = id << 24;
@@ -292,6 +287,10 @@ public class RawARSCDecoder {
                 ));
                 isInvalid = true;
             }
+        }
+        int remainingSize = size - read;
+        if (remainingSize > 0) {
+            mIn.skipBytes(remainingSize);
         }
     }
 

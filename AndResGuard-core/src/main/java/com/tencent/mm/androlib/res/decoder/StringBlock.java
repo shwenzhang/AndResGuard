@@ -136,7 +136,8 @@ public class StringBlock {
         stringsOffset = totalSize;
 
         int[] stringOffsets = new int[stringCount];
-        byte[] strings = new byte[size];
+        // make twice size buffer for avoiding out of bounds error
+        byte[] stringBytes = new byte[size * 2];
         int offset = 0;
         int i = 0;
         curSpecNameToPos.clear();
@@ -146,8 +147,8 @@ public class StringBlock {
             String name = it.next();
             curSpecNameToPos.put(name, i);
             if (isUTF8) {
-                strings[offset++] = (byte) name.length();
-                strings[offset++] = (byte) name.length();
+                stringBytes[offset++] = (byte) name.length();
+                stringBytes[offset++] = (byte) name.length();
                 totalSize += 2;
                 byte[] tempByte = name.getBytes(Charset.forName("UTF-8"));
                 if (name.length() != tempByte.length) {
@@ -155,12 +156,12 @@ public class StringBlock {
                         String.format("writeSpecNameStringBlock %s UTF-8 length is different name %d, tempByte %d\n", name, name.length(), tempByte.length)
                     );
                 }
-                System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
+                System.arraycopy(tempByte, 0, stringBytes, offset, tempByte.length);
                 offset += name.length();
-                strings[offset++] = NULL;
+                stringBytes[offset++] = NULL;
                 totalSize += name.length() + 1;
             } else {
-                writeShort(strings, offset, (short) name.length());
+                writeShort(stringBytes, offset, (short) name.length());
                 offset += 2;
                 totalSize += 2;
                 byte[] tempByte = name.getBytes(Charset.forName("UTF-16LE"));
@@ -169,10 +170,10 @@ public class StringBlock {
                         String.format("writeSpecNameStringBlock %s UTF-16LE length is different name %d, tempByte %d\n", name, name.length(), tempByte.length)
                     );
                 }
-                System.arraycopy(tempByte, 0, strings, offset, tempByte.length);
+                System.arraycopy(tempByte, 0, stringBytes, offset, tempByte.length);
                 offset += tempByte.length;
-                strings[offset++] = NULL;
-                strings[offset++] = NULL;
+                stringBytes[offset++] = NULL;
+                stringBytes[offset++] = NULL;
                 totalSize += tempByte.length + 2;
             }
             i++;
@@ -182,7 +183,7 @@ public class StringBlock {
         if ((size % 4) != 0) {
             int add = 4 - (size % 4);
             for (i = 0; i < add; i++) {
-                strings[offset++] = NULL;
+                stringBytes[offset++] = NULL;
                 totalSize++;
             }
         }
@@ -194,7 +195,7 @@ public class StringBlock {
         out.writeInt(stringsOffset);
         out.writeInt(stylesOffset);
         out.writeIntArray(stringOffsets);
-        out.write(strings, 0, offset);
+        out.write(stringBytes, 0, offset);
         return (chunkSize - totalSize);
     }
 
@@ -242,17 +243,12 @@ public class StringBlock {
             block.m_styles = reader.readIntArray(size / 4);
         }
 
-
         int totalSize = 0;
-
         out.writeCheckInt(type, CHUNK_STRINGPOOL_TYPE);
-
         totalSize += 4;
-
 
         totalSize += 6 * 4 + 4 * stringCount + 4 * styleOffsetCount;
         stringsOffset = totalSize;
-
 
         byte[] strings = new byte[block.m_strings.length];
         int[] stringOffsets = new int[stringCount];
