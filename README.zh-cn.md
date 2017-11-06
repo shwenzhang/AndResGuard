@@ -77,7 +77,7 @@ andResGuard {
 }
 ```
 
-** 如果你使用Android Studio 3.0，请使用1.2.8-RC1版本 **
+** 如果你使用Android Studio 3.0，请使用1.2.8-RC2版本 **
 
 compressFilePattern和compressFilePattern中的通配符支持? + *
 
