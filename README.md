@@ -34,7 +34,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.7'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.8'
     }
 }
 
@@ -69,7 +69,7 @@ andResGuard {
         "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.7'
+        artifact = 'com.tencent.mm:SevenZip:1.2.8'
         //path = "/usr/local/bin/7za"
     }
 
@@ -86,8 +86,6 @@ andResGuard {
     digestalg = "SHA256"
 }
 ```
-
-**If you're using Android Studio 3.0, please use the version 1.2.8-RC2**
 
 The whiteList and compressFilePattern support wildcard include ? * +.
 

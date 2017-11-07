@@ -25,7 +25,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.7'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.8'
     }
 }
 
@@ -60,7 +60,7 @@ andResGuard {
         "resources.arsc"
     ]
     sevenzip {
-         artifact = 'com.tencent.mm:SevenZip:1.2.7'
+         artifact = 'com.tencent.mm:SevenZip:1.2.8'
          //path = "/usr/local/bin/7za"
     }
 
@@ -77,7 +77,6 @@ andResGuard {
 }
 ```
 
-** 如果你使用Android Studio 3.0，请使用1.2.8-RC2版本 **
 
 compressFilePattern和compressFilePattern中的通配符支持? + *
 
