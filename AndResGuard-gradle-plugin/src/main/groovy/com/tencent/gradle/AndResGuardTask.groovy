@@ -1,5 +1,6 @@
 package com.tencent.gradle
 
+import com.tencent.mm.directory.PathNotExist
 import com.tencent.mm.resourceproguard.InputParam
 import com.tencent.mm.resourceproguard.Main
 import org.gradle.api.DefaultTask
@@ -68,6 +69,9 @@ class AndResGuardTask extends DefaultTask {
         ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
 
         buildConfigs.each { config ->
+            if (config.file == null || config.file.exists()) {
+                throw new PathNotExist("Original APK not existed")
+            }
             String absPath = config.file.getAbsolutePath()
             def signConfig = config.signConfig
             String packageName = config.packageName
