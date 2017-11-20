@@ -69,7 +69,7 @@ class AndResGuardTask extends DefaultTask {
         ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
 
         buildConfigs.each { config ->
-            if (config.file == null || config.file.exists()) {
+            if (config.file == null || !config.file.exists()) {
                 throw new PathNotExist("Original APK not existed")
             }
             String absPath = config.file.getAbsolutePath()
