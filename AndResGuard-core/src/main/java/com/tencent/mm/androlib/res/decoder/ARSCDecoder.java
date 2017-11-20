@@ -978,7 +978,7 @@ public class ARSCDecoder {
             }
             mReplaceCount = 3;
 
-            final int size = mReplaceStringBuffer.size();
+            final int size = mReplaceStringBuffer.size() * 2;
             mIsReplaced = new boolean[size];
             mIsWhiteList = new boolean[size];
             for (int i = 0; i < size; i++) {
