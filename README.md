@@ -34,7 +34,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.8'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.9'
     }
 }
 
@@ -69,7 +69,7 @@ andResGuard {
         "resources.arsc"
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.8'
+        artifact = 'com.tencent.mm:SevenZip:1.2.9'
         //path = "/usr/local/bin/7za"
     }
 
@@ -77,13 +77,13 @@ andResGuard {
     * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
     * to the path which assemble[Task] write to
     **/
-    finalApkBackupPath = "${project.rootDir}/final.apk"
+    // finalApkBackupPath = "${project.rootDir}/final.apk"
 
     /**
     * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
     * Only works in V1signing, default value is "SHA1"
     **/
-    digestalg = "SHA256"
+    // digestalg = "SHA256"
 }
 ```
 
