@@ -71,9 +71,9 @@ andResGuard {
 
     /**
     * 可选: 指定v1签名时生成jar文件的摘要算法
-    * 默认值为“SHA1”
+    * 默认值为“SHA-1”
     **/
-    // digestalg = "SHA256"
+    // digestalg = "SHA-256"
 }
 ```
 

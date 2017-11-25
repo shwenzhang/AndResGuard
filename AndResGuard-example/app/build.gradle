@@ -46,7 +46,7 @@ andResGuard {
      * to the path which assemble[Task] write to
      */
     finalApkBackupPath = "${project.rootDir}/final.apk"
-    digestalg = "SHA256"
+    digestalg = "SHA-256"
 }
 
 repositories {

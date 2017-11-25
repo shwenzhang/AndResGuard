@@ -81,9 +81,9 @@ andResGuard {
 
     /**
     * Optional: Specifies the name of the message digest algorithm to user when digesting the entries of JAR file
-    * Only works in V1signing, default value is "SHA1"
+    * Only works in V1signing, default value is "SHA-1"
     **/
-    // digestalg = "SHA256"
+    // digestalg = "SHA-256"
 }
 ```
 
