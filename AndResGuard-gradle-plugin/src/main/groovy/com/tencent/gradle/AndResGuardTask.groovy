@@ -27,6 +27,10 @@ class AndResGuardTask extends DefaultTask {
         android = project.extensions.android
         configuration = project.andResGuard
 
+        if (StringUtil.isPresent(configuration.digestalg) && !configuration.digestalg.contains('-')) {
+            throw new RuntimeException("Plz add - in your digestalg, such as SHA-1 SHA-256")
+        }
+
         android.applicationVariants.all { variant ->
             variant.outputs.each { output ->
                 // remove "resguard"

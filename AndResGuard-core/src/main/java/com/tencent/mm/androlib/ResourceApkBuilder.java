@@ -147,7 +147,8 @@ public class ResourceApkBuilder {
         }
     }
 
-    private String getSignatureAlgorithm() throws Exception {
+    private String getSignatureAlgorithm(String hash) throws Exception {
+        String signatureAlgorithm;
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         FileInputStream fileIn = new FileInputStream(config.mSignatureFile);
         keyStore.load(fileIn, config.mStorePass.toCharArray());
@@ -158,18 +159,22 @@ public class ResourceApkBuilder {
             );
         }
         String keyAlgorithm = key.getAlgorithm();
-        String signatureAlgorithm;
+        hash = formatHashAlgorithName(hash);
         if (keyAlgorithm.equalsIgnoreCase("DSA")) {
-            signatureAlgorithm = "SHA1withDSA";
+            keyAlgorithm = "DSA";
         } else if (keyAlgorithm.equalsIgnoreCase("RSA")) {
-            signatureAlgorithm = "SHA1withRSA";
+            keyAlgorithm = "RSA";
         } else if (keyAlgorithm.equalsIgnoreCase("EC")) {
-            signatureAlgorithm = "SHA1withECDSA";
+            keyAlgorithm = "ECDSA";
         } else {
             throw new RuntimeException("private key is not a DSA or RSA key");
         }
-        System.out.printf("signature Algorithm is: %s\n", signatureAlgorithm);
+        signatureAlgorithm = String.format("%swith%s", hash, keyAlgorithm);
         return signatureAlgorithm;
+    }
+
+    private String formatHashAlgorithName(String hash) {
+        return hash.replace("-", "");
     }
 
     private void signApkV1(File unSignedApk, File signedApk) throws IOException, InterruptedException {
@@ -212,7 +217,7 @@ public class ResourceApkBuilder {
     private void signWithV1sign(File unSignedApk, File signedApk) throws IOException, InterruptedException {
         String signatureAlgorithm = "MD5withRSA";
         try {
-            signatureAlgorithm = getSignatureAlgorithm();
+            signatureAlgorithm = getSignatureAlgorithm(config.digestAlg);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -227,12 +232,17 @@ public class ResourceApkBuilder {
             unSignedApk.getAbsolutePath(),
             config.mStoreAlias
         };
-        //dumpParams(argv);
+        dumpParams(argv);
         Process pro = null;
         try {
             pro = Runtime.getRuntime().exec(argv);
             //destroy the stream
             pro.waitFor();
+            System.out.print(pro.exitValue());
+            if (pro.exitValue() != 0) {
+                System.err.println("Jarsigner Failed! Please check your signature file.\n");
+                throw new RuntimeException(StringUtil.readInputStream(pro.getInputStream()));
+            }
         } finally {
             if (pro != null) {
                 pro.destroy();
