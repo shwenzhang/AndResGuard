@@ -37,6 +37,8 @@ public class ResourceApkBuilder {
     private File mSignedApk;
     private File mSignedWith7ZipApk;
 
+    private File m7ZipApk;
+
     private File mAlignedApk;
     private File mAlignedWith7ZipApk;
 
@@ -57,7 +59,7 @@ public class ResourceApkBuilder {
         insureFileNameV1();
         generalUnsignApk(compressData);
         signApkV1(mUnSignedApk , mSignedApk);
-        use7zApk(compressData);
+        use7zApk(compressData, mSignedApk, mSignedWith7ZipApk);
         alignApks();
         copyFinalApkV1();
     }
@@ -76,12 +78,17 @@ public class ResourceApkBuilder {
     public void buildApkWithV2sign(HashMap<String, Integer> compressData) throws Exception {
         insureFileNameV2();
         generalUnsignApk(compressData);
+        if (use7zApk(compressData, mUnSignedApk, m7ZipApk)) {
+            alignApk(m7ZipApk, mAlignedApk);
+        } else {
+            alignApk(mUnSignedApk, mAlignedApk);
+        }
+
         /*
          * Caution: If you sign your app using APK Signature Scheme v2 and make further changes to the app,
          * the app's signature is invalidated.
          * For this reason, use tools such as zipalign before signing your app using APK Signature Scheme v2, not after.
          */
-        alignApk(mUnSignedApk, mAlignedApk);
         signApkV2(mAlignedApk, mSignedApk);
         copyFinalApkV2();
     }
@@ -104,27 +111,30 @@ public class ResourceApkBuilder {
 
     private void insureFileNameV2() {
         mUnSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_unsigned.apk");
+        m7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip.apk");
         mAlignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_aligned_unsigned.apk");
         mSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_aligned_signed.apk");
+        mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip_aligned_signed.apk");
+        m7zipOutPutDir = new File(mOutDir.getAbsolutePath(), TypedValue.OUT_7ZIP_FILE_PATH);
     }
 
-    private void use7zApk(HashMap<String, Integer> compressData) throws IOException, InterruptedException {
+    private boolean use7zApk(HashMap<String, Integer> compressData, File originalAPK, File outputAPK) throws IOException, InterruptedException {
         if (!config.mUse7zip) {
-            return;
+            return false;
         }
         if (!config.mUseSignAPK) {
             throw new IOException("if you want to use 7z, you must enable useSign in the config file first");
         }
-        if (!mSignedApk.exists()) {
+        if (!originalAPK.exists()) {
             throw new IOException(
                 String.format("can not found the signed apk file to 7z, if you want to use 7z, " +
-                    "you must fill the sign data in the config file path=%s", mSignedApk.getAbsolutePath())
+                    "you must fill the sign data in the config file path=%s", originalAPK.getAbsolutePath())
             );
         }
-        System.out.printf("use 7zip to repackage: %s, will cost much more time\n", mSignedWith7ZipApk.getName());
-        FileOperation.unZipAPk(mSignedApk.getAbsolutePath(), m7zipOutPutDir.getAbsolutePath());
+        System.out.printf("use 7zip to repackage: %s, will cost much more time\n", outputAPK.getName());
+        FileOperation.unZipAPk(originalAPK.getAbsolutePath(), m7zipOutPutDir.getAbsolutePath());
         //首先一次性生成一个全部都是压缩的安装包
-        generalRaw7zip();
+        generalRaw7zip(outputAPK);
 
         ArrayList<String> storedFiles = new ArrayList<>();
         //对于不压缩的要update回去
@@ -139,12 +149,13 @@ public class ResourceApkBuilder {
             }
         }
 
-        addStoredFileIn7Zip(storedFiles);
-        if (!mSignedWith7ZipApk.exists()) {
+        addStoredFileIn7Zip(storedFiles, outputAPK);
+        if (!outputAPK.exists()) {
             throw new IOException(String.format(
                 "[use7zApk]7z repackage signed apk fail,you must install 7z command line version first, linux: p7zip, window: 7za, path=%s",
                 mSignedWith7ZipApk.getAbsolutePath()));
         }
+        return true;
     }
 
     private String getSignatureAlgorithm(String hash) throws Exception {
@@ -369,7 +380,7 @@ public class ResourceApkBuilder {
         }
     }
 
-    private void addStoredFileIn7Zip(ArrayList<String> storedFiles) throws IOException, InterruptedException {
+    private void addStoredFileIn7Zip(ArrayList<String> storedFiles, File outSevenZipAPK) throws IOException, InterruptedException {
         System.out.printf("[addStoredFileIn7Zip]rewrite the stored file into the 7zip, file count:%d\n", storedFiles.size());
         String storedParentName = mOutDir.getAbsolutePath() + File.separator + "storefiles" + File.separator;
         String outputName = m7zipOutPutDir.getAbsolutePath() + File.separator;
@@ -379,7 +390,7 @@ public class ResourceApkBuilder {
         storedParentName = storedParentName + File.separator + "*";
         //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", mSignedWith7ZipApk.getAbsolutePath(), storedParentName, "-mx0");
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", outSevenZipAPK.getAbsolutePath(), storedParentName, "-mx0");
         Process pro = pb.start();
 
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());
@@ -391,12 +402,12 @@ public class ResourceApkBuilder {
         pro.destroy();
     }
 
-    private void generalRaw7zip() throws IOException, InterruptedException {
+    private void generalRaw7zip(File outSevenZipApk) throws IOException, InterruptedException {
         String outPath = m7zipOutPutDir.getAbsoluteFile().getAbsolutePath();
         String path = outPath + File.separator + "*";
         //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", mSignedWith7ZipApk.getAbsolutePath(), path, "-mx9");
+        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", outSevenZipApk.getAbsolutePath(), path, "-mx9");
         Process pro = pb.start();
 
         InputStreamReader ir = new InputStreamReader(pro.getInputStream());
