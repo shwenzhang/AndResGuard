@@ -88,7 +88,7 @@ public class ResourceApkBuilder {
          * Caution: If you sign your app using APK Signature Scheme v2 and make further changes to the app,
          * the app's signature is invalidated.
          * For this reason, use tools such as zipalign before signing your app using APK Signature Scheme v2, not after.
-         */
+         **/
         signApkV2(mAlignedApk, mSignedApk);
         copyFinalApkV2();
     }
@@ -111,10 +111,14 @@ public class ResourceApkBuilder {
 
     private void insureFileNameV2() {
         mUnSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_unsigned.apk");
-        m7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip.apk");
-        mAlignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_aligned_unsigned.apk");
-        mSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_aligned_signed.apk");
-        mAlignedWith7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip_aligned_signed.apk");
+        m7ZipApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip_unsigned.apk");
+        if (config.mUse7zip) {
+            mAlignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip_aligned_unsigned.apk");
+            mSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_7zip_aligned_signed.apk");
+        } else {
+            mAlignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_aligned_unsigned.apk");
+            mSignedApk = new File(mOutDir.getAbsolutePath(), mApkName + "_aligned_signed.apk");
+        }
         m7zipOutPutDir = new File(mOutDir.getAbsolutePath(), TypedValue.OUT_7ZIP_FILE_PATH);
     }
 
