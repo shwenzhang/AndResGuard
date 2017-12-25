@@ -39,3 +39,9 @@
 "R.drawable.push_small",
 "R.layout.getui_notification"
 ```
+### GrowingIO
+```
+"R.string.growingio_project_id",
+"R.string.growingio_url_scheme",
+"R.string.growingio_channel"
+```
