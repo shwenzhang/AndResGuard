@@ -39,6 +39,12 @@
 "R.drawable.push_small",
 "R.layout.getui_notification"
 ```
+
+### JPush(极光推送)
+```
+"R.drawable.jpush_notification_icon"
+```
+
 ### GrowingIO
 ```
 "R.string.growingio_project_id",
