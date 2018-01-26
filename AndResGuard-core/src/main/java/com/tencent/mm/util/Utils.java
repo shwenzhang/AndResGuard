@@ -1,6 +1,11 @@
 package com.tencent.mm.util;
 
+import com.tencent.mm.androlib.res.util.StringUtil;
+
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,9 +13,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by sun on 1/9/16.
- */
 public class Utils {
     public static boolean isPresent(String str) {
         return str != null && str.length() > 0;
@@ -42,6 +44,55 @@ public class Utils {
             FileOperation.deleteDir(dir);
             dir.mkdirs();
         }
+    }
+
+    public static String runCmd(String... cmd) throws IOException, InterruptedException {
+        String output;
+        Process process = null;
+        try {
+            process = new ProcessBuilder(cmd).start();
+            output = StringUtil.readInputStream(process.getInputStream());
+            process.waitFor();
+            if (process.exitValue() != 0) {
+                System.err.println(
+                  String.format("%s Failed! Please check your signature file.\n", cmd[0])
+                );
+                throw new RuntimeException(StringUtil.readInputStream(process.getErrorStream()));
+            }
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
+        }
+        return output;
+    }
+
+    public static String runExec(String[] argv) throws IOException, InterruptedException {
+        Process process = null;
+        String output;
+        try {
+            process = Runtime.getRuntime().exec(argv);
+            output = StringUtil.readInputStream(process.getInputStream());
+            process.waitFor();
+            if (process.exitValue() != 0) {
+                System.err.println(
+                  String.format("%s Failed! Please check your signature file.\n", argv[0])
+                );
+                throw new RuntimeException(StringUtil.readInputStream(process.getErrorStream()));
+            }
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
+        }
+        return output;
+    }
+
+    private static void processOutputStreamInThread(Process process) throws IOException {
+        InputStreamReader ir = new InputStreamReader(process.getInputStream());
+        LineNumberReader input = new LineNumberReader(ir);
+        //如果不读会有问题，被阻塞
+        while (input.readLine() != null) { }
     }
 
     private static String replaceEach(String text, String[] searchList, String[] replacementList) {

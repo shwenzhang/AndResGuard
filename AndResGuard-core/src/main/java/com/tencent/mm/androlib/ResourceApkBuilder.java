@@ -248,21 +248,7 @@ public class ResourceApkBuilder {
             config.mStoreAlias
         };
         dumpParams(argv);
-        Process pro = null;
-        try {
-            pro = Runtime.getRuntime().exec(argv);
-            //destroy the stream
-            pro.waitFor();
-            System.out.print(pro.exitValue());
-            if (pro.exitValue() != 0) {
-                System.err.println("Jarsigner Failed! Please check your signature file.\n");
-                throw new RuntimeException(StringUtil.readInputStream(pro.getInputStream()));
-            }
-        } finally {
-            if (pro != null) {
-                pro.destroy();
-            }
-        }
+        Utils.runExec(argv);
     }
 
     private void dumpParams(String[] params) {
@@ -297,12 +283,7 @@ public class ResourceApkBuilder {
                 before.getAbsolutePath()));
         }
         String cmd = Utils.isPresent(config.mZipalignPath) ? config.mZipalignPath : TypedValue.COMMAND_ZIPALIGIN;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "4", before.getAbsolutePath(), after.getAbsolutePath());
-        Process pro = pb.start();
-
-        //destroy the stream
-        pro.waitFor();
-        pro.destroy();
+        Utils.runCmd(cmd, "4", before.getAbsolutePath(), after.getAbsolutePath());
         if (!after.exists()) {
             throw new IOException(
                 String.format("can not found the aligned apk file, the ZipAlign path is correct? path=%s", mAlignedApk.getAbsolutePath())
@@ -385,41 +366,22 @@ public class ResourceApkBuilder {
     }
 
     private void addStoredFileIn7Zip(ArrayList<String> storedFiles, File outSevenZipAPK) throws IOException, InterruptedException {
-        System.out.printf("[addStoredFileIn7Zip]rewrite the stored file into the 7zip, file count:%d\n", storedFiles.size());
+        System.out.printf("[addStoredFileIn7Zip]rewrite the stored file into the 7zip, file count: %d\n", storedFiles.size());
+        if (storedFiles.size() == 0) return;
         String storedParentName = mOutDir.getAbsolutePath() + File.separator + "storefiles" + File.separator;
         String outputName = m7zipOutPutDir.getAbsolutePath() + File.separator;
         for (String name : storedFiles) {
             FileOperation.copyFileUsingStream(new File(outputName + name), new File(storedParentName + name));
         }
         storedParentName = storedParentName + File.separator + "*";
-        //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", outSevenZipAPK.getAbsolutePath(), storedParentName, "-mx0");
-        Process pro = pb.start();
-
-        InputStreamReader ir = new InputStreamReader(pro.getInputStream());
-        LineNumberReader input = new LineNumberReader(ir);
-        //如果不读会有问题，被阻塞
-        while (input.readLine() != null) { }
-        //destroy the stream
-        pro.waitFor();
-        pro.destroy();
+        Utils.runCmd(cmd, "a", "-tzip", outSevenZipAPK.getAbsolutePath(), storedParentName, "-mx0");
     }
 
     private void generalRaw7zip(File outSevenZipApk) throws IOException, InterruptedException {
         String outPath = m7zipOutPutDir.getAbsoluteFile().getAbsolutePath();
         String path = outPath + File.separator + "*";
-        //极限压缩
         String cmd = Utils.isPresent(config.m7zipPath) ? config.m7zipPath : TypedValue.COMMAND_7ZIP;
-        ProcessBuilder pb = new ProcessBuilder(cmd, "a", "-tzip", outSevenZipApk.getAbsolutePath(), path, "-mx9");
-        Process pro = pb.start();
-
-        InputStreamReader ir = new InputStreamReader(pro.getInputStream());
-        LineNumberReader input = new LineNumberReader(ir);
-        //如果不读会有问题，被阻塞
-        while (input.readLine() != null) { }
-        //destroy the stream
-        pro.waitFor();
-        pro.destroy();
+        Utils.runCmd(cmd, "a", "-tzip", outSevenZipApk.getAbsolutePath(), path, "-mx9");
     }
 }
