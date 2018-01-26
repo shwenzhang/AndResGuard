@@ -71,28 +71,28 @@ public class Utils {
         return buf.append(text.substring(start)).toString();
     }
 
-    private static class SearchTracker {
+    static class SearchTracker {
 
-        private final String text;
+        final String text;
 
-        private final Map<String, String> patternToReplacement = new HashMap<>();
-        private final Set<String> pendingPatterns = new HashSet<>();
+        final Map<String, String> patternToReplacement = new HashMap<>();
+        final Set<String> pendingPatterns = new HashSet<>();
 
-        private MatchInfo matchInfo = null;
+        MatchInfo matchInfo = null;
 
         private static class MatchInfo {
-            private final String pattern;
-            private final String replacement;
-            private final int textIndex;
+            final String pattern;
+            final String replacement;
+            final int textIndex;
 
-            private MatchInfo(String pattern, String replacement, int textIndex) {
+            MatchInfo(String pattern, String replacement, int textIndex) {
                 this.pattern = pattern;
                 this.replacement = replacement;
                 this.textIndex = textIndex;
             }
         }
 
-        private SearchTracker(String text, String[] searchList, String[] replacementList) {
+        SearchTracker(String text, String[] searchList, String[] replacementList) {
             this.text = text;
             for (int i = 0; i < searchList.length; ++i) {
                 String pattern = searchList[i];
