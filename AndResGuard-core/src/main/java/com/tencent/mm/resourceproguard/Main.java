@@ -4,6 +4,7 @@ import com.tencent.mm.androlib.AndrolibException;
 import com.tencent.mm.androlib.ApkDecoder;
 import com.tencent.mm.androlib.ResourceApkBuilder;
 import com.tencent.mm.androlib.res.decoder.ARSCDecoder;
+import com.tencent.mm.androlib.res.util.StringUtil;
 import com.tencent.mm.directory.DirectoryException;
 import com.tencent.mm.util.FileOperation;
 
@@ -48,7 +49,9 @@ public class Main {
                 currentThread.getId(),
                 currentThread.getName()
             );
-            resourceProguard(new File(inputParam.outFolder), inputParam.apkPath, inputParam.signatureType);
+            File finalApkFile = StringUtil.isPresent(inputParam.finalApkBackupPath) ?
+                    new File(inputParam.finalApkBackupPath) : null;
+            resourceProguard(new File(inputParam.outFolder), finalApkFile, inputParam.apkPath, inputParam.signatureType);
             System.out.printf("<--AndResGuard Done! You can find the output in %s\n", mOutDir.getAbsolutePath());
             clean();
         }
@@ -67,7 +70,8 @@ public class Main {
         }
     }
 
-    protected void resourceProguard(File outputFile, String apkFilePath, InputParam.SignatureType signatureType) {
+    protected void resourceProguard(File outputDir, File outputFile, String apkFilePath,
+            InputParam.SignatureType signatureType) {
         ApkDecoder decoder = new ApkDecoder(config);
         File apkFile = new File(apkFilePath);
         if (!apkFile.exists()) {
@@ -77,8 +81,8 @@ public class Main {
         mRawApkSize = FileOperation.getFileSizes(apkFile);
         try {
             /* 默认使用V1签名 */
-            decodeResource(outputFile, decoder, apkFile);
-            buildApk(decoder, apkFile, signatureType);
+            decodeResource(outputDir, decoder, apkFile);
+            buildApk(decoder, apkFile, outputFile, signatureType);
         } catch (Exception e) {
             e.printStackTrace();
             goToError();
@@ -96,11 +100,13 @@ public class Main {
         decoder.decode();
     }
 
-    private void buildApk(ApkDecoder decoder, File apkFile, InputParam.SignatureType signatureType) throws Exception {
+    private void buildApk(ApkDecoder decoder, File apkFile, File outputFile, InputParam.SignatureType signatureType)
+            throws Exception {
         ResourceApkBuilder builder = new ResourceApkBuilder(config);
         String apkBasename = apkFile.getName();
         apkBasename = apkBasename.substring(0, apkBasename.indexOf(".apk"));
-        builder.setOutDir(mOutDir, apkBasename, mFinalApkBackPath);
+        builder.setOutDir(mOutDir, apkBasename, outputFile);
+        System.out.printf("[AndResGuard] buildApk signatureType: %s\n", signatureType);
         switch (signatureType) {
             case SchemaV1:
                 builder.buildApkWithV1sign(decoder.getCompressData());
