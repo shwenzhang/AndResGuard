@@ -119,8 +119,8 @@ res path mapping:
 
 ## 最佳实践
 
-1. 如果不是对APK size有极致的需求，请不要把`resource.asrc`添加进`compressFilePattern` （#84 #233）
-2. 对于发布于Google Play的APP，建议不要使用7Zip压缩，因为这个会导致Google Play的优化Patch算法失效（#233）
+1. 如果不是对APK size有极致的需求，请不要把`resource.asrc`添加进`compressFilePattern`. ([#84](https://github.com/shwenzhang/AndResGuard/issues/84) [#233](https://github.com/shwenzhang/AndResGuard/issues/233))
+2. 对于发布于Google Play的APP，建议不要使用7Zip压缩，因为这个会导致Google Play的优化Patch算法失效. ([#233](https://github.com/shwenzhang/AndResGuard/issues/233))
 
 
 ## 致谢
