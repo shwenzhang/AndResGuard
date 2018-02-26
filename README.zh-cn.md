@@ -55,7 +55,6 @@ andResGuard {
         "*.jpg",
         "*.jpeg",
         "*.gif",
-        "resources.arsc"
     ]
     sevenzip {
          artifact = 'com.tencent.mm:SevenZip:1.2.11'
@@ -110,6 +109,12 @@ res path mapping:
 ## 已知问题
 
 1. 当时在使用7zip压缩的APK时，调用`AssetManager#list(String path)`返回结果的首个元素为空字符串. [#162](https://github.com/shwenzhang/AndResGuard/issues/162)
+
+## 最佳实践
+
+1. 如果不是对APK size有极致的需求，请不要把`resource.asrc`添加进`compressFilePattern` （#84 #233）
+2. 对于发布于Google Play的APP，建议不要使用7Zip压缩，因为这个会导致Google Play的优化Patch算法失效（#233）
+
 
 ## 致谢
 
