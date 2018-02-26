@@ -74,8 +74,8 @@ andResGuard {
 }
 ```
 
-
-compressFilePattern和compressFilePattern中的通配符支持? + *
+### 文件通配符
+ compressFilePattern和compressFilePattern中的通配符支持? + *
 
 ```
 ?	Zero or one character
@@ -83,12 +83,8 @@ compressFilePattern和compressFilePattern中的通配符支持? + *
 +	One or more of character
 ```
 
-使用Android Studio的同学可以再 `andresguard` 下找到相关的构建任务;
-命令行可直接运行```./gradlew resguard[BuildType | Flavor]```， 这里的任务命令规则和assemble一致。
-
-在设置`sevenzip`时, 你只需设置`artifact`或`path`. 支持同时设置,总以path的值为优先.
-
-最终的混淆APK会生成在`{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`。
+### 白名单
+所有使用`getIdentifier`访问的资源都需要加入白名单。
 
 **请使用Umeng_social_sdk的同学特别留意将资源加入白名单，否则会出现Crash。可以在[white_list.md](doc/white_list.md)查看更多sdk的白名单配置，也欢迎大家PR自己的白名单**
 
@@ -104,6 +100,17 @@ res path mapping:
     res/mipmap-xxxhdpi-v4 -> res/mipmap-xxxhdpi-v4
 ```
 
+### 如何启动
+使用Android Studio的同学可以再 `andresguard` 下找到相关的构建任务;
+命令行可直接运行```./gradlew resguard[BuildType | Flavor]```， 这里的任务命令规则和assemble一致。
+
+### 配置7Zip
+在设置`sevenzip`时, 你只需设置`artifact`或`path`. 支持同时设置,总以path的值为优先.
+
+### 结果
+如果没有配置`finalApkBackupPath`，最终结果会覆盖`assemble[BuildType | Flavor]`的输出APK。如果配置则输出至`finalApkBackupPath`配置路径。
+
+### 其他
 [点击查看更多细节和命令行使用方法](doc/how_to_work.zh-cn.md)
 
 ## 已知问题

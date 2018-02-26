@@ -82,6 +82,7 @@ andResGuard {
 }
 ```
 
+### Wildcard
 The whiteList and compressFilePattern support wildcard include ? * +.
 
 ```
@@ -90,13 +91,8 @@ The whiteList and compressFilePattern support wildcard include ? * +.
 +	One or more of character
 ```
 
-If you are using `Android Studio`, you can find the generate task option in ```andresguard``` group.
-Or alternatively, you run ```./gradlew resguard[BuildType | Flavor]``` in your terminal. The format of task name is as same as `assemble`.
-
-The sevenzip can be set by `path` or `artifact`. Mutiple assignments are allowed, but the winner is **always** `path`.
-
-The outputted apk will be stored in `{App}/build/output/apk/AndResGuard_{apk_name}/{apk_name}_signed_7zip_aligned.apk`.
-
+### WhiteList
+You need put all resource which access via `getIdentifier` into whiteList. 
 **You can find more whitsList configs of third-part SDK in [white_list.md](doc/white_list.md). Welcome PR your configs which is not included in white_list.md**
 
 The whiteList only works on the specsName of resources, it wouldn't keep the path of resource.
@@ -112,20 +108,29 @@ res path mapping:
     res/mipmap-xxxhdpi-v4 -> res/mipmap-xxxhdpi-v4
 ```
 
+### How to Launch
+If you are using `Android Studio`, you can find the generate task option in ```andresguard``` group.
+Or alternatively, you run ```./gradlew resguard[BuildType | Flavor]``` in your terminal. The format of task name is as same as `assemble`.
+
+### Sevenzip
+The `sevenzip` in gradle file can be set by `path` or `artifact`. Multiple assignments are allowed, but the winner is **always** `path`.
+
+### Result
+If finalApkBackupPath is null, AndResGuard will overwrite final APK to the path which assemble[Task] write. Otherwise, it will store in the path you assigned.
+
+### Other
 [Looking for more detail](doc/how_to_work.md)
 
-## Known Issue
 
+## Known Issue
 1. The first element of list which returned by `AssetManager#list(String path)` is empty string when you're using the APK which is compressed by 7zip. [#162](https://github.com/shwenzhang/AndResGuard/issues/162)
 
 ## Best Practise
-
 1. Do **NOT** add `resource.asrc` into `compressFilePattern` unless the app size is really matter to you.(#84 #233）
 2. Do **NOT** enable 7zip compression(`use7zip`) when you distribute your APP on Google Play. It'll prevent the file-by-file patch when updating your APP（#233）
 
 
 ## Thanks
-
 [Apktool](https://github.com/iBotPeaches/Apktool) Connor Tumbleson
 
 [v2sig](https://github.com/shwenzhang/AndResGuard/pull/133) @jonyChina162
