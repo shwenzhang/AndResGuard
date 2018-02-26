@@ -43,16 +43,16 @@ public class ResourceApkBuilder {
     private File mAlignedWith7ZipApk;
 
     private String mApkName;
-    private String finalApkBackupPath;
+    private File finalApkFile;
 
     public ResourceApkBuilder(Configuration config) {
         this.config = config;
     }
 
-    public void setOutDir(File outDir, String apkName, String finalApkBackupPath) throws AndrolibException {
+    public void setOutDir(File outDir, String apkName, File finalApkFile) throws AndrolibException {
         this.mOutDir = outDir;
         this.mApkName = apkName;
-        this.finalApkBackupPath = finalApkBackupPath;
+        this.finalApkFile = finalApkFile;
     }
 
     public void buildApkWithV1sign(HashMap<String, Integer> compressData) throws IOException, InterruptedException {
@@ -65,12 +65,12 @@ public class ResourceApkBuilder {
     }
 
     private void copyFinalApkV1() throws IOException {
-        if (StringUtil.isPresent(finalApkBackupPath)) {
-            System.out.println(String.format("Backup Final APk(V1) to %s", finalApkBackupPath));
+        if (null != finalApkFile) {
+            System.out.println(String.format("Backup Final APk(V1) to %s", finalApkFile));
             if (mSignedWith7ZipApk.exists()) {
-                FileOperation.copyFileUsingStream(mAlignedWith7ZipApk, new File(finalApkBackupPath));
+                FileOperation.copyFileUsingStream(mAlignedWith7ZipApk, finalApkFile);
             } else if (mSignedApk.exists()) {
-                FileOperation.copyFileUsingStream(mAlignedApk, new File(finalApkBackupPath));
+                FileOperation.copyFileUsingStream(mAlignedApk, finalApkFile);
             }
         }
     }
@@ -94,9 +94,9 @@ public class ResourceApkBuilder {
     }
 
     private void copyFinalApkV2() throws IOException {
-        if (mSignedApk.exists() && StringUtil.isPresent(finalApkBackupPath)) {
-            System.out.println(String.format("Backup Final APk(V2) to %s", finalApkBackupPath));
-            FileOperation.copyFileUsingStream(mSignedApk, new File(finalApkBackupPath));
+        if (mSignedApk.exists() && null != finalApkFile) {
+            System.out.println(String.format("Backup Final APk(V2) to %s", finalApkFile));
+            FileOperation.copyFileUsingStream(mSignedApk, finalApkFile);
         }
     }
 
@@ -290,7 +290,7 @@ public class ResourceApkBuilder {
     }
 
     private void alignApk(File before, File after) throws IOException, InterruptedException {
-        System.out.printf("zipaligning apk: %s\n", before.getName());
+        System.out.printf("zipaligning apk: %s, exists:%b\n", before.getAbsolutePath(), before.exists());
         if (!before.exists()) {
             throw new IOException(String.format(
                 "can not found the raw apk file to zipalign, path=%s",
