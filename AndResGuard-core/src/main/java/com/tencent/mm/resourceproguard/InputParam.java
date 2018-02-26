@@ -121,6 +121,12 @@ public class InputParam {
         }
 
         public Builder setCompressFilePattern(ArrayList<String> compressFilePattern) {
+            if (compressFilePattern.contains(Configuration.ASRC_FILE)) {
+                System.out.printf(
+                  "[Warning] compress %s will prevent optimization at runtime",
+                  Configuration.ASRC_FILE
+                );
+            }
             this.compressFilePattern = compressFilePattern;
             return this;
         }

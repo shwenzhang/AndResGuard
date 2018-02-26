@@ -48,6 +48,8 @@ public class Configuration {
     private static final String ATTR_SIGNFILE_ALIAS     = "alias";
     public static final String  DEFAULT_DIGEST_ALG      = "SHA1";
 
+    public static final String ASRC_FILE = "resource.asrc";
+
     public final HashMap<String, HashMap<String, HashSet<Pattern>>>        mWhiteList;
     public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping;
     public final HashMap<String, String>                                   mOldFileMapping;
