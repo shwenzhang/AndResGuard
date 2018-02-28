@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.System;
 import java.net.URLDecoder;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -24,12 +23,16 @@ public class CliMain extends Main {
 
     private static final String ARG_HELP        = "--help";
     private static final String ARG_OUT         = "-out";
+    private static final String ARG_FINAL_APK_PATH = "-finalApkPath";
     private static final String ARG_CONFIG      = "-config";
     private static final String ARG_7ZIP        = "-7zip";
     private static final String ARG_ZIPALIGN    = "-zipalign";
     private static final String ARG_SIGNATURE   = "-signature";
     private static final String ARG_KEEPMAPPING = "-mapping";
     private static final String ARG_REPACKAGE   = "-repackage";
+    private static final String ARG_SIGNATURE_TYPE = "-signatureType";
+    private static final String VALUE_SIGNATURE_TYPE_V1 = "v1";
+    private static final String VALUE_SIGNATURE_TYPE_V2 = "v2";
 
     public static void main(String[] args) {
         mBeginTime = System.currentTimeMillis();
@@ -63,14 +66,19 @@ public class CliMain extends Main {
         out.println("if you want to special the sign or mapping data, you can input:");
         out.println("Such as: java -jar " + command + " " + "input.apk " + ARG_CONFIG + " yourconfig.xml " + ARG_OUT + " output_directory " +
             ARG_SIGNATURE + " signature_file_path storepass keypass storealias " + ARG_KEEPMAPPING + " mapping_file_path");
+        out.println("if you want to special the signature type, you can input:");
+        out.printf("Such as: java -jar %s input.apk %s %s/%s\n", command, ARG_SIGNATURE_TYPE,
+                VALUE_SIGNATURE_TYPE_V1, VALUE_SIGNATURE_TYPE_V2);
 
         out.println("if you want to special 7za or zipalign path, you can input:");
-        out.println("Such as: java -jar " + command + " " + "input.apk " + ARG_7ZIP + " /home/shwenzhang/tools/7za " + ARG_ZIPALIGN + "/home/shwenzhang/sdk/tools/zipalign");
+        out.println("Such as: java -jar " + command + " " + "input.apk " + ARG_7ZIP + " /home/shwenzhang/tools/7za " + ARG_ZIPALIGN + " /home/shwenzhang/sdk/tools/zipalign");
 
         out.println("if you just want to repackage an apk compress with 7z:");
         out.println("Such as: java -jar " + command + " " + ARG_REPACKAGE + " input.apk");
         out.println("if you want to special the output path, 7za or zipalign path, you can input:");
         out.println("Such as: java -jar " + command + " " + ARG_REPACKAGE + " input.apk" + ARG_OUT + " output_directory " + ARG_7ZIP + " /home/shwenzhang/tools/7za " + ARG_ZIPALIGN + "/home/shwenzhang/sdk/tools/zipalign");
+        out.println("if you want to special the final apk path, you can input:");
+        out.printf("Such as: java -jar %s input.apk %s final_apk_path\n", command, ARG_FINAL_APK_PATH);
         out.println();
         out.println("Flags:\n");
 
@@ -175,7 +183,9 @@ public class CliMain extends Main {
             final String storepass = readArgs.getStorepass();
             final String signedFile = readArgs.getSignedFile();
             final File outputFile = readArgs.getOutputFile();
+            final File finalApkFile = readArgs.getFinalApkFile();
             final String apkFileName = readArgs.getApkFileName();
+            final InputParam.SignatureType signatureType = readArgs.getSignatureType();
             loadConfigFromXml(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
 
             //对于repackage模式，不管之前的东东，直接return
@@ -191,8 +201,8 @@ public class CliMain extends Main {
                 }
                 return;
             }
-            System.out.printf("[AndResGuard] begin: %s, %s\n", outputFile, apkFileName);
-            resourceProguard(outputFile, apkFileName, InputParam.SignatureType.SchemaV1);
+            System.out.printf("[AndResGuard] begin: %s, %s, %s\n", outputFile, finalApkFile, apkFileName);
+            resourceProguard(outputFile, finalApkFile, apkFileName, signatureType);
             System.out.printf("[AndResGuard] done, total time cost: %fs\n", diffTimeFromBegin());
             System.out.printf("[AndResGuard] done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
             clean();
@@ -237,12 +247,14 @@ public class CliMain extends Main {
         private String[] args;
         private File     configFile;
         private File     outputFile;
+        private File     finalApkFile;
         private String   apkFileName;
         private File     signatureFile;
         private File     mappingFile;
         private String   keypass;
         private String   storealias;
         private String   storepass;
+        private InputParam.SignatureType signatureType = InputParam.SignatureType.SchemaV1;
         private String   signedFile;
 
         public ReadArgs(String[] args) {
@@ -255,6 +267,10 @@ public class CliMain extends Main {
 
         public File getOutputFile() {
             return outputFile;
+        }
+
+        public File getFinalApkFile() {
+            return finalApkFile;
         }
 
         public String getApkFileName() {
@@ -279,6 +295,10 @@ public class CliMain extends Main {
 
         public String getStorepass() {
             return storepass;
+        }
+
+        public InputParam.SignatureType getSignatureType() {
+            return signatureType;
         }
 
         public String getSignedFile() {
@@ -314,6 +334,17 @@ public class CliMain extends Main {
                     }
                     System.out.printf("special output directory path: %s\n", outputFile.getAbsolutePath());
 
+                } else if (arg.equals(ARG_FINAL_APK_PATH)) {
+                    if (index == args.length - 1) {
+                        System.err.println("Missing output file argument");
+                        goToError();
+                    }
+                    finalApkFile = new File(args[++index]);
+                    File parent = finalApkFile.getParentFile();
+                    if (parent != null && (!parent.exists())) {
+                        parent.mkdirs();
+                    }
+                    System.out.printf("special final apk file path: %s\n", finalApkFile.getAbsolutePath());
                 } else if (arg.equals(ARG_SIGNATURE)) {
                     //需要检查是否有四个参数
                     if (index == args.length - 1) {
@@ -352,6 +383,18 @@ public class CliMain extends Main {
                     }
                     storealias = args[++index];
                     mSetSignThroughCmd = true;
+                } else if (arg.equals(ARG_SIGNATURE_TYPE)) {
+                    if (index == args.length - 1) {
+                        System.err.println("Missing signature type argument");
+                        goToError();
+                    }
+
+                    if (VALUE_SIGNATURE_TYPE_V2.equalsIgnoreCase(args[++index])) {
+                        signatureType = InputParam.SignatureType.SchemaV2;
+                    } else {
+                        signatureType = InputParam.SignatureType.SchemaV1;
+                    }
+
                 } else if (arg.equals(ARG_KEEPMAPPING)) {
                     if (index == args.length - 1) {
                         System.err.println("Missing mapping file argument");
