@@ -60,16 +60,11 @@ public class RawARSCDecoder {
         mExistTypeNames = new HashMap<>();
     }
 
-    public static ResPackage[] decode(InputStream arscStream
-    )
-        throws AndrolibException {
+    public static ResPackage[] decode(InputStream arscStream) throws AndrolibException {
         try {
             RawARSCDecoder decoder = new RawARSCDecoder(arscStream);
             System.out.printf("parse to get the exist names in the resouces.arsc first\n");
-
-            ResPackage[] pkgs = decoder.readTable();
-
-            return pkgs;
+            return decoder.readTable();
         } catch (IOException ex) {
             throw new AndrolibException("Could not decode arsc file", ex);
         }
@@ -157,7 +152,6 @@ public class RawARSCDecoder {
         for (int i = 0; i < entryOffsets.length; i++) {
             if (entryOffsets[i] != -1) {
                 mResId = (mResId & 0xffff0000) | i;
-
                 readEntry();
             }
         }

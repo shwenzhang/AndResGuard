@@ -29,23 +29,31 @@ import java.util.regex.Pattern;
  */
 public class ApkDecoder {
 
-    private final Configuration            config;
-    private       ExtFile                  mApkFile;
-    private       File                     mOutDir;
-    private       File                     mOutTempARSCFile;
-    private       File                     mOutARSCFile;
-    private       File                     mOutResFile;
-    private       File                     mRawResFile;
-    private       File                     mOutTempDir;
-    private       File                     mResMappingFile;
-    private       HashMap<String, Integer> mCompressData;
+    private final Configuration config;
+    private final ExtFile apkFile;
 
-    private final HashSet<Path>            mRawResourceFiles = new HashSet<>();
+    private File mOutDir;
+    private File mOutTempARSCFile;
+    private File mOutARSCFile;
+    private File mOutResFile;
+    private File mRawResFile;
+    private File mOutTempDir;
+    private File mResMappingFile;
+    private HashMap<String, Integer> mCompressData;
+
+    final HashSet<Path> mRawResourceFiles = new HashSet<>();
+    class ResourceFilesVisitor extends SimpleFileVisitor<Path> {
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            mRawResourceFiles.add(file);
+            return FileVisitResult.CONTINUE;
+        }
+    }
 
     private void copyOtherResFiles() throws IOException {
-        if (mRawResourceFiles.isEmpty())
+        if (mRawResourceFiles.isEmpty()) {
             return;
-
+        }
         Path resPath = mRawResFile.toPath();
         Path destPath = mOutResFile.toPath();
 
@@ -55,23 +63,17 @@ public class ApkDecoder {
 
             System.out.printf("copy res file not in resources.arsc file:%s\n", relativePath.toString());
             FileOperation.copyFileUsingStream(path.toFile(), dest.toFile());
+        }
+    }
 
-        }
-    }
-    class ResourceFilesVisitor extends SimpleFileVisitor<Path> {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            mRawResourceFiles.add(file);
-            return FileVisitResult.CONTINUE;
-        }
-    }
 
     public void removeCopiedResFile(Path key) {
         mRawResourceFiles.remove(key);
     }
 
-    public ApkDecoder(Configuration config) {
+    public ApkDecoder(Configuration config, File apkFile) {
         this.config = config;
+        this.apkFile = new ExtFile(apkFile);
     }
 
     public Configuration getConfig() {
@@ -80,14 +82,10 @@ public class ApkDecoder {
 
     public boolean hasResources() throws AndrolibException {
         try {
-            return mApkFile.getDirectory().containsFile("resources.arsc");
+            return apkFile.getDirectory().containsFile("resources.arsc");
         } catch (DirectoryException ex) {
             throw new AndrolibException(ex);
         }
-    }
-
-    public void setApkFile(File apkFile) {
-        mApkFile = new ExtFile(apkFile);
     }
 
     private void ensureFilePath() throws IOException {
@@ -95,7 +93,7 @@ public class ApkDecoder {
 
         String unZipDest = new File(mOutDir, TypedValue.UNZIP_FILE_PATH).getAbsolutePath();
         System.out.printf("unziping apk to %s\n", unZipDest);
-        mCompressData = FileOperation.unZipAPk(mApkFile.getAbsoluteFile().getAbsolutePath(), unZipDest);
+        mCompressData = FileOperation.unZipAPk(apkFile.getAbsoluteFile().getAbsolutePath(), unZipDest);
         dealWithCompressConfig();
         //将res混淆成r
         if (!config.mKeepRoot) {
@@ -118,7 +116,7 @@ public class ApkDecoder {
         mOutTempARSCFile = new File(mOutDir.getAbsoluteFile().getAbsolutePath() + File.separator + "resources_temp.arsc");
         mOutARSCFile = new File(mOutDir.getAbsoluteFile().getAbsolutePath() + File.separator + "resources.arsc");
 
-        String basename = mApkFile.getName().substring(0, mApkFile.getName().indexOf(".apk"));
+        String basename = apkFile.getName().substring(0, apkFile.getName().indexOf(".apk"));
         mResMappingFile = new File(mOutDir.getAbsoluteFile().getAbsolutePath() + File.separator
             + TypedValue.RES_MAPPING_FILE + basename + TypedValue.TXT_FILE);
     }
@@ -187,13 +185,13 @@ public class ApkDecoder {
             // read the resources.arsc checking for STORED vs DEFLATE compression
             // this will determine whether we compress on rebuild or not.
             System.out.printf("decoding resources.arsc\n");
-            RawARSCDecoder.decode(mApkFile.getDirectory().getFileInput("resources.arsc"));
-            ResPackage[] pkgs = ARSCDecoder.decode(mApkFile.getDirectory().getFileInput("resources.arsc"), this);
+            RawARSCDecoder.decode(apkFile.getDirectory().getFileInput("resources.arsc"));
+            ResPackage[] pkgs = ARSCDecoder.decode(apkFile.getDirectory().getFileInput("resources.arsc"), this);
 
             //把没有纪录在resources.arsc的资源文件也拷进dest目录
             copyOtherResFiles();
 
-            ARSCDecoder.write(mApkFile.getDirectory().getFileInput("resources.arsc"), this, pkgs);
+            ARSCDecoder.write(apkFile.getDirectory().getFileInput("resources.arsc"), this, pkgs);
         }
     }
 }

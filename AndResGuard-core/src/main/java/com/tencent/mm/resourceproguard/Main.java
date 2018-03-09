@@ -71,8 +71,7 @@ public class Main {
     }
 
     protected void resourceProguard(File outputDir, File outputFile, String apkFilePath,
-            InputParam.SignatureType signatureType) {
-        ApkDecoder decoder = new ApkDecoder(config);
+                                    InputParam.SignatureType signatureType) {
         File apkFile = new File(apkFilePath);
         if (!apkFile.exists()) {
             System.err.printf("The input apk %s does not exist", apkFile.getAbsolutePath());
@@ -80,6 +79,7 @@ public class Main {
         }
         mRawApkSize = FileOperation.getFileSizes(apkFile);
         try {
+            ApkDecoder decoder = new ApkDecoder(config, apkFile);
             /* 默认使用V1签名 */
             decodeResource(outputDir, decoder, apkFile);
             buildApk(decoder, apkFile, outputFile, signatureType);
@@ -90,7 +90,6 @@ public class Main {
     }
 
     private void decodeResource(File outputFile, ApkDecoder decoder, File apkFile) throws AndrolibException, IOException, DirectoryException {
-        decoder.setApkFile(apkFile);
         if (outputFile == null) {
             mOutDir = new File(mRunningLocation, apkFile.getName().substring(0, apkFile.getName().indexOf(".apk")));
         } else {

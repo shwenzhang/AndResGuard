@@ -19,7 +19,7 @@ import java.util.zip.ZipOutputStream;
 public class FileOperation {
     private static final int BUFFER = 8192;
 
-    public static final boolean fileExists(String filePath) {
+    public static boolean fileExists(String filePath) {
         if (filePath == null) {
             return false;
         }
@@ -30,7 +30,7 @@ public class FileOperation {
         return false;
     }
 
-    public static final boolean deleteFile(String filePath) {
+    public static boolean deleteFile(String filePath) {
         if (filePath == null) {
             return true;
         }
@@ -83,7 +83,7 @@ public class FileOperation {
         return size;
     }
 
-    public static final boolean deleteDir(File file) {
+    public static boolean deleteDir(File file) {
         if (file == null || (!file.exists())) {
             return false;
         }
@@ -154,39 +154,42 @@ public class FileOperation {
         ZipFile zipFile = new ZipFile(fileName);
         Enumeration emu = zipFile.entries();
         HashMap<String, Integer> compress = new HashMap<>();
-        while (emu.hasMoreElements()) {
-            ZipEntry entry = (ZipEntry) emu.nextElement();
-            if (entry.isDirectory()) {
-                new File(filePath, entry.getName()).mkdirs();
-                continue;
-            }
-            BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(entry));
+        try {
+            while (emu.hasMoreElements()) {
+                ZipEntry entry = (ZipEntry) emu.nextElement();
+                if (entry.isDirectory()) {
+                    new File(filePath, entry.getName()).mkdirs();
+                    continue;
+                }
+                BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(entry));
 
-            File file = new File(filePath + File.separator + entry.getName());
+                File file = new File(filePath + File.separator + entry.getName());
 
-            File parent = file.getParentFile();
-            if (parent != null && (!parent.exists())) {
-                parent.mkdirs();
-            }
-            //要用linux的斜杠
-            String compatibaleresult = entry.getName();
-            if (compatibaleresult.contains("\\")) {
-                compatibaleresult = compatibaleresult.replace("\\", "/");
-            }
-            compress.put(compatibaleresult, entry.getMethod());
-            FileOutputStream fos = new FileOutputStream(file);
-            BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER);
+                File parent = file.getParentFile();
+                if (parent != null && (!parent.exists())) {
+                    parent.mkdirs();
+                }
+                //要用linux的斜杠
+                String compatibaleresult = entry.getName();
+                if (compatibaleresult.contains("\\")) {
+                    compatibaleresult = compatibaleresult.replace("\\", "/");
+                }
+                compress.put(compatibaleresult, entry.getMethod());
+                FileOutputStream fos = new FileOutputStream(file);
+                BufferedOutputStream bos = new BufferedOutputStream(fos, BUFFER);
 
-            byte[] buf = new byte[BUFFER];
-            int len;
-            while ((len = bis.read(buf, 0, BUFFER)) != -1) {
-                fos.write(buf, 0, len);
+                byte[] buf = new byte[BUFFER];
+                int len;
+                while ((len = bis.read(buf, 0, BUFFER)) != -1) {
+                    fos.write(buf, 0, len);
+                }
+                bos.flush();
+                bos.close();
+                bis.close();
             }
-            bos.flush();
-            bos.close();
-            bis.close();
+        } finally {
+            zipFile.close();
         }
-        zipFile.close();
         return compress;
     }
 
