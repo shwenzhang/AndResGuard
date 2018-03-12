@@ -51,3 +51,9 @@
 "R.string.growingio_url_scheme",
 "R.string.growingio_channel"
 ```
+
+### Firebase
+#### [firStore](https://firebase.google.cn/docs/firestore/)
+```
+R.string.project_id
+```
