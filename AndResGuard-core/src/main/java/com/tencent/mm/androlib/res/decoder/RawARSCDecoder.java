@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
+import org.apache.commons.io.input.CountingInputStream;
 
 /**
  * 其实应该是原来有，并且在白名单里面的才去掉！现在没有判断是否在白名单中
@@ -38,11 +39,16 @@ import java.util.logging.Logger;
  * @author shwenzhang
  */
 public class RawARSCDecoder {
-    private final static short  ENTRY_FLAG_COMPLEX = 0x0001;
+    private final static short ENTRY_FLAG_COMPLEX = 0x0001;
+    private final static short ENTRY_FLAG_PUBLIC = 0x0002;
+    private final static short ENTRY_FLAG_WEAK = 0x0004;
+
     private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
     private static final int    KNOWN_CONFIG_BYTES = 56;
 
     private static HashMap<Integer, Set<String>> mExistTypeNames;
+
+    private final CountingInputStream mCountIn;
 
     private ExtDataInput mIn;
     private Header       mHeader;
@@ -50,12 +56,14 @@ public class RawARSCDecoder {
     private StringBlock  mSpecNames;
     private ResPackage   mPkg;
     private ResType      mType;
+    private int mTypeIdOffset = 0;
     private int mCurTypeID = -1;
     private ResPackage[] mPkgs;
     private int          mResId;
 
 
     private RawARSCDecoder(InputStream arscStream) throws AndrolibException, IOException {
+        arscStream = mCountIn = new CountingInputStream(arscStream);
         mIn = new ExtDataInput(new LEDataInputStream(arscStream));
         mExistTypeNames = new HashMap<>();
     }
@@ -81,19 +89,27 @@ public class RawARSCDecoder {
         ResPackage[] packages = new ResPackage[packageCount];
         nextChunk();
         for (int i = 0; i < packageCount; i++) {
-            packages[i] = readPackage();
+            packages[i] = readTablePackage();
         }
         return packages;
     }
 
-    private ResPackage readPackage() throws IOException, AndrolibException {
+    private ResPackage readTablePackage() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_PACKAGE);
-        int id = (byte) mIn.readInt();
+        int id = mIn.readInt();
         String name = mIn.readNullEndedString(128, true);
         /* typeNameStrings */ mIn.skipInt();
         /* typeNameCount */  mIn.skipInt();
         /* specNameStrings */ mIn.skipInt();
         /* specNameCount */ mIn.skipInt();
+
+        // TypeIdOffset was added platform_frameworks_base/@f90f2f8dc36e7243b85e0b6a7fd5a590893c827e
+        // which is only in split/new applications.
+        int splitHeaderSize = (2 + 2 + 4 + 4 + (2 * 128) + (4 * 5)); // short, short, int, int, char[128], int * 4
+        if (mHeader.headerSize == splitHeaderSize) {
+            mTypeIdOffset = mIn.readInt();
+        }
+
         mTypeNames = StringBlock.read(mIn);
         mSpecNames = StringBlock.read(mIn);
         mResId = id << 24;
@@ -128,23 +144,31 @@ public class RawARSCDecoder {
     }
 
     private void readTableTypeSpec() throws AndrolibException, IOException {
-        checkChunkType(Header.TYPE_SPEC_TYPE);
-        byte id = mIn.readByte();
-        mIn.skipBytes(3);
-        int entryCount = mIn.readInt();
-        mCurTypeID = id;
-        //对，这里是用来描述差异性的！！！
-        mIn.skipBytes(entryCount * 4);
-        mResId = (0xff000000 & mResId) | id << 16;
-        mType = new ResType(mTypeNames.getString(id - 1), mPkg);
+        readSingleTableTypeSpec();
+        while (nextChunk().type == Header.TYPE_SPEC_TYPE) {
+            readSingleTableTypeSpec();
+        }
         while (nextChunk().type == Header.TYPE_TYPE) {
             readConfig();
         }
     }
 
+    private void readSingleTableTypeSpec() throws AndrolibException, IOException {
+        checkChunkType(Header.TYPE_SPEC_TYPE);
+        int id = mIn.readUnsignedByte();
+        mIn.skipBytes(3);
+        int entryCount = mIn.readInt();
+
+        /* flags */mIn.skipBytes(entryCount * 4);
+    }
+
     private void readConfig() throws IOException, AndrolibException {
         checkChunkType(Header.TYPE_TYPE);
-        mIn.skipInt();
+        int typeId = mIn.readUnsignedByte() - mTypeIdOffset;
+
+        int typeFlags = mIn.readByte();
+        /* reserved */mIn.skipBytes(2);
+
         int entryCount = mIn.readInt();
         int entriesStart = mIn.readInt();
         readConfigFlags();
@@ -304,7 +328,7 @@ public class RawARSCDecoder {
     }
 
     private Header nextChunk() throws IOException {
-        return mHeader = Header.read(mIn);
+        return mHeader = Header.read(mIn, mCountIn);
     }
 
     private void checkChunkType(int expectedType) throws AndrolibException {
@@ -331,27 +355,37 @@ public class RawARSCDecoder {
     }
 
     public static class Header {
-        public final static short TYPE_NONE = -1, TYPE_TABLE = 0x0002,
-            TYPE_PACKAGE = 0x0200, TYPE_TYPE = 0x0201, TYPE_SPEC_TYPE = 0x0202, TYPE_LIBRARY = 0x0203;
-
         public final short type;
-        public final int   chunkSize;
+        public final int headerSize;
+        public final int chunkSize;
+        public final int startPosition;
+        public final int endPosition;
 
-        public Header(short type, int size) {
+
+        public final static short TYPE_NONE = -1;
+        public final static short TYPE_TABLE = 0x0002;
+        public final static short TYPE_PACKAGE = 0x0200;
+        public final static short TYPE_TYPE = 0x0201;
+        public final static short TYPE_SPEC_TYPE = 0x0202;
+        public final static short TYPE_LIBRARY = 0x0203;
+
+        public Header(short type, int headerSize, int chunkSize, int headerStart) {
             this.type = type;
-            this.chunkSize = size;
+            this.headerSize = headerSize;
+            this.chunkSize = chunkSize;
+            this.startPosition = headerStart;
+            this.endPosition = headerStart + chunkSize;
         }
 
-        public static Header read(ExtDataInput in) throws IOException {
+        public static Header read(ExtDataInput in, CountingInputStream countIn) throws IOException {
             short type;
+            int start = countIn.getCount();
             try {
                 type = in.readShort();
             } catch (EOFException ex) {
-                return new Header(TYPE_NONE, 0);
+                return new Header(TYPE_NONE, 0, 0, countIn.getCount());
             }
-            in.skipBytes(2);
-
-            return new Header(type, in.readInt());
+            return new Header(type, in.readShort(), in.readInt(), start);
         }
     }
 

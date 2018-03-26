@@ -9,6 +9,7 @@ group rootProject.ext.GROUP
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.tools.build:apksig:2.3.3'
+    compile 'commons-io:commons-io:2.6'
 }
 
 sourceSets {
