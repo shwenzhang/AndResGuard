@@ -247,7 +247,7 @@ public class ResourceApkBuilder {
             unSignedApk.getAbsolutePath(),
             config.mStoreAlias
         };
-        dumpParams(argv);
+        //dumpParams(argv);
         Utils.runExec(argv);
     }
 
