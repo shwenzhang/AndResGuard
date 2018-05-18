@@ -57,3 +57,8 @@
 ```
 R.string.project_id
 ```
+
+### Huawei push
+```
+R.string.hms_update_title
+```
