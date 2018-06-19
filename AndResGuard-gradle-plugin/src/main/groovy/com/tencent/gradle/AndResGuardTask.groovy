@@ -8,8 +8,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 
-import javax.print.DocFlavor
-
 /**
  * The configuration properties.
  *
@@ -80,7 +78,7 @@ class AndResGuardTask extends DefaultTask {
 
         buildConfigs.each { config ->
             if (config.taskName == AndResGuardPlugin.USE_APK_TASK_NAME) {
-                if (StringUtil.isBlank(configuration.sourceApk) && !new File(configuration.sourceApk).exists()) {
+                if (StringUtil.isBlank(configuration.sourceApk) || !new File(configuration.sourceApk).exists()) {
                     throw new PathNotExist("Original APK not existed for " + AndResGuardPlugin.USE_APK_TASK_NAME)
                 }
                 if (config.flavors.productFlavors.size() > 0 && StringUtil.isBlank(configuration.sourceFlavor)) {
