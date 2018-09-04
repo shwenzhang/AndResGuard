@@ -29,7 +29,8 @@ andResGuard {
             "R.mipmap.ic_launcher",
             //https://docs.fabric.io/android/crashlytics/build-tools.html
             "R.string.com.crashlytics.*",
-            "R.id.*"
+            "R.id.*",
+            "R.drawable.a",
     ]
     compressFilePattern = [
             "*.png",
@@ -58,7 +59,7 @@ crashlytics {
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '28.0.1'
 
 
     signingConfigs {
@@ -131,17 +132,17 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile project(':libres')
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.android.support:design:26.1.0'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    implementation project(':libres')
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
     // Crashlytics Kit
-    compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
         transitive = true
     }
     // NDK Kit
-    compile('com.crashlytics.sdk.android:crashlytics-ndk:1.1.6@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics-ndk:1.1.6@aar') {
         transitive = true
     }
 }
