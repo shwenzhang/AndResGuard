@@ -1,73 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resproguard>
-    <!--defaut property to set  -->
-    <issue id="property">
-        <!--whether use 7zip to repackage the signed apk, you must install the 7z command line version in window -->
-        <!--sudo apt-get install p7zip-full in linux -->
-        <!--and you must write the sign data fist, and i found that if we use linux, we can get a better result -->
-        <seventzip value="true"/>
-        <!--the sign data file name in your apk, default must be META-INF-->
-        <!--generally, you do not need to change it if you dont change the meta file name in your apk-->
-        <metaname value="META-INF"/>
-        <!--if keep root, res/drawable will be kept, it won't be changed to such as r/s-->
-        <keeproot value="false"/>
-    </issue>
+  <!--defaut property to set  -->
+  <issue id="property">
+    <!--whether use 7zip to repackage the signed apk, you must install the 7z command line version in window -->
+    <!--sudo apt-get install p7zip-full in linux -->
+    <!--and you must write the sign data fist, and i found that if we use linux, we can get a better result -->
+    <seventzip value="true"/>
+    <!--the sign data file name in your apk, default must be META-INF-->
+    <!--generally, you do not need to change it if you dont change the meta file name in your apk-->
+    <metaname value="META-INF"/>
+    <!--if keep root, res/drawable will be kept, it won't be changed to such as r/s-->
+    <keeproot value="false"/>
+  </issue>
 
-    <!--whitelist, some resource id you can not proguard, such as getIdentifier-->
-    <!--isactive, whether to use whitelist, you can set false to close it simply-->
-    <issue id="whitelist" isactive="true">
-        <!--you must write the full package name, such as com.tencent.mm.R -->
-        <!--for some reason, we should keep our icon better-->
-        <!--and it support *, ?, such as com.tencent.mm.R.drawable.emoji_*, com.tencent.mm.R.drawable.emoji_?-->
-        <!--<path value="<your_package_name>.R.drawable.icon"/>-->
-        <!--<path value="<your_package_name>.R.string.com.crashlytics.*"/>-->
-        <!--<path value="<your_package_name>.R.string.umeng*"/>-->
-        <!--<path value="<your_package_name>.R.layout.umeng*"/>-->
-        <!--<path value="<your_package_name>.R.drawable.umeng*"/>-->
-        <!--<path value="<your_package_name>.R.anim.umeng*"/>-->
-        <!--<path value="<your_package_name>.R.color.umeng*"/>-->
-        <!--<path value="<your_package_name>.R.style.*UM*"/>-->
-        <!--<path value="<your_package_name>.R.style.umeng*"/>-->
-        <!--<path value="<your_package_name>.R.id.umeng*"/>-->
-        <!--<path value="<your_package_name>.R.string.UM*"/>-->
-        <!--<path value="<your_package_name>.R.string.tb_*"/>-->
-        <!--<path value="<your_package_name>.R.layout.tb_*"/>-->
-        <!--<path value="<your_package_name>.R.drawable.tb_*"/>-->
-        <!--<path value="<your_package_name>.R.color.tb_*"/>-->
-    </issue>
+  <!--whitelist, some resource id you can not proguard, such as getIdentifier-->
+  <!--isactive, whether to use whitelist, you can set false to close it simply-->
+  <issue id="whitelist" isactive="true">
+    <!--you must write the full package name, such as com.tencent.mm.R -->
+    <!--for some reason, we should keep our icon better-->
+    <!--and it support *, ?, such as com.tencent.mm.R.drawable.emoji_*, com.tencent.mm.R.drawable.emoji_?-->
+    <!--<path value="<your_package_name>.R.drawable.icon"/>-->
+    <!--<path value="<your_package_name>.R.string.com.crashlytics.*"/>-->
+    <!--<path value="<your_package_name>.R.string.umeng*"/>-->
+    <!--<path value="<your_package_name>.R.layout.umeng*"/>-->
+    <!--<path value="<your_package_name>.R.drawable.umeng*"/>-->
+    <!--<path value="<your_package_name>.R.anim.umeng*"/>-->
+    <!--<path value="<your_package_name>.R.color.umeng*"/>-->
+    <!--<path value="<your_package_name>.R.style.*UM*"/>-->
+    <!--<path value="<your_package_name>.R.style.umeng*"/>-->
+    <!--<path value="<your_package_name>.R.id.umeng*"/>-->
+    <!--<path value="<your_package_name>.R.string.UM*"/>-->
+    <!--<path value="<your_package_name>.R.string.tb_*"/>-->
+    <!--<path value="<your_package_name>.R.layout.tb_*"/>-->
+    <!--<path value="<your_package_name>.R.drawable.tb_*"/>-->
+    <!--<path value="<your_package_name>.R.color.tb_*"/>-->
+  </issue>
 
-    <!--keepmapping, sometimes if we need to support incremental upgrade, we should keep the old mapping-->
-    <!--isactive, whether to use keepmapping, you can set false to close it simply-->
-    <!--if you use -mapping to set keepmapping property in cammand line, these setting will be overlayed-->
-    <issue id="keepmapping" isactive="false">
-        <!--the old mapping path, in window use \, in linux use /, and the default path is the running location-->
-        <path value="{your_mapping_path}"/>
-    </issue>
+  <!--keepmapping, sometimes if we need to support incremental upgrade, we should keep the old mapping-->
+  <!--isactive, whether to use keepmapping, you can set false to close it simply-->
+  <!--if you use -mapping to set keepmapping property in cammand line, these setting will be overlayed-->
+  <issue id="keepmapping" isactive="false">
+    <!--the old mapping path, in window use \, in linux use /, and the default path is the running location-->
+    <path value="{your_mapping_path}"/>
+  </issue>
 
-    <!--compress, if you want to compress the file, the name is relative path, such as resources.arsc, res/drawable-hdpi/welcome.png-->
-    <!--what can you compress? generally, if your resources.arsc less than 1m, you can compress it. and i think compress .png, .jpg is ok-->
-    <!--isactive, whether to use compress, you can set false to close it simply-->
-    <issue id="compress" isactive="false">
-        <!--you must use / separation, and it support *, ?, such as *.png, *.jpg, res/drawable-hdpi/welcome_?.png-->
-        <path value="*.png"/>
-        <path value="*.jpg"/>
-        <path value="*.jpeg"/>
-        <path value="*.gif"/>
-        <path value="resources.arsc"/>
-    </issue>
+  <!--compress, if you want to compress the file, the name is relative path, such as resources.arsc, res/drawable-hdpi/welcome.png-->
+  <!--what can you compress? generally, if your resources.arsc less than 1m, you can compress it. and i think compress .png, .jpg is ok-->
+  <!--isactive, whether to use compress, you can set false to close it simply-->
+  <issue id="compress" isactive="false">
+    <!--you must use / separation, and it support *, ?, such as *.png, *.jpg, res/drawable-hdpi/welcome_?.png-->
+    <path value="*.png"/>
+    <path value="*.jpg"/>
+    <path value="*.jpeg"/>
+    <path value="*.gif"/>
+    <path value="resources.arsc"/>
+  </issue>
 
-    <!--sign, if you want to sign the apk, and if you want to use 7zip, you must fill in the following data-->
-    <!--isactive, whether to use sign, you can set false to close it simply-->
-    <!--if you use -signature to set sign property in cammand line, these setting will be overlayed-->
-    <issue id="sign" isactive="true">
-        <!--the signature file path, in window use \, in linux use /, and the default path is the running location-->
-        <path value="release.keystore"/>
-        <!--storepass-->
-        <storepass value="testres"/>
-        <!--keypass-->
-        <keypass value="testres"/>
-        <!--alias-->
-        <alias value="testres"/>
-    </issue>
+  <!--sign, if you want to sign the apk, and if you want to use 7zip, you must fill in the following data-->
+  <!--isactive, whether to use sign, you can set false to close it simply-->
+  <!--if you use -signature to set sign property in cammand line, these setting will be overlayed-->
+  <issue id="sign" isactive="true">
+    <!--the signature file path, in window use \, in linux use /, and the default path is the running location-->
+    <path value="release.keystore"/>
+    <!--storepass-->
+    <storepass value="testres"/>
+    <!--keypass-->
+    <keypass value="testres"/>
+    <!--alias-->
+    <alias value="testres"/>
+  </issue>
 
 </resproguard>

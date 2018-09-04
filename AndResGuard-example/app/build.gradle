@@ -3,203 +3,196 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 buildscript {
-    repositories {
-        mavenLocal()
-        jcenter()
-        maven { url 'https://maven.fabric.io/public' }
-    }
-    dependencies {
-        // The Fabric Gradle plugin uses an open ended version to react
-        // quickly to Android tooling updates
-        classpath 'io.fabric.tools:gradle:latest.integration'
-        classpath ("com.tencent.mm:AndResGuard-gradle-plugin:${ANDRESGUARD_VERSION}") { changing=true }
-    }
+  repositories {
+    mavenLocal()
+    jcenter()
+    maven { url 'https://maven.fabric.io/public' }
+  }
+  dependencies {
+    // The Fabric Gradle plugin uses an open ended version to react
+    // quickly to Android tooling updates
+    classpath 'io.fabric.tools:gradle:latest.integration'
+    classpath("com.tencent.mm:AndResGuard-gradle-plugin:${ANDRESGUARD_VERSION}") { changing = true }
+  }
 }
 
 andResGuard {
-    mappingFile = file("./resource_mapping.txt")
-    use7zip = true
-    useSign = true
-    keepRoot = false
-    // add <yourpackagename>.R.drawable.icon into whitelist.
-    // because the launcher will get the icon with his name
-    whiteList = [
-            "R.mipmap.ic_launcher",
-            //https://docs.fabric.io/android/crashlytics/build-tools.html
-            "R.string.com.crashlytics.*",
-            "R.id.*"
-    ]
-    compressFilePattern = [
-            "*.png",
-            "*.jpg",
-            "*.jpeg",
-            "*.gif",
-            "resources.arsc"
-    ]
-    sevenzip {
-        artifact = "com.tencent.mm:SevenZip:${ANDRESGUARD_SEVENZIP_VERSION}"
-        //path = "/usr/local/bin/7za"
-    }
+  mappingFile = file("./resource_mapping.txt")
+  use7zip = true
+  useSign = true
+  keepRoot = false
+  // add <yourpackagename>.R.drawable.icon into whitelist.
+  // because the launcher will get the icon with his name
+  whiteList = ["R.mipmap.ic_launcher",
+               //https://docs.fabric.io/android/crashlytics/build-tools.html
+               "R.string.com.crashlytics.*",
+               "R.id.*"]
+  compressFilePattern = ["*.png",
+                         "*.jpg",
+                         "*.jpeg",
+                         "*.gif",
+                         "resources.arsc"]
+  sevenzip {
+    artifact = "com.tencent.mm:SevenZip:${ANDRESGUARD_SEVENZIP_VERSION}"
+    //path = "/usr/local/bin/7za"
+  }
 
-    /**
-     * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
-     * to the path which assemble[Task] write to
-     */
-    finalApkBackupPath = "${project.rootDir}/final.apk"
-    digestalg = "SHA-256"
+  /**
+   * Optional: if finalApkBackupPath is null, AndResGuard will overwrite final apk
+   * to the path which assemble[Task] write to*/
+  finalApkBackupPath = "${project.rootDir}/final.apk"
+  digestalg = "SHA-256"
 }
 
 repositories {
-    jcenter()
-    maven { url 'https://maven.fabric.io/public' }
+  jcenter()
+  maven { url 'https://maven.fabric.io/public' }
 }
 
 crashlytics {
-    enableNdk true
-    androidNdkOut 'src/main/obj'
-    androidNdkLibsOut 'src/main/libs'
+  enableNdk true
+  androidNdkOut 'src/main/obj'
+  androidNdkLibsOut 'src/main/libs'
 }
 
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "28.0.1"
+  compileSdkVersion 26
+  buildToolsVersion "28.0.1"
 
 
-    signingConfigs {
-        release {
-            try {
-                storeFile file("../keystore test/testKey.jks")
-                storePassword "testtest"
-                keyAlias "test"
-                keyPassword "admin@test"
-                v2SigningEnabled true
-            } catch (ex) {
-                throw new InvalidUserDataException(ex.toString())
-            }
-        }
-
-        debug {
-            storeFile file("../keystore test/debug.keystore")
-        }
+  signingConfigs {
+    release {
+      try {
+        storeFile file("../keystore test/testKey.jks")
+        storePassword "testtest"
+        keyAlias "test"
+        keyPassword "admin@test"
+        v2SigningEnabled true
+      } catch (ex) {
+        throw new InvalidUserDataException(ex.toString())
+      }
     }
 
-    flavorDimensions "default"
-    productFlavors {
-        flavor2 {
-            dimension "default"
-            println("@@@THIS IS FLAVOR2@@@")
-            applicationId 'andresguard.tencent.com.andresguard_example.flavor2'
-        }
+    debug {
+      storeFile file("../keystore test/debug.keystore")
+    }
+  }
 
-        flavor1 {
-            dimension "default"
-            println("@@@THIS IS FLAVOR1@@@")
-            applicationId 'andresguard.tencent.com.andresguard_example.flavor1'
-        }
-
-        aaa {
-            dimension "default"
-            println("@@@THIS IS aaa@@@")
-            applicationId 'andresguard.tencent.com.andresguard_example.aaa'
-        }
+  flavorDimensions "default"
+  productFlavors {
+    flavor2 {
+      dimension "default"
+      println("@@@THIS IS FLAVOR2@@@")
+      applicationId 'andresguard.tencent.com.andresguard_example.flavor2'
     }
 
-    buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            shrinkResources true
-            zipAlignEnabled true
-            pseudoLocalesEnabled true
-            signingConfig signingConfigs.release
-        }
-
-        releaseLog {
-            buildConfigField "boolean", "DEBUG_MODE", "false"
-            buildConfigField "boolean", "LOG_DEBUG", "true"
-            debuggable true
-            minifyEnabled true
-            zipAlignEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), "proguard-rules.pro"
-            signingConfig signingConfigs.release
-
-            matchingFallbacks = ['release']
-        }
+    flavor1 {
+      dimension "default"
+      println("@@@THIS IS FLAVOR1@@@")
+      applicationId 'andresguard.tencent.com.andresguard_example.flavor1'
     }
 
-
-    defaultConfig {
-        applicationId "andresguard.tencent.com.andresguard_example"
-        minSdkVersion 14
-        targetSdkVersion 26
-        versionCode 2
-        versionName "1.1"
+    aaa {
+      dimension "default"
+      println("@@@THIS IS aaa@@@")
+      applicationId 'andresguard.tencent.com.andresguard_example.aaa'
     }
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+      shrinkResources true
+      zipAlignEnabled true
+      pseudoLocalesEnabled true
+      signingConfig signingConfigs.release
+    }
+
+    releaseLog {
+      buildConfigField "boolean", "DEBUG_MODE", "false"
+      buildConfigField "boolean", "LOG_DEBUG", "true"
+      debuggable true
+      minifyEnabled true
+      zipAlignEnabled true
+      shrinkResources true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), "proguard-rules.pro"
+      signingConfig signingConfigs.release
+
+      matchingFallbacks = ['release']
+    }
+  }
+
+
+  defaultConfig {
+    applicationId "andresguard.tencent.com.andresguard_example"
+    minSdkVersion 14
+    targetSdkVersion 26
+    versionCode 2
+    versionName "1.1"
+  }
 }
 
-task createVersionInformation  {
-    def resDir = new File(buildDir, 'generated/buildinfo/')
-    def destDir = new File(resDir, 'META-INF/')
+task createVersionInformation {
+  def resDir = new File(buildDir, 'generated/buildinfo/')
+  def destDir = new File(resDir, 'META-INF/')
 
-    android {
-        sourceSets {
-            main.resources {
-                srcDir resDir
-            }
-        }
+  android {
+    sourceSets {
+      main.resources {
+        srcDir resDir
+      }
     }
+  }
 
-    doLast {
-        destDir.mkdirs()
-        def vfile = new File(destDir, 'BUILD_INFO')
+  doLast {
+    destDir.mkdirs()
+    def vfile = new File(destDir, 'BUILD_INFO')
 
-        def stdout = new ByteArrayOutputStream()
-        exec {
-            commandLine 'git', 'log', '-1', '--format=%H'
-            standardOutput = stdout
-        }
-        def git_hash = stdout.toString().trim()
-
-        stdout.reset()
-        exec {
-            commandLine 'git', 'config', 'remote.origin.url'
-            standardOutput = stdout
-        }
-        def remote = stdout.toString().trim()
-
-        def dirty = exec {
-            commandLine 'git', 'diff-index', '--quiet', 'HEAD'
-            ignoreExitValue true
-        }
-        dirty = dirty.getExitValue() == 0 ?
-                ' (Clean workspace)' : '-DIRTY using dirty workspace!'
-
-        def repo_info = "$remote at $git_hash$dirty"
-
-        vfile.text = "$repo_info\n"
+    def stdout = new ByteArrayOutputStream()
+    exec {
+      commandLine 'git', 'log', '-1', '--format=%H'
+      standardOutput = stdout
     }
+    def git_hash = stdout.toString().trim()
+
+    stdout.reset()
+    exec {
+      commandLine 'git', 'config', 'remote.origin.url'
+      standardOutput = stdout
+    }
+    def remote = stdout.toString().trim()
+
+    def dirty = exec {
+      commandLine 'git', 'diff-index', '--quiet', 'HEAD'
+      ignoreExitValue true
+    }
+    dirty = dirty.getExitValue() == 0 ? ' (Clean workspace)' : '-DIRTY using dirty workspace!'
+
+    def repo_info = "$remote at $git_hash$dirty"
+
+    vfile.text = "$repo_info\n"
+  }
 }
 
 project.afterEvaluate {
-    tasks.findAll { task ->
-        task.name.startsWith('merge') && task.name.endsWith('Resources')
-    }.each { t -> t.dependsOn createVersionInformation }
+  tasks.findAll { task -> task.name.startsWith('merge') && task.name.endsWith('Resources')
+  }.each { t -> t.dependsOn createVersionInformation }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.12'
-    implementation project(':libres')
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.android.support:design:26.1.0'
-    // Crashlytics Kit
-    implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
-        transitive = true
-    }
-    // NDK Kit
-    implementation('com.crashlytics.sdk.android:crashlytics-ndk:1.1.6@aar') {
-        transitive = true
-    }
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+  testImplementation 'junit:junit:4.12'
+  implementation project(':libres')
+  implementation 'com.android.support:appcompat-v7:26.1.0'
+  implementation 'com.android.support:design:26.1.0'
+  // Crashlytics Kit
+  implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+    transitive = true
+  }
+  // NDK Kit
+  implementation('com.crashlytics.sdk.android:crashlytics-ndk:1.1.6@aar') {
+    transitive = true
+  }
 }

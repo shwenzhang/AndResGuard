@@ -33,167 +33,169 @@ import java.util.Arrays;
  * iterate over options by invoking {@link #nextOption()} until it returns {@code null}.
  */
 class OptionsParser {
-    private final String[] mParams;
-    private int mIndex;
-    private String mLastOptionValue;
-    private String mLastOptionOriginalForm;
+  private final String[] mParams;
+  private int mIndex;
+  private String mLastOptionValue;
+  private String mLastOptionOriginalForm;
 
-    /**
-     * Constructs a new {@code OptionsParser} initialized with the provided command-line.
-     */
-    public OptionsParser(String[] params) {
-        mParams = params.clone();
+  /**
+   * Constructs a new {@code OptionsParser} initialized with the provided command-line.
+   */
+  public OptionsParser(String[] params) {
+    mParams = params.clone();
+  }
+
+  /**
+   * Returns the name (without leading dashes) of the next option (starting with the very first
+   * option) or {@code null} if there are no options left.
+   *
+   * <p>The value of this option can be obtained via {@link #getRequiredValue(String)},
+   * {@link #getRequiredIntValue(String)}, and {@link #getOptionalBooleanValue(boolean)}.
+   */
+  public String nextOption() {
+    if (mIndex >= mParams.length) {
+      // No more parameters left
+      return null;
+    }
+    String param = mParams[mIndex];
+    if (!param.startsWith("-")) {
+      // Not an option
+      return null;
     }
 
-    /**
-     * Returns the name (without leading dashes) of the next option (starting with the very first
-     * option) or {@code null} if there are no options left.
-     *
-     * <p>The value of this option can be obtained via {@link #getRequiredValue(String)},
-     * {@link #getRequiredIntValue(String)}, and {@link #getOptionalBooleanValue(boolean)}.
-     */
-    public String nextOption() {
-        if (mIndex >= mParams.length) {
-            // No more parameters left
-            return null;
-        }
-        String param = mParams[mIndex];
-        if (!param.startsWith("-")) {
-            // Not an option
-            return null;
-        }
+    mIndex++;
+    mLastOptionOriginalForm = param;
+    mLastOptionValue = null;
+    if (param.startsWith("--")) {
+      // FORMAT: --name value OR --name=value
+      if ("--".equals(param)) {
+        // End of options marker
+        return null;
+      }
+      int valueDelimiterIndex = param.indexOf('=');
+      if (valueDelimiterIndex != -1) {
+        mLastOptionValue = param.substring(valueDelimiterIndex + 1);
+        mLastOptionOriginalForm = param.substring(0, valueDelimiterIndex);
+        return param.substring("--".length(), valueDelimiterIndex);
+      } else {
+        return param.substring("--".length());
+      }
+    } else {
+      // FORMAT: -name value
+      return param.substring("-".length());
+    }
+  }
 
-        mIndex++;
-        mLastOptionOriginalForm = param;
-        mLastOptionValue = null;
-        if (param.startsWith("--")) {
-            // FORMAT: --name value OR --name=value
-            if ("--".equals(param)) {
-                // End of options marker
-                return null;
-            }
-            int valueDelimiterIndex = param.indexOf('=');
-            if (valueDelimiterIndex != -1) {
-                mLastOptionValue = param.substring(valueDelimiterIndex + 1);
-                mLastOptionOriginalForm = param.substring(0, valueDelimiterIndex);
-                return param.substring("--".length(), valueDelimiterIndex);
-            } else {
-                return param.substring("--".length());
-            }
-        } else {
-            // FORMAT: -name value
-            return param.substring("-".length());
-        }
+  /**
+   * Returns the original form of the current option. The original form includes the leading dash
+   * or dashes. This is intended to be used for referencing the option in error messages.
+   */
+  public String getOptionOriginalForm() {
+    return mLastOptionOriginalForm;
+  }
+
+  /**
+   * Returns the value of the current option, throwing an exception if the value is missing.
+   */
+  public String getRequiredValue(String valueDescription) throws OptionsException {
+    if (mLastOptionValue != null) {
+      String result = mLastOptionValue;
+      mLastOptionValue = null;
+      return result;
+    }
+    if (mIndex >= mParams.length) {
+      // No more parameters left
+      throw new OptionsException(valueDescription + " missing after " + mLastOptionOriginalForm);
+    }
+    String param = mParams[mIndex];
+    if ("--".equals(param)) {
+      // End of options marker
+      throw new OptionsException(valueDescription + " missing after " + mLastOptionOriginalForm);
+    }
+    mIndex++;
+    return param;
+  }
+
+  /**
+   * Returns the value of the current numeric option, throwing an exception if the value is
+   * missing or is not numeric.
+   */
+  public int getRequiredIntValue(String valueDescription) throws OptionsException {
+    String value = getRequiredValue(valueDescription);
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException e) {
+      throw new OptionsException(valueDescription
+                                 + " ("
+                                 + mLastOptionOriginalForm
+                                 + ") must be a decimal number: "
+                                 + value);
+    }
+  }
+
+  /**
+   * Gets the value of the current boolean option. Boolean options are not required to have
+   * explicitly specified values.
+   */
+  public boolean getOptionalBooleanValue(boolean defaultValue) throws OptionsException {
+    if (mLastOptionValue != null) {
+      // --option=value form
+      String stringValue = mLastOptionValue;
+      mLastOptionValue = null;
+      if ("true".equals(stringValue)) {
+        return true;
+      } else if ("false".equals(stringValue)) {
+        return false;
+      }
+      throw new OptionsException("Unsupported value for "
+                                 + mLastOptionOriginalForm
+                                 + ": "
+                                 + stringValue
+                                 + ". Only true or false supported.");
     }
 
-    /**
-     * Returns the original form of the current option. The original form includes the leading dash
-     * or dashes. This is intended to be used for referencing the option in error messages.
-     */
-    public String getOptionOriginalForm() {
-        return mLastOptionOriginalForm;
+    // --option (true|false) form OR just --option
+    if (mIndex >= mParams.length) {
+      return defaultValue;
     }
 
-    /**
-     * Returns the value of the current option, throwing an exception if the value is missing.
-     */
-    public String getRequiredValue(String valueDescription) throws OptionsException {
-        if (mLastOptionValue != null) {
-            String result = mLastOptionValue;
-            mLastOptionValue = null;
-            return result;
-        }
-        if (mIndex >= mParams.length) {
-            // No more parameters left
-            throw new OptionsException(
-                    valueDescription + " missing after " + mLastOptionOriginalForm);
-        }
-        String param = mParams[mIndex];
-        if ("--".equals(param)) {
-            // End of options marker
-            throw new OptionsException(
-                    valueDescription + " missing after " + mLastOptionOriginalForm);
-        }
-        mIndex++;
-        return param;
+    String stringValue = mParams[mIndex];
+    if ("true".equals(stringValue)) {
+      mIndex++;
+      return true;
+    } else if ("false".equals(stringValue)) {
+      mIndex++;
+      return false;
+    } else {
+      return defaultValue;
     }
+  }
 
-    /**
-     * Returns the value of the current numeric option, throwing an exception if the value is
-     * missing or is not numeric.
-     */
-    public int getRequiredIntValue(String valueDescription) throws OptionsException {
-        String value = getRequiredValue(valueDescription);
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            throw new OptionsException(
-                    valueDescription + " (" + mLastOptionOriginalForm
-                            + ") must be a decimal number: " + value);
-        }
+  /**
+   * Returns the remaining command-line parameters. This is intended to be invoked once
+   * {@link #nextOption()} returns {@code null}.
+   */
+  public String[] getRemainingParams() {
+    if (mIndex >= mParams.length) {
+      return new String[0];
     }
-
-    /**
-     * Gets the value of the current boolean option. Boolean options are not required to have
-     * explicitly specified values.
-     */
-    public boolean getOptionalBooleanValue(boolean defaultValue) throws OptionsException {
-        if (mLastOptionValue != null) {
-            // --option=value form
-            String stringValue = mLastOptionValue;
-            mLastOptionValue = null;
-            if ("true".equals(stringValue)) {
-                return true;
-            } else if ("false".equals(stringValue)) {
-                return false;
-            }
-            throw new OptionsException(
-                    "Unsupported value for " + mLastOptionOriginalForm + ": " + stringValue
-                            + ". Only true or false supported.");
-        }
-
-        // --option (true|false) form OR just --option
-        if (mIndex >= mParams.length) {
-            return defaultValue;
-        }
-
-        String stringValue = mParams[mIndex];
-        if ("true".equals(stringValue)) {
-            mIndex++;
-            return true;
-        } else if ("false".equals(stringValue)) {
-            mIndex++;
-            return false;
-        } else {
-            return defaultValue;
-        }
+    String param = mParams[mIndex];
+    if ("--".equals(param)) {
+      // Skip end of options marker
+      return Arrays.copyOfRange(mParams, mIndex + 1, mParams.length);
+    } else {
+      return Arrays.copyOfRange(mParams, mIndex, mParams.length);
     }
+  }
 
-    /**
-     * Returns the remaining command-line parameters. This is intended to be invoked once
-     * {@link #nextOption()} returns {@code null}.
-     */
-    public String[] getRemainingParams() {
-        if (mIndex >= mParams.length) {
-            return new String[0];
-        }
-        String param = mParams[mIndex];
-        if ("--".equals(param)) {
-            // Skip end of options marker
-            return Arrays.copyOfRange(mParams, mIndex + 1, mParams.length);
-        } else {
-            return Arrays.copyOfRange(mParams, mIndex, mParams.length);
-        }
+  /**
+   * Indicates that an error was encountered while parsing command-line options.
+   */
+  public static class OptionsException extends Exception {
+    private static final long serialVersionUID = 1L;
+
+    public OptionsException(String message) {
+      super(message);
     }
-
-    /**
-     * Indicates that an error was encountered while parsing command-line options.
-     */
-    public static class OptionsException extends Exception {
-        private static final long serialVersionUID = 1L;
-
-        public OptionsException(String message) {
-            super(message);
-        }
-    }
+  }
 }

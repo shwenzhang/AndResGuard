@@ -4,29 +4,29 @@ sourceCompatibility = rootProject.ext.javaVersion
 targetCompatibility = rootProject.ext.javaVersion
 
 task sourcesJar(type: Jar) {
-    from sourceSets.main.java.srcDirs
-    classifier = 'sources'
+  from sourceSets.main.java.srcDirs
+  classifier = 'sources'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+  classifier = 'javadoc'
+  from javadoc.destinationDir
 }
 
 artifacts {
-    archives javadocJar
-    archives sourcesJar
+  archives javadocJar
+  archives sourcesJar
 }
 
 publishing {
-    publications {
-        ResguardPub(MavenPublication) {
-            from components.java
-            groupId = group
-            artifactId = POM_ARTIFACT_ID
-            version = version
-        }
+  publications {
+    ResguardPub(MavenPublication) {
+      from components.java
+      groupId = group
+      artifactId = POM_ARTIFACT_ID
+      version = version
     }
+  }
 }
 
 task buildAndPublishLocalMaven(dependsOn: ['build', 'publishResguardPublicationToMavenLocal']) {}

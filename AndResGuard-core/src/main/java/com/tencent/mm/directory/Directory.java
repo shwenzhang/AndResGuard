@@ -20,27 +20,27 @@ import java.util.Map;
 import java.util.Set;
 
 public interface Directory {
-    public final char separator = '/';
+  public final char separator = '/';
 
-    public Set<String> getFiles();
+  public Set<String> getFiles();
 
-    public Set<String> getFiles(boolean recursive);
+  public Set<String> getFiles(boolean recursive);
 
-    public Map<String, Directory> getDirs();
+  public Map<String, Directory> getDirs();
 
-    public Map<String, Directory> getDirs(boolean recursive);
+  public Map<String, Directory> getDirs(boolean recursive);
 
-    public boolean containsFile(String path);
+  public boolean containsFile(String path);
 
-    public boolean containsDir(String path);
+  public boolean containsDir(String path);
 
-    public InputStream getFileInput(String path) throws DirectoryException;
+  public InputStream getFileInput(String path) throws DirectoryException;
 
-    public OutputStream getFileOutput(String path) throws DirectoryException;
+  public OutputStream getFileOutput(String path) throws DirectoryException;
 
-    public Directory getDir(String path) throws PathNotExist;
+  public Directory getDir(String path) throws PathNotExist;
 
-    public Directory createDir(String path) throws DirectoryException;
+  public Directory createDir(String path) throws DirectoryException;
 
-    public boolean removeFile(String path);
+  public boolean removeFile(String path);
 }

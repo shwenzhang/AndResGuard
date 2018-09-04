@@ -15,21 +15,21 @@
 package com.tencent.mm.directory;
 
 public class PathNotExist extends DirectoryException {
-    private static final long serialVersionUID = -6949242015506342032L;
+  private static final long serialVersionUID = -6949242015506342032L;
 
-    public PathNotExist() {
-        super();
-    }
+  public PathNotExist() {
+    super();
+  }
 
-    public PathNotExist(String detailMessage, Throwable throwable) {
-        super(detailMessage, throwable);
-    }
+  public PathNotExist(String detailMessage, Throwable throwable) {
+    super(detailMessage, throwable);
+  }
 
-    public PathNotExist(String detailMessage) {
-        super(detailMessage);
-    }
+  public PathNotExist(String detailMessage) {
+    super(detailMessage);
+  }
 
-    public PathNotExist(Throwable throwable) {
-        super(throwable);
-    }
+  public PathNotExist(Throwable throwable) {
+    super(throwable);
+  }
 }

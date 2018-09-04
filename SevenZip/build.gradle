@@ -7,47 +7,47 @@ version rootProject.ext.VERSION_NAME
 group rootProject.ext.GROUP
 
 task sourcesJar(type: Jar) {
-    from sourceSets.main.java.srcDirs
-    classifier = 'sources'
+  from sourceSets.main.java.srcDirs
+  classifier = 'sources'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+  classifier = 'javadoc'
+  from javadoc.destinationDir
 }
 
 artifacts {
-    archives javadocJar
-    archives sourcesJar
+  archives javadocJar
+  archives sourcesJar
 }
 
 publishing {
-    publications {
-        ResguardPub(MavenPublication) {
-            artifactId POM_ARTIFACT_ID
-            groupId group
-            artifact("executable/SevenZip-linux-x86_32.exe") {
-                classifier "linux-x86_32"
-                extension "exe"
-            }
-            artifact("executable/SevenZip-linux-x86_64.exe") {
-                classifier "linux-x86_64"
-                extension "exe"
-            }
-            artifact("executable/SevenZip-windows-x86_32.exe") {
-                classifier "windows-x86_32"
-                extension "exe"
-            }
-            artifact("executable/SevenZip-windows-x86_64.exe") {
-                classifier "windows-x86_64"
-                extension "exe"
-            }
-            artifact("executable/SevenZip-osx-x86_64.exe") {
-                classifier "osx-x86_64"
-                extension "exe"
-            }
-        }
+  publications {
+    ResguardPub(MavenPublication) {
+      artifactId POM_ARTIFACT_ID
+      groupId group
+      artifact("executable/SevenZip-linux-x86_32.exe") {
+        classifier "linux-x86_32"
+        extension "exe"
+      }
+      artifact("executable/SevenZip-linux-x86_64.exe") {
+        classifier "linux-x86_64"
+        extension "exe"
+      }
+      artifact("executable/SevenZip-windows-x86_32.exe") {
+        classifier "windows-x86_32"
+        extension "exe"
+      }
+      artifact("executable/SevenZip-windows-x86_64.exe") {
+        classifier "windows-x86_64"
+        extension "exe"
+      }
+      artifact("executable/SevenZip-osx-x86_64.exe") {
+        classifier "osx-x86_64"
+        extension "exe"
+      }
     }
+  }
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
