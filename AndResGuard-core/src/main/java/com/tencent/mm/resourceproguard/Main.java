@@ -7,7 +7,6 @@ import com.tencent.mm.androlib.res.decoder.ARSCDecoder;
 import com.tencent.mm.androlib.res.util.StringUtil;
 import com.tencent.mm.directory.DirectoryException;
 import com.tencent.mm.util.FileOperation;
-
 import java.io.File;
 import java.io.IOException;
 

@@ -30,7 +30,6 @@ import com.tencent.mm.util.ExtDataOutput;
 import com.tencent.mm.util.FileOperation;
 import com.tencent.mm.util.TypedValue;
 import com.tencent.mm.util.Utils;
-
 import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.File;
@@ -142,7 +141,7 @@ public class ARSCDecoder {
 
         File[] resFiles = rawResFile.listFiles();
 
-        //需要看看哪些类型是要混淆文件路径的
+        // 需要看看哪些类型是要混淆文件路径的
         for (File resFile : resFiles) {
             String raw = resFile.getName();
             if (raw.contains("-")) {
@@ -152,11 +151,11 @@ public class ARSCDecoder {
         }
 
         if (!config.mKeepRoot) {
-            //需要保持之前的命名方式
+            // 需要保持之前的命名方式
             if (config.mUseKeepMapping) {
                 HashMap<String, String> fileMapping = config.mOldFileMapping;
-                List<String> keepFileNames = new ArrayList<String>();
-                //这里面为了兼容以前，也需要用以前的文件名前缀，即res混淆成什么
+                List<String> keepFileNames = new ArrayList<>();
+                // 这里面为了兼容以前，也需要用以前的文件名前缀，即res混淆成什么
                 String resRoot = TypedValue.RES_FILE_PATH;
                 for (String name : fileMapping.values()) {
                     int dot = name.indexOf("/");
@@ -168,7 +167,7 @@ public class ARSCDecoder {
                     resRoot = name.substring(0, dot);
                     keepFileNames.add(name.substring(dot + 1));
                 }
-                //去掉所有之前保留的命名，为了简单操作，mapping里面有的都去掉
+                // 去掉所有之前保留的命名，为了简单操作，mapping里面有的都去掉
                 mProguardBuilder.removeStrings(keepFileNames);
 
                 for (File resFile : resFiles) {
@@ -181,7 +180,7 @@ public class ARSCDecoder {
                 }
             } else {
                 for (int i = 0; i < resFiles.length; i++) {
-                    //这里也要用linux的分隔符,如果普通的话，就是r
+                    // 这里也要用linux的分隔符,如果普通的话，就是r
                     mOldFileName.put("res" + "/" + resFiles[i].getName(), TypedValue.RES_FILE_PATH + "/" + mProguardBuilder.getReplaceString());
                 }
             }
@@ -223,7 +222,7 @@ public class ARSCDecoder {
             mCurPackageID = i;
             writePackage();
         }
-        //最后需要把整个的size重写回去
+        // 最后需要把整个的size重写回去
         reWriteTable();
     }
 
@@ -281,7 +280,7 @@ public class ARSCDecoder {
         mResId = id << 24;
 
         mPkg = new ResPackage(id, name);
-        //系统包名不混淆
+        // 系统包名不混淆
         if (mPkg.getName().equals("android")) {
             mPkg.setCanProguard(false);
         } else {
@@ -350,7 +349,7 @@ public class ARSCDecoder {
 
                     if (typeMaps.containsKey(typeName)) {
                         HashMap<String, String> proguard = typeMaps.get(typeName);
-                        //去掉所有之前保留的命名，为了简单操作，mapping里面有的都去掉
+                        // 去掉所有之前保留的命名，为了简单操作，mapping里面有的都去掉
                         mProguardBuilder.removeStrings(proguard.values());
                     }
                 }
@@ -389,16 +388,15 @@ public class ARSCDecoder {
             Set<String> existNames = RawARSCDecoder.getExistTypeSpecNameStrings(mCurTypeID);
             mProguardBuilder.removeStrings(existNames);
         }
-        //是否混淆文件路径
+        // 是否混淆文件路径
         mShouldProguardForType = isToProguardFile(mTypeNames.getString(id - 1));
 
-        //对，这里是用来描述差异性的！！！
-        /* flags */
+        // 对，这里是用来描述差异性的！！！
         mIn.skipBytes(entryCount * 4);
         mResId = (0xff000000 & mResId) | id << 16;
         mType = new ResType(mTypeNames.getString(id - 1), mPkg);
 
-        //如果是保持mapping的话，需要去掉某部分已经用过的mapping
+        // 如果是保持mapping的话，需要去掉某部分已经用过的mapping
         reduceFromOldMappingFile();
 
         while (nextChunk().type == Header.TYPE_TYPE) {
@@ -428,7 +426,7 @@ public class ARSCDecoder {
         mOut.writeBytes(mIn, 3);
         int entryCount = mIn.readInt();
         mOut.writeInt(entryCount);
-        //对，这里是用来描述差异性的！！！
+        // 对，这里是用来描述差异性的！！！
         ///* flags */mIn.skipBytes(entryCount * 4);
         int[] entryOffsets = mIn.readIntArray(entryCount);
         mOut.writeIntArray(entryOffsets);
@@ -478,12 +476,6 @@ public class ARSCDecoder {
 
     }
 
-    /**
-     * 需要防止由于某些非常恶心的白名单，导致出现重复id
-     *
-     * @throws IOException
-     * @throws AndrolibException
-     */
     private void readEntry() throws IOException, AndrolibException {
         mIn.skipBytes(2);
         short flags = mIn.readShort();
@@ -495,66 +487,11 @@ public class ARSCDecoder {
                 Configuration config = mApkDecoder.getConfig();
                 boolean isWhiteList = false;
                 if (config.mUseWhiteList) {
-                    //判断是否走whitelist
-                    HashMap<String, HashMap<String, HashSet<Pattern>>> whiteList = config.mWhiteList;
-                    String packName = mPkg.getName();
-                    if (whiteList.containsKey(packName)) {
-                        HashMap<String, HashSet<Pattern>> typeMaps = whiteList.get(packName);
-                        String typeName = mType.getName();
-                        if (typeMaps.containsKey(typeName)) {
-                            String specName = mSpecNames.get(specNamesId).toString();
-                            HashSet<Pattern> patterns = typeMaps.get(typeName);
-                            for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
-                                Pattern p = it.next();
-                                if (p.matcher(specName).matches()) {
-                                    //System.out.println(String.format("[match] matcher %s ,typeName %s, specName :%s", p.pattern(), typeName, specName));
-                                    mPkg.putSpecNamesReplace(mResId, specName);
-                                    mPkg.putSpecNamesblock(specName);
-                                    mProguardBuilder.setInWhiteList(mCurEntryID, true);
-
-                                    mType.putSpecProguardName(specName);
-                                    isWhiteList = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    isWhiteList = dealWithWhiteList(specNamesId, config);
                 }
 
-                String replaceString = null;
                 if (!isWhiteList) {
-                    boolean keepMapping = false;
-                    if (config.mUseKeepMapping) {
-                        HashMap<String, HashMap<String, HashMap<String, String>>> resMapping = config.mOldResMapping;
-                        String packName = mPkg.getName();
-                        if (resMapping.containsKey(packName)) {
-                            HashMap<String, HashMap<String, String>> typeMaps = resMapping.get(packName);
-                            String typeName = mType.getName();
-                            if (typeMaps.containsKey(typeName)) {
-                                //这里面的东东已经提前去掉，请放心使用
-                                HashMap<String, String> proguard = typeMaps.get(typeName);
-                                String specName = mSpecNames.get(specNamesId).toString();
-                                if (proguard.containsKey(specName)) {
-                                    keepMapping = true;
-                                    replaceString = proguard.get(specName);
-                                }
-                            }
-                        }
-                    }
-
-                    if (!keepMapping) {
-                        replaceString = mProguardBuilder.getReplaceString();
-                    }
-
-
-                    mProguardBuilder.setInReplaceList(mCurEntryID, true);
-                    if (replaceString == null) {
-                        throw new AndrolibException("readEntry replaceString == null");
-                    }
-                    generalResIDMapping(mPkg.getName(), mType.getName(), mSpecNames.get(specNamesId).toString(), replaceString);
-                    mPkg.putSpecNamesReplace(mResId, replaceString);
-                    mPkg.putSpecNamesblock(replaceString);
-                    mType.putSpecProguardName(replaceString);
+                    dealWithNonWhiteList(specNamesId, config);
                 }
             }
         }
@@ -564,6 +501,78 @@ public class ARSCDecoder {
         } else {
             readComplexEntry(false, specNamesId);
         }
+    }
+
+    /**
+     * deal with whitelist
+     * @param specNamesId resource spec name id
+     * @param config {@Configuration} AndResGuard configuration
+     *
+     * @return isWhiteList whether this resource is processed by whitelist
+     */
+    private boolean dealWithWhiteList(int specNamesId, Configuration config)
+        throws AndrolibException {
+        String packName = mPkg.getName();
+        if (config.mWhiteList.containsKey(packName)) {
+            HashMap<String, HashSet<Pattern>> typeMaps = config.mWhiteList.get(packName);
+            String typeName = mType.getName();
+            if (typeMaps.containsKey(typeName)) {
+                String specName = mSpecNames.get(specNamesId).toString();
+                HashSet<Pattern> patterns = typeMaps.get(typeName);
+                for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
+                    Pattern p = it.next();
+                    if (p.matcher(specName).matches()) {
+                        // System.out.println(String.format("[match] matcher %s ,typeName %s, specName :%s", p.pattern(), typeName, specName));
+                        mPkg.putSpecNamesReplace(mResId, specName);
+                        mPkg.putSpecNamesblock(specName);
+                        mProguardBuilder.setInWhiteList(mCurEntryID, true);
+
+                        mType.putSpecProguardName(specName);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private void dealWithNonWhiteList(int specNamesId, Configuration config)
+        throws AndrolibException, IOException {
+        String replaceString = null;
+        boolean keepMapping = false;
+        if (config.mUseKeepMapping) {
+            String packName = mPkg.getName();
+            if (config.mOldResMapping.containsKey(packName)) {
+                HashMap<String, HashMap<String, String>> typeMaps = config.mOldResMapping.get(packName);
+                String typeName = mType.getName();
+                if (typeMaps.containsKey(typeName)) {
+                    HashMap<String, String> nameMap = typeMaps.get(typeName);
+                    String specName = mSpecNames.get(specNamesId).toString();
+                    if (nameMap.containsKey(specName)) {
+                        keepMapping = true;
+                        replaceString = nameMap.get(specName);
+                    }
+                }
+            }
+        }
+
+        if (!keepMapping) {
+            replaceString = mProguardBuilder.getReplaceString();
+        }
+
+        mProguardBuilder.setInReplaceList(mCurEntryID, true);
+        if (replaceString == null) {
+            throw new AndrolibException("readEntry replaceString == null");
+        }
+        generalResIDMapping(
+            mPkg.getName(),
+            mType.getName(),
+            mSpecNames.get(specNamesId).toString(),
+            replaceString
+        );
+        mPkg.putSpecNamesReplace(mResId, replaceString);
+        mPkg.putSpecNamesblock(replaceString);
+        mType.putSpecProguardName(replaceString);
     }
 
     private void writeEntry() throws IOException, AndrolibException {
@@ -925,8 +934,7 @@ public class ARSCDecoder {
     }
 
     private class ProguardStringBuilder {
-        private int          mReplaceCount        = 0;
-        private List<String> mReplaceStringBuffer = new ArrayList<String>();
+        private List<String> mReplaceStringBuffer = new ArrayList<>();
         private boolean[] mIsReplaced;
         private boolean[] mIsWhiteList;
         private String[] mAToZ   = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
@@ -940,8 +948,7 @@ public class ARSCDecoder {
         private HashSet<String> mFileNameBlackList;
 
         public ProguardStringBuilder() {
-            // TODO Auto-generated constructor stub
-            mFileNameBlackList = new HashSet<String>();
+            mFileNameBlackList = new HashSet<>();
             mFileNameBlackList.add("con");
             mFileNameBlackList.add("prn");
             mFileNameBlackList.add("aux");
@@ -976,7 +983,6 @@ public class ARSCDecoder {
                     }
                 }
             }
-            mReplaceCount = 3;
 
             final int size = mReplaceStringBuffer.size() * 2;
             mIsReplaced = new boolean[size];
@@ -987,7 +993,7 @@ public class ARSCDecoder {
             }
         }
 
-        //对于某种类型用过的mapping，全部不能再用了
+        // 对于某种类型用过的mapping，全部不能再用了
         public void removeStrings(Collection<String> collection) {
             if (collection == null) return;
             mReplaceStringBuffer.removeAll(collection);
@@ -1010,7 +1016,7 @@ public class ARSCDecoder {
         }
 
 
-        //开始设计是根据id来get,但是为了实现保持mapping的方式，取消了这个
+        // 开始设计是根据id来get,但是为了实现保持mapping的方式，取消了这个
         public String getReplaceString() throws AndrolibException {
             if (mReplaceStringBuffer.isEmpty()) {
                 throw new AndrolibException(String.format(
