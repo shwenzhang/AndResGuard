@@ -55,6 +55,8 @@ import java.util.regex.Pattern;
 
 public class ARSCDecoder {
 
+  private final static boolean DEBUG = false;
+
   private final static short ENTRY_FLAG_COMPLEX = 0x0001;
   private static final Logger LOGGER = Logger.getLogger(ARSCDecoder.class.getName());
   private static final int KNOWN_CONFIG_BYTES = 56;
@@ -362,6 +364,26 @@ public class ARSCDecoder {
     }
   }
 
+  /**
+   * reduce white list string from proguard builder
+   */
+  private void reduceFromWhiteListFile() {
+    final Configuration config = mApkDecoder.getConfig();
+    final String packName = mPkg.getName();
+    if (config.mWhiteList.containsKey(packName)) {
+      if (mApkDecoder.getConfig().mUseWhiteList) {
+        HashMap<String, HashSet<Pattern>> typeMaps = config.mWhiteList.get(packName);
+        String typeName = mType.getName();
+        HashSet<Pattern> patterns = typeMaps.get(typeName);
+        if (patterns != null) {
+          for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
+            mResguardBuilder.removeString(it.next().pattern());
+          }
+        }
+      }
+    }
+  }
+
   private void readLibraryType() throws AndrolibException, IOException {
     checkChunkType(Header.TYPE_LIBRARY);
     int libraryCount = mIn.readInt();
@@ -403,6 +425,8 @@ public class ARSCDecoder {
 
     // 如果是保持mapping的话，需要去掉某部分已经用过的mapping
     reduceFromOldMappingFile();
+    // remove string from resguard candidate list if it exists in white list
+    reduceFromWhiteListFile();
 
     while (nextChunk().type == Header.TYPE_TYPE) {
       readConfig();
@@ -525,11 +549,13 @@ public class ARSCDecoder {
         for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
           Pattern p = it.next();
           if (p.matcher(specName).matches()) {
-            System.out.println(String.format("[match] matcher %s ,typeName %s, specName :%s",
-                p.pattern(),
-                typeName,
-                specName
-            ));
+            if (DEBUG) {
+              System.out.println(String.format("[match] matcher %s ,typeName %s, specName :%s",
+                  p.pattern(),
+                  typeName,
+                  specName
+              ));
+            }
             mPkg.putSpecNamesReplace(mResId, specName);
             mPkg.putSpecNamesblock(specName);
             mResguardBuilder.setInWhiteList(mCurEntryID, true);
