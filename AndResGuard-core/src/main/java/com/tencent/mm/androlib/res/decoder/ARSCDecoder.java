@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
 
 public class ARSCDecoder {
 
-  private final static boolean DEBUG = true;
+  private final static boolean DEBUG = false;
 
   private final static short ENTRY_FLAG_COMPLEX = 0x0001;
   private static final Logger LOGGER = Logger.getLogger(ARSCDecoder.class.getName());
