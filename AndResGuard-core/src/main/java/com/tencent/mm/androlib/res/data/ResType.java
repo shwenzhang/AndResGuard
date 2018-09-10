@@ -38,8 +38,7 @@ public final class ResType {
   public void putSpecResguardName(String name) throws AndrolibException {
     if (specNames.contains(name)) {
       throw new AndrolibException(String.format(
-          "spec proguard name duplicate in a singal type %s, spec name: %s\n "
-          + "known issue: if you write a whilte list R.drawable.ab, and you have a png named ab.png, these may cost duplicate of ab\n",
+          "spec proguard name duplicate in a singal type %s, spec name: %s\n",
           getName(),
           name
       ));

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class Utils {
   public static boolean isPresent(String str) {
@@ -36,6 +37,17 @@ public class Utils {
     final String[] searchList = new String[] { ".", "?", "*", "+" };
     final String[] replacementList = new String[] { "\\.", ".?", ".*", ".+" };
     return replaceEach(input, searchList, replacementList);
+  }
+
+  public static boolean match(String str, HashSet<Pattern> patterns) {
+    if (patterns == null) {
+      return false;
+    }
+    for(Pattern p : patterns) {
+      Boolean isMatch = p.matcher(str).matches();
+      if (isMatch) return true;
+    }
+    return false;
   }
 
   public static void cleanDir(File dir) {

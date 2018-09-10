@@ -49,12 +49,13 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class ARSCDecoder {
 
-  private final static boolean DEBUG = false;
+  private final static boolean DEBUG = true;
 
   private final static short ENTRY_FLAG_COMPLEX = 0x0001;
   private static final Logger LOGGER = Logger.getLogger(ARSCDecoder.class.getName());
@@ -127,7 +128,7 @@ public class ARSCDecoder {
     mMappingWriter = new BufferedWriter(new FileWriter(mApkDecoder.getResMappingFile(), false));
 
     mResguardBuilder = new ResguardStringBuilder();
-    mResguardBuilder.reset();
+    mResguardBuilder.reset(null);
 
     final Configuration config = mApkDecoder.getConfig();
 
@@ -363,25 +364,15 @@ public class ARSCDecoder {
     }
   }
 
-  /**
-   * reduce white list string from proguard builder
-   */
-  private void reduceFromWhiteListFile() {
-    final Configuration config = mApkDecoder.getConfig();
+  private HashSet<Pattern> getWhiteList(String resType) {
     final String packName = mPkg.getName();
-    if (config.mWhiteList.containsKey(packName)) {
+    if (mApkDecoder.getConfig().mWhiteList.containsKey(packName)) {
       if (mApkDecoder.getConfig().mUseWhiteList) {
-        HashMap<String, HashSet<Pattern>> typeMaps = config.mWhiteList.get(packName);
-        String typeName = mType.getName();
-        HashSet<Pattern> patterns = typeMaps.get(typeName);
-        if (patterns != null) {
-          for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
-            String tmp = it.next().pattern();
-            mResguardBuilder.removeString(tmp);
-          }
-        }
+        HashMap<String, HashSet<Pattern>> typeMaps = mApkDecoder.getConfig().mWhiteList.get(packName);
+        return typeMaps.get(resType);
       }
     }
+    return null;
   }
 
   private void readLibraryType() throws AndrolibException, IOException {
@@ -407,7 +398,10 @@ public class ARSCDecoder {
     byte id = mIn.readByte();
     mIn.skipBytes(3);
     int entryCount = mIn.readInt();
-
+    mType = new ResType(mTypeNames.getString(id - 1), mPkg);
+    if (DEBUG) {
+      System.out.printf("[ReadTableType] type (%s) id: (%d) curr (%d)\n", mType, id, mCurrTypeID);
+    }
     // first meet a type of resource
     if (mCurrTypeID != id) {
       mCurrTypeID = id;
@@ -419,7 +413,6 @@ public class ARSCDecoder {
     // 对，这里是用来描述差异性的！！！
     mIn.skipBytes(entryCount * 4);
     mResId = (0xff000000 & mResId) | id << 16;
-    mType = new ResType(mTypeNames.getString(id - 1), mPkg);
 
     while (nextChunk().type == Header.TYPE_TYPE) {
       readConfig();
@@ -427,14 +420,13 @@ public class ARSCDecoder {
   }
 
   private void initResGuardBuild(int resTypeId) {
+    // we need remove string from resguard candidate list if it exists in white list
+    HashSet<Pattern> whiteListPatterns = getWhiteList(mType.getName());
     // init resguard builder
-    mResguardBuilder.reset();
-
+    mResguardBuilder.reset(whiteListPatterns);
     mResguardBuilder.removeStrings(RawARSCDecoder.getExistTypeSpecNameStrings(resTypeId));
     // 如果是保持mapping的话，需要去掉某部分已经用过的mapping
     reduceFromOldMappingFile();
-    // remove string from resguard candidate list if it exists in white list
-    reduceFromWhiteListFile();
   }
 
   private void writeLibraryType() throws AndrolibException, IOException {
@@ -554,15 +546,11 @@ public class ARSCDecoder {
           Pattern p = it.next();
           if (p.matcher(specName).matches()) {
             if (DEBUG) {
-              System.out.println(String.format("[match] matcher %s ,typeName %s, specName :%s",
-                  p.pattern(),
-                  typeName,
-                  specName
-              ));
+              System.out.printf("[match] matcher %s ,typeName %s, specName :%s\n", p.pattern(), typeName, specName);
             }
             mPkg.putSpecNamesReplace(mResId, specName);
             mPkg.putSpecNamesblock(specName);
-            mResguardBuilder.setInWhiteList(mCurEntryID, true);
+            mResguardBuilder.setInWhiteList(mCurEntryID);
 
             mType.putSpecResguardName(specName);
             return true;
@@ -596,7 +584,7 @@ public class ARSCDecoder {
       replaceString = mResguardBuilder.getReplaceString();
     }
 
-    mResguardBuilder.setInReplaceList(mCurEntryID, true);
+    mResguardBuilder.setInReplaceList(mCurEntryID);
     if (replaceString == null) {
       throw new AndrolibException("readEntry replaceString == null");
     }
@@ -956,9 +944,9 @@ public class ARSCDecoder {
   }
 
   private class ResguardStringBuilder {
-    private List<String> mReplaceStringBuffer = new ArrayList<>();
-    private boolean[] mIsReplaced;
-    private boolean[] mIsWhiteList;
+    private final List<String> mReplaceStringBuffer;
+    private final Set<Integer> mIsReplaced;
+    private final Set<Integer> mIsWhiteList;
     private String[] mAToZ = {
         "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
         "w", "x", "y", "z"
@@ -981,19 +969,30 @@ public class ARSCDecoder {
       mFileNameBlackList.add("prn");
       mFileNameBlackList.add("aux");
       mFileNameBlackList.add("nul");
+      mReplaceStringBuffer = new ArrayList<>();
+      mIsReplaced = new HashSet<>();
+      mIsWhiteList = new HashSet<>();
     }
 
-    public void reset() {
+    public void reset(HashSet<Pattern> blacklistPatterns) {
       mReplaceStringBuffer.clear();
+      mIsReplaced.clear();
+      mIsWhiteList.clear();
+
       for (int i = 0; i < mAToZ.length; i++) {
-        mReplaceStringBuffer.add(mAToZ[i]);
+        String str = mAToZ[i];
+        if (!Utils.match(str, blacklistPatterns)) {
+          mReplaceStringBuffer.add(str);
+        }
       }
 
       for (int i = 0; i < mAToZ.length; i++) {
         String first = mAToZ[i];
         for (int j = 0; j < mAToAll.length; j++) {
-          String second = mAToAll[j];
-          mReplaceStringBuffer.add(first + second);
+          String str = first + mAToAll[j];
+          if (!Utils.match(str, blacklistPatterns)) {
+            mReplaceStringBuffer.add(str);
+          }
         }
       }
 
@@ -1003,26 +1002,12 @@ public class ARSCDecoder {
           String second = mAToAll[j];
           for (int k = 0; k < mAToAll.length; k++) {
             String third = mAToAll[k];
-            String result = first + second + third;
-            if (!mFileNameBlackList.contains(result)) {
-              mReplaceStringBuffer.add(first + second + third);
+            String str = first + second + third;
+            if (!mFileNameBlackList.contains(str) && !Utils.match(str, blacklistPatterns)) {
+              mReplaceStringBuffer.add(str);
             }
           }
         }
-      }
-
-      final int size = mReplaceStringBuffer.size() * 2;
-      mIsReplaced = new boolean[size];
-      mIsWhiteList = new boolean[size];
-      for (int i = 0; i < size; i++) {
-        mIsReplaced[i] = false;
-        mIsWhiteList[i] = false;
-      }
-    }
-
-    public void removeString(String str) {
-      if (str != null) {
-        mReplaceStringBuffer.remove(str);
       }
     }
 
@@ -1033,31 +1018,26 @@ public class ARSCDecoder {
     }
 
     public boolean isReplaced(int id) {
-      return mIsReplaced[id];
+      return mIsReplaced.contains(id);
     }
 
     public boolean isInWhiteList(int id) {
-      return mIsWhiteList[id];
+      return mIsWhiteList.contains(id);
     }
 
-    public void setInWhiteList(int id, boolean set) {
-      mIsWhiteList[id] = set;
+    public void setInWhiteList(int id) {
+      mIsWhiteList.add(id);
     }
 
-    public void setInReplaceList(int id, boolean set) {
-      mIsReplaced[id] = set;
+    public void setInReplaceList(int id) {
+      mIsReplaced.add(id);
     }
 
-    // 开始设计是根据id来get,但是为了实现保持mapping的方式，取消了这个
     public String getReplaceString() throws AndrolibException {
       if (mReplaceStringBuffer.isEmpty()) {
         throw new AndrolibException(String.format("now can only proguard less than 35594 in a single type\n"));
       }
       return mReplaceStringBuffer.remove(0);
-    }
-
-    public int lenght() {
-      return mReplaceStringBuffer.size();
     }
   }
 }
