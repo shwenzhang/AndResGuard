@@ -49,7 +49,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -78,7 +77,7 @@ public class ARSCDecoder {
   private int[] mPkgsLenghtChange;
   private int mTableLenghtChange = 0;
   private int mResId;
-  private int mCurTypeID = -1;
+  private int mCurrTypeID = -1;
   private int mCurEntryID = -1;
   private int mCurPackageID = -1;
   private ResguardStringBuilder mResguardBuilder;
@@ -282,7 +281,7 @@ public class ARSCDecoder {
     mIn.skipInt();
     /* specNameCount */
     mIn.skipInt();
-    mCurTypeID = -1;
+    mCurrTypeID = -1;
     mTypeNames = StringBlock.read(mIn);
     mSpecNames = StringBlock.read(mIn);
     mResId = id << 24;
@@ -377,7 +376,8 @@ public class ARSCDecoder {
         HashSet<Pattern> patterns = typeMaps.get(typeName);
         if (patterns != null) {
           for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
-            mResguardBuilder.removeString(it.next().pattern());
+            String tmp = it.next().pattern();
+            mResguardBuilder.removeString(tmp);
           }
         }
       }
@@ -408,12 +408,10 @@ public class ARSCDecoder {
     mIn.skipBytes(3);
     int entryCount = mIn.readInt();
 
-    if (mCurTypeID != id) {
-      mResguardBuilder.reset();
-      mCurTypeID = id;
-
-      Set<String> existNames = RawARSCDecoder.getExistTypeSpecNameStrings(mCurTypeID);
-      mResguardBuilder.removeStrings(existNames);
+    // first meet a type of resource
+    if (mCurrTypeID != id) {
+      mCurrTypeID = id;
+      initResGuardBuild(mCurrTypeID);
     }
     // 是否混淆文件路径
     mShouldResguardForType = isToResguardFile(mTypeNames.getString(id - 1));
@@ -423,14 +421,20 @@ public class ARSCDecoder {
     mResId = (0xff000000 & mResId) | id << 16;
     mType = new ResType(mTypeNames.getString(id - 1), mPkg);
 
+    while (nextChunk().type == Header.TYPE_TYPE) {
+      readConfig();
+    }
+  }
+
+  private void initResGuardBuild(int resTypeId) {
+    // init resguard builder
+    mResguardBuilder.reset();
+
+    mResguardBuilder.removeStrings(RawARSCDecoder.getExistTypeSpecNameStrings(resTypeId));
     // 如果是保持mapping的话，需要去掉某部分已经用过的mapping
     reduceFromOldMappingFile();
     // remove string from resguard candidate list if it exists in white list
     reduceFromWhiteListFile();
-
-    while (nextChunk().type == Header.TYPE_TYPE) {
-      readConfig();
-    }
   }
 
   private void writeLibraryType() throws AndrolibException, IOException {
