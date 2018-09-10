@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -386,7 +387,25 @@ public class ARSCDecoder {
             mProguardBuilder.reset();
             mCurTypeID = id;
 
-            Set<String> existNames = RawARSCDecoder.getExistTypeSpecNameStrings(mCurTypeID);
+            List<String> existNames = new LinkedList<>();
+            Configuration config = mApkDecoder.getConfig();
+            HashMap<String, HashMap<String, HashSet<Pattern>>> whiteList = config.mWhiteList;
+            String packName = mPkg.getName();
+            if (whiteList.containsKey(packName)) {
+                HashMap<String, HashSet<Pattern>> typeMaps = whiteList.get(packName);
+                String typeName = mTypeNames.getString(id - 1);
+                if (typeMaps.containsKey(typeName)) {
+                    HashSet<Pattern> patterns = typeMaps.get(typeName);
+                    for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
+                        Pattern p = it.next();
+                        for (String name : mProguardBuilder.getAllProguardList()) {
+                            if (p.matcher(name).matches()) {
+                                existNames.add(name);
+                            }
+                        }
+                    }
+                }
+            }
             mProguardBuilder.removeStrings(existNames);
         }
         //是否混淆文件路径
@@ -1009,6 +1028,9 @@ public class ARSCDecoder {
             mIsReplaced[id] = set;
         }
 
+        public List<String> getAllProguardList() {
+            return mReplaceStringBuffer;
+        }
 
         //开始设计是根据id来get,但是为了实现保持mapping的方式，取消了这个
         public String getReplaceString() throws AndrolibException {
