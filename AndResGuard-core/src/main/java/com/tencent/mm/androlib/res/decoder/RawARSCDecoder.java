@@ -44,7 +44,7 @@ public class RawARSCDecoder {
     private final static short ENTRY_FLAG_WEAK = 0x0004;
 
     private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
-    private static final int    KNOWN_CONFIG_BYTES = 56;
+    private static final int    KNOWN_CONFIG_BYTES = 64;
 
     private static HashMap<Integer, Set<String>> mExistTypeNames;
 
@@ -138,18 +138,24 @@ public class RawARSCDecoder {
             System.out.printf("Decoding Shared Library (%s), pkgId: %d\n", packageName, packageId);
         }
 
-        while(nextChunk().type == Header.TYPE_TYPE) {
+        nextChunk();
+        while(mHeader.type == Header.TYPE_TYPE) {
             readTableTypeSpec();
         }
     }
 
     private void readTableTypeSpec() throws AndrolibException, IOException {
         readSingleTableTypeSpec();
-        while (nextChunk().type == Header.TYPE_SPEC_TYPE) {
+
+        nextChunk();
+        while (mHeader.type == Header.TYPE_SPEC_TYPE) {
             readSingleTableTypeSpec();
+            nextChunk();
         }
-        while (nextChunk().type == Header.TYPE_TYPE) {
+
+        while (mHeader.type == Header.TYPE_TYPE) {
             readConfig();
+            nextChunk();
         }
     }
 
@@ -160,6 +166,10 @@ public class RawARSCDecoder {
         int entryCount = mIn.readInt();
 
         /* flags */mIn.skipBytes(entryCount * 4);
+
+        mCurTypeID = id;
+        mResId = (0xff000000 & mResId) | id << 16;
+        mType = new ResType(mTypeNames.getString(id - 1), mPkg);
     }
 
     private void readConfig() throws IOException, AndrolibException {
@@ -289,6 +299,11 @@ public class RawARSCDecoder {
             read = 56;
         }
 
+        if (size >= 64) {
+            mIn.skipBytes(8);
+            read = 64;
+        }
+
         int exceedingSize = size - KNOWN_CONFIG_BYTES;
         if (exceedingSize > 0) {
             byte[] buf = new byte[exceedingSize];
@@ -305,10 +320,11 @@ public class RawARSCDecoder {
                 ));
                 isInvalid = true;
             }
-        }
-        int remainingSize = size - read;
-        if (remainingSize > 0) {
-            mIn.skipBytes(remainingSize);
+        } else {
+            int remainingSize = size - read;
+            if (remainingSize > 0) {
+                mIn.skipBytes(remainingSize);
+            }
         }
     }
 
