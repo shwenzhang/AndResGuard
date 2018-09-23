@@ -138,18 +138,24 @@ public class RawARSCDecoder {
             System.out.printf("Decoding Shared Library (%s), pkgId: %d\n", packageName, packageId);
         }
 
-        while(nextChunk().type == Header.TYPE_TYPE) {
+        nextChunk();
+        while(mHeader.type == Header.TYPE_TYPE) {
             readTableTypeSpec();
         }
     }
 
     private void readTableTypeSpec() throws AndrolibException, IOException {
         readSingleTableTypeSpec();
-        while (nextChunk().type == Header.TYPE_SPEC_TYPE) {
+
+        nextChunk();
+        while (mHeader.type == Header.TYPE_SPEC_TYPE) {
             readSingleTableTypeSpec();
+            nextChunk();
         }
-        while (nextChunk().type == Header.TYPE_TYPE) {
+
+        while (mHeader.type == Header.TYPE_TYPE) {
             readConfig();
+            nextChunk();
         }
     }
 
@@ -160,6 +166,10 @@ public class RawARSCDecoder {
         int entryCount = mIn.readInt();
 
         /* flags */mIn.skipBytes(entryCount * 4);
+
+        mCurTypeID = id;
+        mResId = (0xff000000 & mResId) | id << 16;
+        mType = new ResType(mTypeNames.getString(id - 1), mPkg);
     }
 
     private void readConfig() throws IOException, AndrolibException {
