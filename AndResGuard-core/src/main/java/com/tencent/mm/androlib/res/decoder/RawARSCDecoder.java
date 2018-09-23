@@ -44,7 +44,7 @@ public class RawARSCDecoder {
     private final static short ENTRY_FLAG_WEAK = 0x0004;
 
     private static final Logger LOGGER             = Logger.getLogger(ARSCDecoder.class.getName());
-    private static final int    KNOWN_CONFIG_BYTES = 56;
+    private static final int    KNOWN_CONFIG_BYTES = 64;
 
     private static HashMap<Integer, Set<String>> mExistTypeNames;
 
@@ -299,6 +299,11 @@ public class RawARSCDecoder {
             read = 56;
         }
 
+        if (size >= 64) {
+            mIn.skipBytes(8);
+            read = 64;
+        }
+
         int exceedingSize = size - KNOWN_CONFIG_BYTES;
         if (exceedingSize > 0) {
             byte[] buf = new byte[exceedingSize];
@@ -315,10 +320,11 @@ public class RawARSCDecoder {
                 ));
                 isInvalid = true;
             }
-        }
-        int remainingSize = size - read;
-        if (remainingSize > 0) {
-            mIn.skipBytes(remainingSize);
+        } else {
+            int remainingSize = size - read;
+            if (remainingSize > 0) {
+                mIn.skipBytes(remainingSize);
+            }
         }
     }
 
