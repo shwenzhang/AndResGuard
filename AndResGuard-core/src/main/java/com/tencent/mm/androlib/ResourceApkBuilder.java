@@ -212,9 +212,18 @@ public class ResourceApkBuilder {
 
   private void signWithV2sign(File unSignedApk, File signedApk) throws Exception {
     String[] params = new String[] {
-        "sign", "--ks", config.mSignatureFile.getAbsolutePath(), "--ks-pass", "pass:" + config.mStorePass,
-        "--ks-key-alias", config.mStoreAlias, "--key-pass", "pass:" + config.mKeyPass, "--out",
-        signedApk.getAbsolutePath(), unSignedApk.getAbsolutePath()
+        "sign",
+        "--ks",
+        config.mSignatureFile.getAbsolutePath(),
+        "--ks-pass",
+        "pass:" + config.mStorePass,
+        "--ks-key-alias",
+        config.mStoreAlias,
+        "--key-pass",
+        "pass:" + config.mKeyPass,
+        "--out",
+        signedApk.getAbsolutePath(),
+        unSignedApk.getAbsolutePath()
     };
     //dumpParams(params);
     ApkSignerTool.main(params);
@@ -228,9 +237,21 @@ public class ResourceApkBuilder {
       e.printStackTrace();
     }
     String[] argv = {
-        "jarsigner", "-sigalg", signatureAlgorithm, "-digestalg", config.digestAlg, "-keystore",
-        config.mSignatureFile.getAbsolutePath(), "-storepass", config.mStorePass, "-keypass", config.mKeyPass,
-        "-signedjar", signedApk.getAbsolutePath(), unSignedApk.getAbsolutePath(), config.mStoreAlias
+        "jarsigner",
+        "-sigalg",
+        signatureAlgorithm,
+        "-digestalg",
+        config.digestAlg,
+        "-keystore",
+        config.mSignatureFile.getAbsolutePath(),
+        "-storepass",
+        config.mStorePass,
+        "-keypass",
+        config.mKeyPass,
+        "-signedjar",
+        signedApk.getAbsolutePath(),
+        unSignedApk.getAbsolutePath(),
+        config.mStoreAlias
     };
     //dumpParams(argv);
     Utils.runExec(argv);
