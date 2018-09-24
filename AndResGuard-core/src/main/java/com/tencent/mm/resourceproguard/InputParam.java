@@ -23,6 +23,7 @@ public class InputParam {
   public final SignatureType signatureType;
   public final String finalApkBackupPath;
   public final String digestAlg;
+  public final int minSDKVersion;
 
   private InputParam(
       File mappingFile,
@@ -42,7 +43,9 @@ public class InputParam {
       String sevenZipPath,
       SignatureType signatureType,
       String finalApkBackupPath,
-      String digestAlg) {
+      String digestAlg,
+      int minSDKVersion) {
+
     this.mappingFile = mappingFile;
     this.use7zip = use7zip;
     this.useSign = useSign;
@@ -61,6 +64,7 @@ public class InputParam {
     this.signatureType = signatureType;
     this.finalApkBackupPath = finalApkBackupPath;
     this.digestAlg = digestAlg;
+    this.minSDKVersion = minSDKVersion;
   }
 
   public enum SignatureType {
@@ -86,6 +90,7 @@ public class InputParam {
     private SignatureType signatureType;
     private String finalApkBackupPath;
     private String digestAlg;
+    private int minSDKVersion;
 
     public Builder() {
       use7zip = false;
@@ -191,6 +196,11 @@ public class InputParam {
       return this;
     }
 
+    public Builder setMinSDKVersion(int minSDKVersion) {
+      this.minSDKVersion = minSDKVersion;
+      return this;
+    }
+
     public InputParam create() {
       return new InputParam(mappingFile,
           use7zip,
@@ -209,7 +219,8 @@ public class InputParam {
           sevenZipPath,
           signatureType,
           finalApkBackupPath,
-          digestAlg
+          digestAlg,
+          minSDKVersion
       );
     }
   }

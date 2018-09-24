@@ -5,6 +5,7 @@ apply plugin: 'io.fabric'
 buildscript {
   repositories {
     mavenLocal()
+    google()
     jcenter()
     maven { url 'https://maven.fabric.io/public' }
   }
@@ -127,7 +128,7 @@ android {
 
   defaultConfig {
     applicationId "andresguard.tencent.com.andresguard_example"
-    minSdkVersion 14
+    minSdkVersion 24
     targetSdkVersion 26
     versionCode 2
     versionName "1.1"

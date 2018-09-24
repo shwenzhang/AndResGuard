@@ -44,13 +44,22 @@ public class Main {
       loadConfigFromGradle(inputParam);
       this.mFinalApkBackPath = inputParam.finalApkBackupPath;
       Thread currentThread = Thread.currentThread();
-      System.out.printf("\n-->AndResGuard starting! Current thread# id: %d, name: %s\n",
+      System.out.printf(
+          "\n-->AndResGuard starting! Current thread# id: %d, name: %s\n",
           currentThread.getId(),
           currentThread.getName()
       );
-      File finalApkFile =
-          StringUtil.isPresent(inputParam.finalApkBackupPath) ? new File(inputParam.finalApkBackupPath) : null;
-      resourceProguard(new File(inputParam.outFolder), finalApkFile, inputParam.apkPath, inputParam.signatureType);
+      File finalApkFile = StringUtil.isPresent(inputParam.finalApkBackupPath) ?
+          new File(inputParam.finalApkBackupPath)
+          : null;
+
+      resourceProguard(
+          new File(inputParam.outFolder),
+          finalApkFile,
+          inputParam.apkPath,
+          inputParam.signatureType,
+          inputParam.minSDKVersion
+      );
       System.out.printf("<--AndResGuard Done! You can find the output in %s\n", mOutDir.getAbsolutePath());
       clean();
     }
@@ -71,6 +80,11 @@ public class Main {
 
   protected void resourceProguard(
       File outputDir, File outputFile, String apkFilePath, InputParam.SignatureType signatureType) {
+    resourceProguard(outputDir, outputFile, apkFilePath, signatureType, 14 /*default min sdk*/);
+  }
+
+  protected void resourceProguard(
+      File outputDir, File outputFile, String apkFilePath, InputParam.SignatureType signatureType, int minSDKVersoin) {
     File apkFile = new File(apkFilePath);
     if (!apkFile.exists()) {
       System.err.printf("The input apk %s does not exist", apkFile.getAbsolutePath());
@@ -81,7 +95,7 @@ public class Main {
       ApkDecoder decoder = new ApkDecoder(config, apkFile);
       /* 默认使用V1签名 */
       decodeResource(outputDir, decoder, apkFile);
-      buildApk(decoder, apkFile, outputFile, signatureType);
+      buildApk(decoder, apkFile, outputFile, signatureType, minSDKVersoin);
     } catch (Exception e) {
       e.printStackTrace();
       goToError();
@@ -100,7 +114,8 @@ public class Main {
   }
 
   private void buildApk(
-      ApkDecoder decoder, File apkFile, File outputFile, InputParam.SignatureType signatureType) throws Exception {
+      ApkDecoder decoder, File apkFile, File outputFile, InputParam.SignatureType signatureType, int minSDKVersion)
+      throws Exception {
     ResourceApkBuilder builder = new ResourceApkBuilder(config);
     String apkBasename = apkFile.getName();
     apkBasename = apkBasename.substring(0, apkBasename.indexOf(".apk"));
@@ -111,7 +126,7 @@ public class Main {
         builder.buildApkWithV1sign(decoder.getCompressData());
         break;
       case SchemaV2:
-        builder.buildApkWithV2sign(decoder.getCompressData());
+        builder.buildApkWithV2sign(decoder.getCompressData(), minSDKVersion);
         break;
     }
   }

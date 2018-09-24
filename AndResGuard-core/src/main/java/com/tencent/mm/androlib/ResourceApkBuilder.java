@@ -70,7 +70,7 @@ public class ResourceApkBuilder {
     }
   }
 
-  public void buildApkWithV2sign(HashMap<String, Integer> compressData) throws Exception {
+  public void buildApkWithV2sign(HashMap<String, Integer> compressData, int minSDKVersion) throws Exception {
     insureFileNameV2();
     generalUnsignApk(compressData);
     if (use7zApk(compressData, mUnSignedApk, m7ZipApk)) {
@@ -84,7 +84,7 @@ public class ResourceApkBuilder {
      * the app's signature is invalidated.
      * For this reason, use tools such as zipalign before signing your app using APK Signature Scheme v2, not after.
      **/
-    signApkV2(mAlignedApk, mSignedApk);
+    signApkV2(mAlignedApk, mSignedApk, minSDKVersion);
     copyFinalApkV2();
   }
 
@@ -200,23 +200,25 @@ public class ResourceApkBuilder {
     }
   }
 
-  private void signApkV2(File unSignedApk, File signedApk) throws Exception {
+  private void signApkV2(File unSignedApk, File signedApk, int minSDKVersion) throws Exception {
     if (config.mUseSignAPK) {
       System.out.printf("signing apk: %s\n", signedApk.getName());
-      signWithV2sign(unSignedApk, signedApk);
+      signWithV2sign(unSignedApk, signedApk, minSDKVersion);
       if (!signedApk.exists()) {
         throw new IOException("Can't Generate signed APK v2. Plz check your v2sign info is correct.");
       }
     }
   }
 
-  private void signWithV2sign(File unSignedApk, File signedApk) throws Exception {
+  private void signWithV2sign(File unSignedApk, File signedApk, int minSDKVersion) throws Exception {
     String[] params = new String[] {
         "sign",
         "--ks",
         config.mSignatureFile.getAbsolutePath(),
         "--ks-pass",
         "pass:" + config.mStorePass,
+        "--min-sdk-version",
+        String.valueOf(minSDKVersion),
         "--ks-key-alias",
         config.mStoreAlias,
         "--key-pass",
@@ -225,7 +227,7 @@ public class ResourceApkBuilder {
         signedApk.getAbsolutePath(),
         unSignedApk.getAbsolutePath()
     };
-    //dumpParams(params);
+    dumpParams(params);
     ApkSignerTool.main(params);
   }
 

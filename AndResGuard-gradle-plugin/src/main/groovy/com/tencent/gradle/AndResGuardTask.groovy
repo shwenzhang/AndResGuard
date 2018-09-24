@@ -41,7 +41,9 @@ class AndResGuardTask extends DefaultTask {
               variant.variantData.variantConfiguration.applicationId,
               variant.buildType.name,
               variant.productFlavors,
-              variantName)
+              variantName,
+              variant.mergedFlavor.minSdkVersion.apiLevel)
+
         }
       }
     }
@@ -90,24 +92,23 @@ class AndResGuardTask extends DefaultTask {
               0 &&
               config.flavors.get(0).name ==
               configuration.sourceFlavor)) {
-            RunGradleTask(config, configuration.sourceApk)
+            RunGradleTask(config, configuration.sourceApk, config.minSDKVersion)
           }
         }
       } else {
         if (config.file == null || !config.file.exists()) {
           throw new PathNotExist("Original APK not existed")
         }
-        RunGradleTask(config, config.file.getAbsolutePath())
+        RunGradleTask(config, config.file.getAbsolutePath(), config.minSDKVersion)
       }
     }
   }
 
-  def RunGradleTask(config, String absPath) {
+  def RunGradleTask(config, String absPath, int minSDKVersion) {
     def signConfig = config.signConfig
     String packageName = config.packageName
     ArrayList<String> whiteListFullName = new ArrayList<>()
-    ExecutorExtension sevenzip =
-        project.extensions.findByName("sevenzip") as ExecutorExtension
+    ExecutorExtension sevenzip = project.extensions.findByName("sevenzip") as ExecutorExtension
     configuration.whiteList.each { res ->
       if (res.startsWith("R")) {
         whiteListFullName.add(packageName + "." + res)
@@ -129,6 +130,7 @@ class AndResGuardTask extends DefaultTask {
         .setApkPath(absPath)
         .setUseSign(configuration.useSign)
         .setDigestAlg(configuration.digestalg)
+        .setMinSDKVersion(minSDKVersion)
 
     if (configuration.finalApkBackupPath != null && configuration.finalApkBackupPath.length() > 0) {
       builder.setFinalApkBackupPath(configuration.finalApkBackupPath)
