@@ -31,7 +31,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.14'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.15'
     }
 }
 
@@ -64,7 +64,7 @@ andResGuard {
         "*.gif",
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.14'
+        artifact = 'com.tencent.mm:SevenZip:1.2.15'
         //path = "/usr/local/bin/7za"
     }
 
@@ -92,7 +92,7 @@ The whiteList and compressFilePattern support wildcard include ? * +.
 ```
 
 ### WhiteList
-You need put all resource which access via `getIdentifier` into whiteList. 
+You need put all resource which access via `getIdentifier` into whiteList.
 **You can find more whitsList configs of third-part SDK in [white_list.md](doc/white_list.md). Welcome PR your configs which is not included in white_list.md**
 
 The whiteList only works on the specsName of resources, it wouldn't keep the path of resource.
