@@ -138,7 +138,7 @@ if you want to sign the apk, you should input following data, but if you want to
 
 Warning: if you use -signature mode。these setting in config.xml will be overlayed.
 
-## FQA
+## FAQ
 
 1. How to use compress flag
 If you use compess flag with *.png、*.gif、*.jpg，it will help you decrease the size of file `resources.arsc`
