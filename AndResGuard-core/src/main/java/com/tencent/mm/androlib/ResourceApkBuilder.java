@@ -1,10 +1,11 @@
 package com.tencent.mm.androlib;
 
-import apksigner.ApkSignerTool;
+import com.tencent.mm.androlib.res.decoder.ARSCDecoder;
 import com.tencent.mm.resourceproguard.Configuration;
 import com.tencent.mm.util.FileOperation;
 import com.tencent.mm.util.TypedValue;
 import com.tencent.mm.util.Utils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -13,6 +14,8 @@ import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import apksigner.ApkSignerTool;
 
 /**
  * @author shwenzhang
@@ -335,7 +338,7 @@ public class ResourceApkBuilder {
         FileOperation.getlist(destResDir),
         FileOperation.getlist(rawResDir)
     );
-    if (FileOperation.getlist(destResDir) != FileOperation.getlist(rawResDir)) {
+    if (FileOperation.getlist(destResDir) != (FileOperation.getlist(rawResDir) - ARSCDecoder.mResFilterCount)) {
       throw new IOException(String.format(
           "the file count of %s, and the file count of %s is not equal, there must be some problem\n",
           rawResDir.getAbsolutePath(),

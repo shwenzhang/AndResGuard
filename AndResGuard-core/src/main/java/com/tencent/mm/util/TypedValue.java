@@ -38,6 +38,8 @@ public class TypedValue {
 
   public static final String RES_MAPPING_FILE = "resource_mapping_";
 
+  public static final String RES_FILTER_MAPPING_FILE = "resource_filter_mapping_";
+
   public static final int ZIP_STORED = ZipEntry.STORED;
 
   public static final int ZIP_DEFLATED = ZipEntry.DEFLATED;

@@ -1,6 +1,14 @@
 package com.tencent.mm.resourceproguard;
 
 import com.tencent.mm.util.Utils;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,15 +20,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * @author shwenzhang
@@ -41,6 +44,7 @@ public class Configuration {
   private static final String ATTR_7ZIP = "seventzip";
   private static final String ATTR_KEEPROOT = "keeproot";
   private static final String ATTR_SIGNFILE = "metaname";
+  private static final String RES_FILTER = "resfilter";
   private static final String ATTR_SIGNFILE_PATH = "path";
   private static final String ATTR_SIGNFILE_KEYPASS = "keypass";
   private static final String ATTR_SIGNFILE_STOREPASS = "storepass";
@@ -53,6 +57,7 @@ public class Configuration {
   private final Pattern MAP_PATTERN = Pattern.compile("\\s+(.*)->(.*)");
   public boolean mUse7zip = true;
   public boolean mKeepRoot = false;
+  public boolean mResFilter = false;
   public String mMetaName = "META-INF";
   public boolean mUseSignAPK = false;
   public boolean mUseKeepMapping = false;
@@ -69,17 +74,17 @@ public class Configuration {
   /**
    * use by command line with xml config
    *
-   * @param config xml config file
-   * @param sevenzipPath 7zip bin file path
-   * @param zipAlignPath zipalign bin file path
-   * @param mappingFile mapping file
+   * @param config        xml config file
+   * @param sevenzipPath  7zip bin file path
+   * @param zipAlignPath  zipalign bin file path
+   * @param mappingFile   mapping file
    * @param signatureFile signature file
-   * @param keypass signature key password
-   * @param storealias signature store alias
-   * @param storepass signature store password
-   * @throws IOException io exception
+   * @param keypass       signature key password
+   * @param storealias    signature store alias
+   * @param storepass     signature store password
+   * @throws IOException                  io exception
    * @throws ParserConfigurationException parse exception
-   * @throws SAXException sax exception
+   * @throws SAXException                 sax exception
    */
   public Configuration(
       File config,
@@ -132,6 +137,7 @@ public class Configuration {
     }
     mUse7zip = param.use7zip;
     mKeepRoot = param.keepRoot;
+    mResFilter = param.resFilter;
     mMetaName = param.metaName;
     for (String item : param.compressFilePattern) {
       mUseCompress = true;
@@ -409,6 +415,10 @@ public class Configuration {
             case ATTR_KEEPROOT:
               mKeepRoot = vaule.equals("true");
               System.out.println("mKeepRoot " + mKeepRoot);
+              break;
+            case RES_FILTER:
+              mResFilter = vaule.equals("true");
+              System.out.println("mResFilter " + mResFilter);
               break;
             case ATTR_SIGNFILE:
               mMetaName = vaule.trim();

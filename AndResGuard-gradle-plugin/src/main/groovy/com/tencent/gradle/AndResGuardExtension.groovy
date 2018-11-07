@@ -13,6 +13,7 @@ class AndResGuardExtension {
   boolean useSign
   String metaName
   boolean keepRoot
+  boolean resFilter
   Iterable<String> whiteList
   Iterable<String> compressFilePattern
   String finalApkBackupPath
@@ -26,6 +27,7 @@ class AndResGuardExtension {
     useSign = false
     metaName = "META-INF"
     keepRoot = false
+    resFilter = false
     whiteList = []
     compressFilePattern = []
     mappingFile = null
@@ -60,6 +62,10 @@ class AndResGuardExtension {
     return keepRoot
   }
 
+  boolean getResFilter() {
+    return resFilter
+  }
+
   Iterable<String> getWhiteList() {
     return whiteList
   }
@@ -90,6 +96,7 @@ class AndResGuardExtension {
            | useSign = ${useSign}
            | metaName = ${metaName}
            | keepRoot = ${keepRoot}
+           | resFilter = ${resFilter}
            | whiteList = ${whiteList}
            | compressFilePattern = ${compressFilePattern}
            | finalApkBackupPath = ${finalApkBackupPath}

@@ -8,6 +8,7 @@ public class InputParam {
   public final File mappingFile;
   public final boolean use7zip;
   public final boolean keepRoot;
+  public final boolean resFilter;
   public final boolean useSign;
   public final String metaName;
   public final ArrayList<String> whiteList;
@@ -30,6 +31,7 @@ public class InputParam {
       boolean use7zip,
       boolean useSign,
       boolean keepRoot,
+      boolean resFilter,
       ArrayList<String> whiteList,
       ArrayList<String> compressFilePattern,
       String apkPath,
@@ -50,6 +52,7 @@ public class InputParam {
     this.use7zip = use7zip;
     this.useSign = useSign;
     this.keepRoot = keepRoot;
+    this.resFilter = resFilter;
     this.whiteList = whiteList;
     this.compressFilePattern = compressFilePattern;
     this.apkPath = apkPath;
@@ -76,6 +79,7 @@ public class InputParam {
     private boolean use7zip;
     private boolean useSign;
     private boolean keepRoot;
+    private boolean resFilter;
     private ArrayList<String> whiteList;
     private ArrayList<String> compressFilePattern;
     private String apkPath;
@@ -115,6 +119,11 @@ public class InputParam {
 
     public Builder setKeepRoot(boolean keepRoot) {
       this.keepRoot = keepRoot;
+      return this;
+    }
+
+    public Builder setResFilter(boolean resFilter) {
+      this.resFilter = resFilter;
       return this;
     }
 
@@ -206,6 +215,7 @@ public class InputParam {
           use7zip,
           useSign,
           keepRoot,
+          resFilter,
           whiteList,
           compressFilePattern,
           apkPath,

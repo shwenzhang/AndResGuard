@@ -30,6 +30,7 @@ import com.tencent.mm.util.ExtDataOutput;
 import com.tencent.mm.util.FileOperation;
 import com.tencent.mm.util.TypedValue;
 import com.tencent.mm.util.Utils;
+
 import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.File;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,9 +51,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
+import apksigner.Md5Util;
 
 public class ARSCDecoder {
 
@@ -62,6 +67,7 @@ public class ARSCDecoder {
   private static final int KNOWN_CONFIG_BYTES = 56;
 
   public static Map<Integer, String> mTableStringsResguard = new LinkedHashMap<>();
+  public static int mResFilterCount = 0;
   private final Map<String, String> mOldFileName;
   private final Map<String, Integer> mCurSpecNameToPos;
   private final HashSet<String> mShouldResguardTypeSet;
@@ -81,9 +87,12 @@ public class ARSCDecoder {
   private int mCurrTypeID = -1;
   private int mCurEntryID = -1;
   private int mCurPackageID = -1;
+  private long mResFilterTotalSize = 0L;
   private ResguardStringBuilder mResguardBuilder;
   private boolean mShouldResguardForType = false;
   private Writer mMappingWriter;
+  private Writer mResFilterMappingWriter;
+  private List<ResFilterInfo> mResFilters = new ArrayList<>();
 
   private ARSCDecoder(InputStream arscStream, ApkDecoder decoder) throws AndrolibException, IOException {
     mOldFileName = new LinkedHashMap<>();
@@ -126,6 +135,9 @@ public class ARSCDecoder {
 
   private void proguardFileName() throws IOException, AndrolibException {
     mMappingWriter = new BufferedWriter(new FileWriter(mApkDecoder.getResMappingFile(), false));
+    mResFilterMappingWriter = new BufferedWriter(new FileWriter(mApkDecoder.getResFilterMappingFile(), false));
+    mResFilterMappingWriter.write("res filter path mapping:\n");
+    mResFilterMappingWriter.flush();
 
     mResguardBuilder = new ResguardStringBuilder();
     mResguardBuilder.reset(null);
@@ -194,8 +206,11 @@ public class ARSCDecoder {
     for (int i = 0; i < packageCount; i++) {
       packages[i] = readPackage();
     }
-    System.out.printf("resources mapping file %s done\n", mApkDecoder.getResMappingFile().getAbsolutePath());
     mMappingWriter.close();
+    System.out.printf("resources mapping file %s done\n", mApkDecoder.getResMappingFile().getAbsolutePath());
+    generalFilterEnd( mResFilterCount, mResFilterTotalSize);
+    mResFilterMappingWriter.close();
+    System.out.printf("resources filter mapping file %s done\n", mApkDecoder.getResFilterMappingFile().getAbsolutePath());
     return packages;
   }
 
@@ -249,6 +264,52 @@ public class ARSCDecoder {
                          + replace);
     mMappingWriter.write("\n");
     mMappingWriter.flush();
+  }
+
+  private void generalFilterResIDMapping(
+      String originalFile, String original, String replaceFile, String replace, long fileLen) throws IOException {
+    mResFilterMappingWriter.write("    "
+                          + originalFile
+                          + " : "
+                          + original
+                          + " -> "
+                          + replaceFile
+                          + " : "
+                          + replace
+                          + " (size:"
+                          + getNetFileSizeDescription(fileLen)
+                          + ")");
+    mResFilterMappingWriter.write("\n");
+    mResFilterMappingWriter.flush();
+  }
+
+  private void generalFilterEnd(int count,long totalSize) throws IOException {
+    mResFilterMappingWriter.write(
+            "removed: count:" + count
+                    + ", totalSize:" + getNetFileSizeDescription(totalSize));
+    mResFilterMappingWriter.flush();
+  }
+
+  private static String getNetFileSizeDescription(long size) {
+    StringBuilder bytes = new StringBuilder();
+    DecimalFormat format = new DecimalFormat("###.0");
+    if (size >= 1024 * 1024 * 1024) {
+      double i = (size / (1024.0 * 1024.0 * 1024.0));
+      bytes.append(format.format(i)).append("GB");
+    } else if (size >= 1024 * 1024) {
+      double i = (size / (1024.0 * 1024.0));
+      bytes.append(format.format(i)).append("MB");
+    } else if (size >= 1024) {
+      double i = (size / (1024.0));
+      bytes.append(format.format(i)).append("KB");
+    } else {
+      if (size <= 0) {
+        bytes.append("0B");
+      } else {
+        bytes.append((int) size).append("B");
+      }
+    }
+    return bytes.toString();
   }
 
   private void reWriteTable() throws AndrolibException, IOException {
@@ -693,6 +754,39 @@ public class ARSCDecoder {
         File resRawFile = new File(mApkDecoder.getOutTempDir().getAbsolutePath() + File.separator + compatibaleraw);
         File resDestFile = new File(mApkDecoder.getOutDir().getAbsolutePath() + File.separator + compatibaleresult);
 
+        //资源过滤，过滤重复的资源，减少apk的体积
+        boolean resFilter = mApkDecoder.getConfig().mResFilter;
+        ResFilterInfo filterInfo = null;
+        if (resFilter) {
+          for (ResFilterInfo resFilterInfo : mResFilters) {
+            if (resFilterInfo.fileSize == resRawFile.length()) {
+              if (resFilterInfo.md5 == null) {
+                resFilterInfo.md5 = Md5Util.getMD5Str(new File(resFilterInfo.filePath));
+              }
+              String resRawFileMd5 = Md5Util.getMD5Str(resRawFile);
+              if (Objects.equals(resFilterInfo.md5, resRawFileMd5)) {
+                filterInfo = resFilterInfo;
+                filterInfo.md5 = resRawFileMd5;
+                break;
+              }
+            }
+          }
+          if (filterInfo != null) {
+            generalFilterResIDMapping(compatibaleraw, result, filterInfo.originalName, filterInfo.fileName, resRawFile.length());
+            resDestFile = new File(filterInfo.filePath);
+            result = filterInfo.fileName;
+            mResFilterCount++;
+            mResFilterTotalSize += resRawFile.length();
+          } else {
+            ResFilterInfo info = new ResFilterInfo();
+            info.fileName = result;
+            info.filePath = resDestFile.getAbsolutePath();
+            info.originalName = compatibaleraw;
+            info.fileSize = resRawFile.length();
+            mResFilters.add(info);
+          }
+        }
+
         //这里用的是linux的分隔符
         HashMap<String, Integer> compressData = mApkDecoder.getCompressData();
         if (compressData.containsKey(raw)) {
@@ -705,12 +799,14 @@ public class ARSCDecoder {
           System.err.printf("can not find res file, you delete it? path: resFile=%s\n", resRawFile.getAbsolutePath());
           return;
         } else {
-          if (resDestFile.exists()) {
+          if (!resFilter && resDestFile.exists()) {
             throw new AndrolibException(String.format("res dest file is already  found: destFile=%s",
                 resDestFile.getAbsolutePath()
             ));
           }
-          FileOperation.copyFileUsingStream(resRawFile, resDestFile);
+          if (filterInfo == null) {
+            FileOperation.copyFileUsingStream(resRawFile, resDestFile);
+          }
           //already copied
           mApkDecoder.removeCopiedResFile(resRawFile.toPath());
           mTableStringsResguard.put(data, result);
@@ -742,8 +838,8 @@ public class ARSCDecoder {
     short mcc = mIn.readShort();
     short mnc = mIn.readShort();
 
-    char[] language = new char[] { (char) mIn.readByte(), (char) mIn.readByte() };
-    char[] country = new char[] { (char) mIn.readByte(), (char) mIn.readByte() };
+    char[] language = new char[]{(char) mIn.readByte(), (char) mIn.readByte()};
+    char[] country = new char[]{(char) mIn.readByte(), (char) mIn.readByte()};
 
     byte orientation = mIn.readByte();
     byte touchscreen = mIn.readByte();
@@ -941,6 +1037,14 @@ public class ARSCDecoder {
       this.offset = offset;
       this.count = count;
     }
+  }
+
+  private class ResFilterInfo {
+    String fileName;
+    String filePath;
+    String originalName;
+    String md5;
+    long fileSize;
   }
 
   private class ResguardStringBuilder {
