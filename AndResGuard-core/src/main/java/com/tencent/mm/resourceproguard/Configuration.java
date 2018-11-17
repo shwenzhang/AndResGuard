@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Matcher;
@@ -46,6 +47,8 @@ public class Configuration {
   private static final String ATTR_SIGNFILE_STOREPASS = "storepass";
   private static final String ATTR_SIGNFILE_ALIAS = "alias";
   protected static final String BLACKLIST_ISSUE = "blacklist";
+  protected static final String WHITELIST_PATH_ISSUE = "whitelist_path";
+  protected static final String WHITELIST_PATH_PREFIX = "prefix";
   public final HashMap<String, HashMap<String, HashSet<Pattern>>> mBlackList;
   public final HashMap<String, HashMap<String, HashSet<Pattern>>> mWhiteList;
   public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping;
@@ -216,6 +219,13 @@ public class Configuration {
               readBlackListFromXml(node);
             }
             break;
+          case WHITELIST_PATH_ISSUE:
+            String pubPrefix = element.getAttribute(WHITELIST_PATH_PREFIX);
+
+            if (active) {
+              readWhiteListFiles(node, pubPrefix);
+            }
+            break;
           case WHITELIST_ISSUE:
             mUseWhiteList = active;
             if (mUseWhiteList) {
@@ -251,6 +261,61 @@ public class Configuration {
           input.close();
         } catch (IOException e) {
           System.exit(-1);
+        }
+      }
+    }
+  }
+  private void readWhiteListFiles(Node node, String prefix)
+          throws IOException, ParserConfigurationException, SAXException {
+    NodeList childNodes = node.getChildNodes();
+    ArrayList<File> fileList = new ArrayList<>();
+    if (childNodes.getLength() > 0) {
+      for (int j = 0, n = childNodes.getLength(); j < n; j++) {
+        Node child = childNodes.item(j);
+        if (child.getNodeType() == Node.ELEMENT_NODE) {
+          Element check = (Element) child;
+          String value = check.getAttribute(ATTR_VALUE);
+          if (!"/".equals(File.separator)) {
+            value  = value.replace(File.separator, "/");
+          }
+          fileList.add(new File(value));
+        }
+      }
+    }
+
+    addFileItemToWhiteList(prefix, fileList);
+  }
+
+  private void addFileItemToWhiteList(String prefix, ArrayList<File> fileList) throws IOException,
+          ParserConfigurationException, SAXException {
+
+    for (File file : fileList) {
+      BufferedInputStream input = null;
+      try {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        input = new BufferedInputStream(new FileInputStream(file));
+        InputSource source = new InputSource(input);
+        factory.setNamespaceAware(false);
+        factory.setValidating(false);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(source);
+        NodeList publicItems = document.getElementsByTagName("public");
+        for (int i = 0, count = publicItems.getLength(); i < count; i++) {
+          Node node = publicItems.item(i);
+
+          Element element = (Element) node;
+          String type = element.getAttribute("type");
+          String name = element.getAttribute("name");
+          String res = prefix + type + "." + name;
+          addWhiteList(res);
+        }
+      } finally {
+        if (input != null) {
+          try {
+            input.close();
+          } catch (IOException e) {
+            System.exit(-1);
+          }
         }
       }
     }
