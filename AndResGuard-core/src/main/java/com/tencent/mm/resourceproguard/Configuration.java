@@ -111,6 +111,8 @@ public class Configuration {
       setSignData(signatureFile, keypass, storealias, storepass);
     }
     if (mappingFile != null) {
+      // fix "-mapping" cmd not work
+      mUseKeepMapping = true;
       setKeepMappingData(mappingFile);
     }
     // setSignData and setKeepMappingData must before readXmlConfig or it will read
