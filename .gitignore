@@ -20,7 +20,7 @@ build/
 /*/*.iml
 .idea
 /*/.idea/
-
+*.yml
 # Local configuration file (sdk path, etc)
 local.properties
 

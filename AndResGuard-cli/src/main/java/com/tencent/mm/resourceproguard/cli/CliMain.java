@@ -30,6 +30,7 @@ public class CliMain extends Main {
   private static final String ARG_SIGNATURE_TYPE = "-signatureType";
   private static final String VALUE_SIGNATURE_TYPE_V1 = "v1";
   private static final String VALUE_SIGNATURE_TYPE_V2 = "v2";
+  private static final String ARG_TYPE = "-type";
 
   public static void main(String[] args) {
     mBeginTime = System.currentTimeMillis();
@@ -220,6 +221,7 @@ public class CliMain extends Main {
       final File outputFile = readArgs.getOutputFile();
       final File finalApkFile = readArgs.getFinalApkFile();
       final String apkFileName = readArgs.getApkFileName();
+      final String type = readArgs.getType();
       final InputParam.SignatureType signatureType = readArgs.getSignatureType();
       loadConfigFromXml(configFile, signatureFile, mappingFile, keypass, storealias, storepass);
 
@@ -240,7 +242,7 @@ public class CliMain extends Main {
         return;
       }
       System.out.printf("[AndResGuard] begin: %s, %s, %s\n", outputFile, finalApkFile, apkFileName);
-      resourceProguard(outputFile, finalApkFile, apkFileName, signatureType);
+      resourceProguard(type, outputFile, finalApkFile, apkFileName, signatureType);
       System.out.printf("[AndResGuard] done, total time cost: %fs\n", diffTimeFromBegin());
       System.out.printf("[AndResGuard] done, you can go to file to find the output %s\n", mOutDir.getAbsolutePath());
       clean();
@@ -303,6 +305,7 @@ public class CliMain extends Main {
     private String storepass;
     private InputParam.SignatureType signatureType = InputParam.SignatureType.SchemaV1;
     private String signedFile;
+    private String type;
 
     public ReadArgs(String[] args) {
       this.args = args;
@@ -350,6 +353,10 @@ public class CliMain extends Main {
 
     public String getSignedFile() {
       return signedFile;
+    }
+
+    public String getType() {
+      return type;
     }
 
     public ReadArgs invoke() {
@@ -467,6 +474,8 @@ public class CliMain extends Main {
             goToError();
           }
           signedFile = args[++index];
+        } else if (arg.equals(ARG_TYPE)) {
+          type = args[++index];
         } else {
           apkFileName = arg;
         }
