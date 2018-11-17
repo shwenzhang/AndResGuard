@@ -45,6 +45,8 @@ public class Configuration {
   private static final String ATTR_SIGNFILE_KEYPASS = "keypass";
   private static final String ATTR_SIGNFILE_STOREPASS = "storepass";
   private static final String ATTR_SIGNFILE_ALIAS = "alias";
+  protected static final String BLACKLIST_ISSUE = "blacklist";
+  public final HashMap<String, HashMap<String, HashSet<Pattern>>> mBlackList;
   public final HashMap<String, HashMap<String, HashSet<Pattern>>> mWhiteList;
   public final HashMap<String, HashMap<String, HashMap<String, String>>> mOldResMapping;
   public final HashMap<String, String> mOldFileMapping;
@@ -63,6 +65,7 @@ public class Configuration {
   public boolean mUseKeepMapping = false;
   public File mSignatureFile;
   public File mOldMappingFile;
+  public boolean mUseBlackList;
   public boolean mUseWhiteList;
   public boolean mUseCompress;
   public String mKeyPass;
@@ -95,6 +98,7 @@ public class Configuration {
       String keypass,
       String storealias,
       String storepass) throws IOException, ParserConfigurationException, SAXException {
+    mBlackList = new HashMap<>();
     mWhiteList = new HashMap<>();
     mOldResMapping = new HashMap<>();
     mOldFileMapping = new HashMap<>();
@@ -119,6 +123,7 @@ public class Configuration {
    * @throws IOException io exception
    */
   public Configuration(InputParam param) throws IOException {
+    mBlackList = new HashMap<>();
     mWhiteList = new HashMap<>();
     mOldResMapping = new HashMap<>();
     mOldFileMapping = new HashMap<>();
@@ -205,6 +210,12 @@ public class Configuration {
           case PROPERTY_ISSUE:
             readPropertyFromXml(node);
             break;
+          case BLACKLIST_ISSUE:
+            mUseBlackList = active;
+            if (mUseBlackList) {
+              readBlackListFromXml(node);
+            }
+            break;
           case WHITELIST_ISSUE:
             mUseWhiteList = active;
             if (mUseWhiteList) {
@@ -240,6 +251,20 @@ public class Configuration {
           input.close();
         } catch (IOException e) {
           System.exit(-1);
+        }
+      }
+    }
+  }
+
+  private void readBlackListFromXml(Node node) throws IOException {
+    NodeList childNodes = node.getChildNodes();
+    if (childNodes.getLength() > 0) {
+      for (int j = 0, n = childNodes.getLength(); j < n; j++) {
+        Node child = childNodes.item(j);
+        if (child.getNodeType() == Node.ELEMENT_NODE) {
+          Element check = (Element) child;
+          String value = check.getAttribute(ATTR_VALUE);
+          addPatternList(mBlackList, value);
         }
       }
     }

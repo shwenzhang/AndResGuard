@@ -511,10 +511,20 @@ public class ARSCDecoder {
         Configuration config = mApkDecoder.getConfig();
         boolean isWhiteList = false;
         if (config.mUseWhiteList) {
-          isWhiteList = dealWithWhiteList(specNamesId, config);
+          isWhiteList = isInList(specNamesId, config.mWhiteList);
         }
 
-        if (!isWhiteList) {
+        // if mUseBlackList == true
+        // names that are not in mBlackList will are added to the white list
+        if (config.mUseBlackList) {
+          if (!isWhiteList) {
+            isWhiteList = !isInList(specNamesId, config.mBlackList);
+          }
+        }
+
+        if (isWhiteList) {
+          dealWithWhiteList(specNamesId);
+        } else {
           dealWithNonWhiteList(specNamesId, config);
         }
       }
@@ -528,16 +538,17 @@ public class ARSCDecoder {
   }
 
   /**
-   * deal with whitelist
+   * Determine whether resource ID is in List.
    *
-   * @param specNamesId resource spec name id
-   * @param config {@Configuration} AndResGuard configuration
-   * @return isWhiteList whether this resource is processed by whitelist
+   * @param specNamesId resource ID
+   * @param list resource list
+   *
+   * @return
    */
-  private boolean dealWithWhiteList(int specNamesId, Configuration config) throws AndrolibException {
+  private boolean isInList(int specNamesId, HashMap<String, HashMap<String, HashSet<Pattern>>> list) {
     String packName = mPkg.getName();
-    if (config.mWhiteList.containsKey(packName)) {
-      HashMap<String, HashSet<Pattern>> typeMaps = config.mWhiteList.get(packName);
+    if (list.containsKey(packName)) {
+      HashMap<String, HashSet<Pattern>> typeMaps = list.get(packName);
       String typeName = mType.getName();
       if (typeMaps.containsKey(typeName)) {
         String specName = mSpecNames.get(specNamesId).toString();
@@ -545,20 +556,25 @@ public class ARSCDecoder {
         for (Iterator<Pattern> it = patterns.iterator(); it.hasNext(); ) {
           Pattern p = it.next();
           if (p.matcher(specName).matches()) {
-            if (DEBUG) {
-              System.out.printf("[match] matcher %s ,typeName %s, specName :%s\n", p.pattern(), typeName, specName);
-            }
-            mPkg.putSpecNamesReplace(mResId, specName);
-            mPkg.putSpecNamesblock(specName);
-            mResguardBuilder.setInWhiteList(mCurEntryID);
-
-            mType.putSpecResguardName(specName);
             return true;
           }
         }
       }
     }
     return false;
+  }
+
+  /**
+   * deal with whitelist
+   *
+   * @param specNamesId resource spec name id
+   */
+  private void dealWithWhiteList(int specNamesId) throws AndrolibException {
+    String specName = mSpecNames.get(specNamesId).toString();
+    mPkg.putSpecNamesReplace(mResId, specName);
+    mPkg.putSpecNamesblock(specName);
+    mResguardBuilder.setInWhiteList(mCurEntryID);
+    mType.putSpecResguardName(specName);
   }
 
   private void dealWithNonWhiteList(int specNamesId, Configuration config) throws AndrolibException, IOException {
