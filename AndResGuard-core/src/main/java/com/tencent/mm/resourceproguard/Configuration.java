@@ -51,6 +51,11 @@ public class Configuration {
   public final HashSet<Pattern> mCompressPatterns;
   public final String digestAlg;
   private final Pattern MAP_PATTERN = Pattern.compile("\\s+(.*)->(.*)");
+  // all resource type name
+  private final String[] ARRAY_RES_TYPE = new String[] {"drawable",
+            "layout", "color", "string", "id", "dimen", "integer"
+          ,"bool","array","menu", "anim","animator","attr","interpolator"
+          ,"style","xml"};
   public boolean mUse7zip = true;
   public boolean mKeepRoot = false;
   public String mMetaName = "META-INF";
@@ -255,6 +260,10 @@ public class Configuration {
   }
 
   private void addWhiteList(String item) throws IOException {
+    addPatternList(mWhiteList, item);
+  }
+
+  private void addPatternList(HashMap<String, HashMap<String, HashSet<Pattern>>> map, String item) throws IOException {
     if (item.length() == 0) {
       throw new IOException("Invalid config file: Missing required attribute " + ATTR_VALUE);
     }
@@ -275,25 +284,41 @@ public class Configuration {
     String name = item.substring(nextDot + 1);
     HashMap<String, HashSet<Pattern>> typeMap;
 
-    if (mWhiteList.containsKey(packageName)) {
-      typeMap = mWhiteList.get(packageName);
+    if (map.containsKey(packageName)) {
+      typeMap = map.get(packageName);
     } else {
       typeMap = new HashMap<>();
     }
+    name = Utils.convertToPatternString(name);
+    Pattern patternName = Pattern.compile(name);
 
+    // support resource type name using regular
+    typeName = Utils.convertToPatternString(typeName);
+    Pattern patternType = Pattern.compile(typeName);
+    boolean isMatch = false;
+    for (String type : ARRAY_RES_TYPE) {
+      Matcher mat = patternType.matcher(type);
+      if (mat.find()) {
+        addPatternToMap(typeMap, type, patternName);
+        isMatch = true;
+      }
+    }
+    // unknown tye
+    if (!isMatch) {
+      addPatternToMap(typeMap, typeName, patternName);
+    }
+    map.put(packageName, typeMap);
+  }
+
+  private void addPatternToMap(HashMap<String, HashSet<Pattern>> typeMap, String typeName, Pattern pattern) {
     HashSet<Pattern> patterns;
     if (typeMap.containsKey(typeName)) {
       patterns = typeMap.get(typeName);
     } else {
       patterns = new HashSet<>();
+      typeMap.put(typeName, patterns);
     }
-
-    name = Utils.convertToPatternString(name);
-    Pattern pattern = Pattern.compile(name);
     patterns.add(pattern);
-    typeMap.put(typeName, patterns);
-    System.out.println(String.format("convertToPatternString typeName %s format %s", typeName, name));
-    mWhiteList.put(packageName, typeMap);
   }
 
   private void readSignFromXml(Node node) throws IOException {
