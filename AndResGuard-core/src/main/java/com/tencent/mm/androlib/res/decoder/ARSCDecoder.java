@@ -19,7 +19,6 @@ package com.tencent.mm.androlib.res.decoder;
 
 import com.mindprod.ledatastream.LEDataInputStream;
 import com.mindprod.ledatastream.LEDataOutputStream;
-import com.sun.istack.internal.Nullable;
 import com.tencent.mm.androlib.AndrolibException;
 import com.tencent.mm.androlib.ApkDecoder;
 import com.tencent.mm.androlib.res.data.ResPackage;
@@ -793,7 +792,6 @@ public class ARSCDecoder {
   /**
    * resource filtering, filtering duplicate resources, reducing the volume of apk
    */
-  @Nullable
   private MergeDuplicatedResInfo mergeDuplicated(File resRawFile, File resDestFile, String compatibaleraw, String result) throws IOException {
     MergeDuplicatedResInfo filterInfo = null;
     for (MergeDuplicatedResInfo mergeDuplicatedResInfo : mMergeDuplicatedResInfos) {
