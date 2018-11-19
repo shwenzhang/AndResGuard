@@ -32,16 +32,15 @@ class AndResGuardTask extends DefaultTask {
     android.applicationVariants.all { variant ->
       variant.outputs.each { output ->
         // remove "resguard"
-        String variantName = this.name["resguard".length()..-1]
-        if (variantName.equalsIgnoreCase(variant.buildType.name as String) || isTargetFlavor(variantName,
-            variant.productFlavors, variant.buildType.name) ||
-            variantName.equalsIgnoreCase(AndResGuardPlugin.USE_APK_TASK_NAME)) {
+        String taskVariantName = this.name["resguard".length()..-1]
+        if (taskVariantName.equalsIgnoreCase(variant.buildType.name as String) || isTargetFlavor(taskVariantName, variant) ||
+                taskVariantName.equalsIgnoreCase(AndResGuardPlugin.USE_APK_TASK_NAME)) {
           buildConfigs << new BuildInfo(output.outputFile,
               variant.variantData.variantConfiguration.signingConfig,
               variant.variantData.variantConfiguration.applicationId,
               variant.buildType.name,
               variant.productFlavors,
-              variantName,
+              taskVariantName,
               variant.mergedFlavor.minSdkVersion.apiLevel)
 
         }
@@ -52,12 +51,18 @@ class AndResGuardTask extends DefaultTask {
     }
   }
 
-  static isTargetFlavor(variantName, flavors, buildType) {
-    if (flavors.size() > 0) {
-      String flavor = flavors.get(0).name
-      return variantName.equalsIgnoreCase(flavor) || variantName.equalsIgnoreCase([flavor, buildType].join(""))
+  static isTargetFlavor(taskVariantName, variant) {
+    def isTarget = true
+    def variantName = variant.name.capitalize()
+    String[] taskVariantNames = taskVariantName.split("(?=\\p{Upper})")
+
+    taskVariantNames.each { name ->
+      if (!variantName.contains(name)) {
+        isTarget = false
+      }
     }
-    return false
+
+    return isTarget
   }
 
   static useFolder(file) {
