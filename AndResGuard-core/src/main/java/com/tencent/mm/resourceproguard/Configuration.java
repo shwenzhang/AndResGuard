@@ -1,14 +1,6 @@
 package com.tencent.mm.resourceproguard;
 
 import com.tencent.mm.util.Utils;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,10 +12,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * @author shwenzhang
@@ -44,7 +41,7 @@ public class Configuration {
   private static final String ATTR_7ZIP = "seventzip";
   private static final String ATTR_KEEPROOT = "keeproot";
   private static final String ATTR_SIGNFILE = "metaname";
-  private static final String RES_FILTER = "resfilter";
+  private static final String MERGE_DUPLICATED_RES = "mergeDuplicatedRes";
   private static final String ATTR_SIGNFILE_PATH = "path";
   private static final String ATTR_SIGNFILE_KEYPASS = "keypass";
   private static final String ATTR_SIGNFILE_STOREPASS = "storepass";
@@ -57,7 +54,7 @@ public class Configuration {
   private final Pattern MAP_PATTERN = Pattern.compile("\\s+(.*)->(.*)");
   public boolean mUse7zip = true;
   public boolean mKeepRoot = false;
-  public boolean mResFilter = false;
+  public boolean mMergeDuplicatedRes = false;
   public String mMetaName = "META-INF";
   public boolean mUseSignAPK = false;
   public boolean mUseKeepMapping = false;
@@ -137,7 +134,7 @@ public class Configuration {
     }
     mUse7zip = param.use7zip;
     mKeepRoot = param.keepRoot;
-    mResFilter = param.resFilter;
+    mMergeDuplicatedRes = param.mergeDuplicatedRes;
     mMetaName = param.metaName;
     for (String item : param.compressFilePattern) {
       mUseCompress = true;
@@ -416,9 +413,9 @@ public class Configuration {
               mKeepRoot = vaule.equals("true");
               System.out.println("mKeepRoot " + mKeepRoot);
               break;
-            case RES_FILTER:
-              mResFilter = vaule.equals("true");
-              System.out.println("mResFilter " + mResFilter);
+            case MERGE_DUPLICATED_RES:
+              mMergeDuplicatedRes = vaule.equals("true");
+              System.out.println("mMergeDuplicatedRes " + mMergeDuplicatedRes);
               break;
             case ATTR_SIGNFILE:
               mMetaName = vaule.trim();

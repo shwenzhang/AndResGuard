@@ -1,10 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-  compileSdkVersion 27
+  compileSdkVersion 26
+  buildToolsVersion '28.0.1'
   defaultConfig {
     minSdkVersion 14
-    targetSdkVersion 27
+    targetSdkVersion 26
     versionCode 1
     versionName "1.0"
 
@@ -23,7 +24,7 @@ dependencies {
   androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
     exclude group: 'com.android.support', module: 'support-annotations'
   })
-  api 'com.android.support:appcompat-v7:27.1.1'
-  api 'com.android.support:design:27.1.1'
+  api 'com.android.support:appcompat-v7:26.1.0'
+  api 'com.android.support:design:26.1.0'
   testImplementation 'junit:junit:4.12'
 }

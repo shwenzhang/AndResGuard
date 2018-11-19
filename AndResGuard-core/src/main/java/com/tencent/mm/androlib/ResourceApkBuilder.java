@@ -338,7 +338,7 @@ public class ResourceApkBuilder {
         FileOperation.getlist(destResDir),
         FileOperation.getlist(rawResDir)
     );
-    if (FileOperation.getlist(destResDir) != (FileOperation.getlist(rawResDir) - ARSCDecoder.mResFilterCount)) {
+    if (FileOperation.getlist(destResDir) != (FileOperation.getlist(rawResDir) - ARSCDecoder.mMergeDuplicatedResCount)) {
       throw new IOException(String.format(
           "the file count of %s, and the file count of %s is not equal, there must be some problem\n",
           rawResDir.getAbsolutePath(),
