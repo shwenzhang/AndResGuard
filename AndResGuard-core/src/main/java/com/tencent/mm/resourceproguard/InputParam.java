@@ -215,7 +215,7 @@ public class InputParam {
           use7zip,
           useSign,
           keepRoot,
-              mergeDuplicatedRes,
+          mergeDuplicatedRes,
           whiteList,
           compressFilePattern,
           apkPath,

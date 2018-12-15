@@ -90,7 +90,7 @@ public class ARSCDecoder {
   private boolean mShouldResguardForType = false;
   private Writer mMappingWriter;
   private Writer mMergeDuplicatedResMappingWriter;
-  private List<MergeDuplicatedResInfo> mMergeDuplicatedResInfos = new ArrayList<>();
+  private Map<Long,MergeDuplicatedResInfo> mMergeDuplicatedResInfoData = new HashMap<>();
 
   private ARSCDecoder(InputStream arscStream, ApkDecoder decoder) throws AndrolibException, IOException {
     mOldFileName = new LinkedHashMap<>();
@@ -794,17 +794,15 @@ public class ARSCDecoder {
    */
   private MergeDuplicatedResInfo mergeDuplicated(File resRawFile, File resDestFile, String compatibaleraw, String result) throws IOException {
     MergeDuplicatedResInfo filterInfo = null;
-    for (MergeDuplicatedResInfo mergeDuplicatedResInfo : mMergeDuplicatedResInfos) {
-      if (mergeDuplicatedResInfo.fileSize == resRawFile.length()) {
-        if (mergeDuplicatedResInfo.md5 == null) {
-          mergeDuplicatedResInfo.md5 = Md5Util.getMD5Str(new File(mergeDuplicatedResInfo.filePath));
-        }
-        String resRawFileMd5 = Md5Util.getMD5Str(resRawFile);
-        if (resRawFileMd5 != null && resRawFileMd5.equals(mergeDuplicatedResInfo.md5)) {
-          filterInfo = mergeDuplicatedResInfo;
-          filterInfo.md5 = resRawFileMd5;
-          break;
-        }
+    if (mMergeDuplicatedResInfoData.containsKey(resRawFile.length())) {
+      MergeDuplicatedResInfo mergeDuplicatedResInfo = mMergeDuplicatedResInfoData.get(resRawFile.length());
+      if (mergeDuplicatedResInfo.md5 == null) {
+        mergeDuplicatedResInfo.md5 = Md5Util.getMD5Str(new File(mergeDuplicatedResInfo.filePath));
+      }
+      String resRawFileMd5 = Md5Util.getMD5Str(resRawFile);
+      if (resRawFileMd5 != null && resRawFileMd5.equals(mergeDuplicatedResInfo.md5)) {
+        filterInfo = mergeDuplicatedResInfo;
+        filterInfo.md5 = resRawFileMd5;
       }
     }
     if (filterInfo != null) {
@@ -816,13 +814,11 @@ public class ARSCDecoder {
          .setFileName(result)
          .setFilePath( resDestFile.getAbsolutePath())
          .setOriginalName(compatibaleraw)
-         .setFileSize( resRawFile.length())
          .create();
       info.fileName = result;
       info.filePath = resDestFile.getAbsolutePath();
       info.originalName = compatibaleraw;
-      info.fileSize = resRawFile.length();
-      mMergeDuplicatedResInfos.add(info);
+      mMergeDuplicatedResInfoData.put(resRawFile.length(), info);
     }
     return filterInfo;
   }
@@ -1056,14 +1052,12 @@ public class ARSCDecoder {
     private String filePath;
     private String originalName;
     private String md5;
-    private long fileSize;
 
-    private MergeDuplicatedResInfo(String fileName, String filePath, String originalName, String md5, long fileSize) {
+    private MergeDuplicatedResInfo(String fileName, String filePath, String originalName, String md5) {
       this.fileName = fileName;
       this.filePath = filePath;
       this.originalName = originalName;
       this.md5 = md5;
-      this.fileSize = fileSize;
     }
 
     static class Builder {
@@ -1071,7 +1065,6 @@ public class ARSCDecoder {
       private String filePath;
       private String originalName;
       private String md5;
-      private long fileSize;
 
       Builder setFileName(String fileName) {
         this.fileName = fileName;
@@ -1080,11 +1073,6 @@ public class ARSCDecoder {
 
       Builder setFilePath(String filePath) {
         this.filePath = filePath;
-        return this;
-      }
-
-      Builder setFileSize(long fileSize) {
-        this.fileSize = fileSize;
         return this;
       }
 
@@ -1099,7 +1087,7 @@ public class ARSCDecoder {
       }
 
       MergeDuplicatedResInfo create() {
-        return new MergeDuplicatedResInfo(fileName, filePath, originalName, md5, fileSize);
+        return new MergeDuplicatedResInfo(fileName, filePath, originalName, md5);
       }
     }
   }
