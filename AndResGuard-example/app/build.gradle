@@ -80,7 +80,7 @@ android {
     }
   }
 
-  flavorDimensions "default"
+  flavorDimensions "default", "color"
   productFlavors {
     flavor2 {
       dimension "default"
@@ -98,6 +98,16 @@ android {
       dimension "default"
       println("@@@THIS IS aaa@@@")
       applicationId 'andresguard.tencent.com.andresguard_example.aaa'
+    }
+
+    red {
+      dimension "color"
+      println("@@@THIS IS red@@@")
+    }
+
+    blue {
+      dimension "color"
+      println("@@@THIS IS blue@@@")
     }
   }
 

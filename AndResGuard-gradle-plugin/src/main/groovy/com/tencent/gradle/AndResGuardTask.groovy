@@ -55,7 +55,7 @@ class AndResGuardTask extends DefaultTask {
   static isTargetFlavor(variantName, flavors, buildType) {
     if (flavors.size() > 0) {
       String flavor = flavors.get(0).name
-      return variantName.equalsIgnoreCase(flavor) || variantName.equalsIgnoreCase([flavor, buildType].join(""))
+      return variantName.equalsIgnoreCase(flavor) || variantName.equalsIgnoreCase([flavors.collect {it.name}.join(""), buildType].join(""))
     }
     return false
   }
