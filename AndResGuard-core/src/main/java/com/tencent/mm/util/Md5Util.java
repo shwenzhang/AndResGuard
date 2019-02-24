@@ -26,14 +26,14 @@ public class Md5Util {
 
     public static String getMD5Str(File file) {
         if (!file.isFile()) {
-            return null;
+            return "";
         }
         MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("MD5");
             digest.update(FileUtils.readFileToByteArray(file));
         } catch (Exception e) {
-            return null;
+            return "";
         }
         return bytesToHexString(digest.digest());
     }

@@ -90,7 +90,7 @@ public class ARSCDecoder {
   private boolean mShouldResguardForType = false;
   private Writer mMappingWriter;
   private Writer mMergeDuplicatedResMappingWriter;
-  private Map<Long,MergeDuplicatedResInfo> mMergeDuplicatedResInfoData = new HashMap<>();
+  private Map<Long,List<MergeDuplicatedResInfo>> mMergeDuplicatedResInfoData = new HashMap<>();
 
   private ARSCDecoder(InputStream arscStream, ApkDecoder decoder) throws AndrolibException, IOException {
     mOldFileName = new LinkedHashMap<>();
@@ -794,15 +794,18 @@ public class ARSCDecoder {
    */
   private MergeDuplicatedResInfo mergeDuplicated(File resRawFile, File resDestFile, String compatibaleraw, String result) throws IOException {
     MergeDuplicatedResInfo filterInfo = null;
-    if (mMergeDuplicatedResInfoData.containsKey(resRawFile.length())) {
-      MergeDuplicatedResInfo mergeDuplicatedResInfo = mMergeDuplicatedResInfoData.get(resRawFile.length());
-      if (mergeDuplicatedResInfo.md5 == null) {
-        mergeDuplicatedResInfo.md5 = Md5Util.getMD5Str(new File(mergeDuplicatedResInfo.filePath));
-      }
-      String resRawFileMd5 = Md5Util.getMD5Str(resRawFile);
-      if (resRawFileMd5 != null && resRawFileMd5.equals(mergeDuplicatedResInfo.md5)) {
-        filterInfo = mergeDuplicatedResInfo;
-        filterInfo.md5 = resRawFileMd5;
+    List<MergeDuplicatedResInfo> mergeDuplicatedResInfoList = mMergeDuplicatedResInfoData.get(resRawFile.length());
+    if (mergeDuplicatedResInfoList != null) {
+      for (MergeDuplicatedResInfo mergeDuplicatedResInfo : mergeDuplicatedResInfoList) {
+        if (mergeDuplicatedResInfo.md5 == null) {
+          mergeDuplicatedResInfo.md5 = Md5Util.getMD5Str(new File(mergeDuplicatedResInfo.filePath));
+        }
+        String resRawFileMd5 = Md5Util.getMD5Str(resRawFile);
+        if (!resRawFileMd5.isEmpty() && resRawFileMd5.equals(mergeDuplicatedResInfo.md5)) {
+          filterInfo = mergeDuplicatedResInfo;
+          filterInfo.md5 = resRawFileMd5;
+          break;
+        }
       }
     }
     if (filterInfo != null) {
@@ -811,14 +814,19 @@ public class ARSCDecoder {
       mMergeDuplicatedResTotalSize += resRawFile.length();
     } else {
       MergeDuplicatedResInfo info = new MergeDuplicatedResInfo.Builder()
-         .setFileName(result)
-         .setFilePath( resDestFile.getAbsolutePath())
-         .setOriginalName(compatibaleraw)
-         .create();
+              .setFileName(result)
+              .setFilePath(resDestFile.getAbsolutePath())
+              .setOriginalName(compatibaleraw)
+              .create();
       info.fileName = result;
       info.filePath = resDestFile.getAbsolutePath();
       info.originalName = compatibaleraw;
-      mMergeDuplicatedResInfoData.put(resRawFile.length(), info);
+
+      if (mergeDuplicatedResInfoList == null) {
+        mergeDuplicatedResInfoList = new ArrayList<>();
+        mMergeDuplicatedResInfoData.put(resRawFile.length(), mergeDuplicatedResInfoList);
+      }
+      mergeDuplicatedResInfoList.add(info);
     }
     return filterInfo;
   }
