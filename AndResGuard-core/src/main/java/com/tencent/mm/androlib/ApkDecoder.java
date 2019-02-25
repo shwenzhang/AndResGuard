@@ -37,6 +37,7 @@ public class ApkDecoder {
   private File mRawResFile;
   private File mOutTempDir;
   private File mResMappingFile;
+  private File mMergeDuplicatedResMappingFile;
   private HashMap<String, Integer> mCompressData;
 
   public ApkDecoder(Configuration config, File apkFile) {
@@ -114,6 +115,11 @@ public class ApkDecoder {
                                + TypedValue.RES_MAPPING_FILE
                                + basename
                                + TypedValue.TXT_FILE);
+    mMergeDuplicatedResMappingFile = new File(mOutDir.getAbsoluteFile().getAbsolutePath()
+                             + File.separator
+                             + TypedValue.MERGE_DUPLICATED_RES_MAPPING_FILE
+                             + basename
+                             + TypedValue.TXT_FILE);
   }
 
   /**
@@ -170,6 +176,10 @@ public class ApkDecoder {
 
   public File getResMappingFile() {
     return mResMappingFile;
+  }
+
+  public File getMergeDuplicatedResMappingFile() {
+    return mMergeDuplicatedResMappingFile;
   }
 
   public void decode() throws AndrolibException, IOException, DirectoryException {

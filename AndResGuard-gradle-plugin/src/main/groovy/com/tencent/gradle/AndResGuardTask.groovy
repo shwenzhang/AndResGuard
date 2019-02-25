@@ -123,6 +123,7 @@ class AndResGuardTask extends DefaultTask {
         .setUse7zip(configuration.use7zip)
         .setMetaName(configuration.metaName)
         .setKeepRoot(configuration.keepRoot)
+        .setMergeDuplicatedRes(configuration.mergeDuplicatedRes)
         .setCompressFilePattern(configuration.compressFilePattern)
         .setZipAlign(getZipAlignPath())
         .setSevenZipPath(sevenzip.path)

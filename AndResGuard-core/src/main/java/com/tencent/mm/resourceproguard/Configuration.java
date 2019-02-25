@@ -41,6 +41,7 @@ public class Configuration {
   private static final String ATTR_7ZIP = "seventzip";
   private static final String ATTR_KEEPROOT = "keeproot";
   private static final String ATTR_SIGNFILE = "metaname";
+  private static final String MERGE_DUPLICATED_RES = "mergeDuplicatedRes";
   private static final String ATTR_SIGNFILE_PATH = "path";
   private static final String ATTR_SIGNFILE_KEYPASS = "keypass";
   private static final String ATTR_SIGNFILE_STOREPASS = "storepass";
@@ -53,6 +54,7 @@ public class Configuration {
   private final Pattern MAP_PATTERN = Pattern.compile("\\s+(.*)->(.*)");
   public boolean mUse7zip = true;
   public boolean mKeepRoot = false;
+  public boolean mMergeDuplicatedRes = false;
   public String mMetaName = "META-INF";
   public boolean mUseSignAPK = false;
   public boolean mUseKeepMapping = false;
@@ -69,17 +71,17 @@ public class Configuration {
   /**
    * use by command line with xml config
    *
-   * @param config xml config file
-   * @param sevenzipPath 7zip bin file path
-   * @param zipAlignPath zipalign bin file path
-   * @param mappingFile mapping file
+   * @param config        xml config file
+   * @param sevenzipPath  7zip bin file path
+   * @param zipAlignPath  zipalign bin file path
+   * @param mappingFile   mapping file
    * @param signatureFile signature file
-   * @param keypass signature key password
-   * @param storealias signature store alias
-   * @param storepass signature store password
-   * @throws IOException io exception
+   * @param keypass       signature key password
+   * @param storealias    signature store alias
+   * @param storepass     signature store password
+   * @throws IOException                  io exception
    * @throws ParserConfigurationException parse exception
-   * @throws SAXException sax exception
+   * @throws SAXException                 sax exception
    */
   public Configuration(
       File config,
@@ -132,6 +134,7 @@ public class Configuration {
     }
     mUse7zip = param.use7zip;
     mKeepRoot = param.keepRoot;
+    mMergeDuplicatedRes = param.mergeDuplicatedRes;
     mMetaName = param.metaName;
     for (String item : param.compressFilePattern) {
       mUseCompress = true;
@@ -409,6 +412,10 @@ public class Configuration {
             case ATTR_KEEPROOT:
               mKeepRoot = vaule.equals("true");
               System.out.println("mKeepRoot " + mKeepRoot);
+              break;
+            case MERGE_DUPLICATED_RES:
+              mMergeDuplicatedRes = vaule.equals("true");
+              System.out.println("mMergeDuplicatedRes " + mMergeDuplicatedRes);
               break;
             case ATTR_SIGNFILE:
               mMetaName = vaule.trim();
