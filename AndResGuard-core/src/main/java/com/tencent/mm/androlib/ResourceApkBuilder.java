@@ -230,7 +230,6 @@ public class ResourceApkBuilder {
         signedApk.getAbsolutePath(),
         unSignedApk.getAbsolutePath()
     };
-    dumpParams(params);
     ApkSignerTool.main(params);
   }
 
@@ -258,16 +257,7 @@ public class ResourceApkBuilder {
         unSignedApk.getAbsolutePath(),
         config.mStoreAlias
     };
-    //dumpParams(argv);
     Utils.runExec(argv);
-  }
-
-  private void dumpParams(String[] params) {
-    StringBuilder sb = new StringBuilder();
-    for (String param : params) {
-      sb.append(param).append(" ");
-    }
-    System.out.println(sb.toString());
   }
 
   private void alignApks() throws IOException, InterruptedException {
