@@ -36,14 +36,14 @@ class AndResGuardTask extends DefaultTask {
         if (variantName.equalsIgnoreCase(variant.buildType.name as String) || isTargetFlavor(variantName,
             variant.productFlavors, variant.buildType.name) ||
             variantName.equalsIgnoreCase(AndResGuardPlugin.USE_APK_TASK_NAME)) {
-          buildConfigs << new BuildInfo(output.outputFile,
+          buildConfigs << new BuildInfo(
+              { File(variant.packageApplicationProvider.outputDirectory, output.outputFileName) },
               variant.variantData.variantConfiguration.signingConfig,
               variant.variantData.variantConfiguration.applicationId,
               variant.buildType.name,
               variant.productFlavors,
               variantName,
               variant.mergedFlavor.minSdkVersion.apiLevel)
-
         }
       }
     }
