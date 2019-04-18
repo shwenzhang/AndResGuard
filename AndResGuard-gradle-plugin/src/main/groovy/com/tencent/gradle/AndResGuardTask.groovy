@@ -36,8 +36,16 @@ class AndResGuardTask extends DefaultTask {
         if (variantName.equalsIgnoreCase(variant.buildType.name as String) || isTargetFlavor(variantName,
             variant.productFlavors, variant.buildType.name) ||
             variantName.equalsIgnoreCase(AndResGuardPlugin.USE_APK_TASK_NAME)) {
+
+          def outputFile
+          if (variant.metaClass.respondsTo(variant, "getPackageApplicationProvider")) {
+            outputFile = { File(variant.packageApplicationProvider.get().outputDirectory, output.outputFileName) }
+          } else {
+            outputFile = output.outputFile
+          }
+
           buildConfigs << new BuildInfo(
-              { File(variant.packageApplicationProvider.outputDirectory, output.outputFileName) },
+              outputFile,
               variant.variantData.variantConfiguration.signingConfig,
               variant.variantData.variantConfiguration.applicationId,
               variant.buildType.name,
