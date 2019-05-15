@@ -37,6 +37,8 @@ andResGuard {
     useSign = true
     // 打开这个开关，会keep住所有资源的原始路径，只混淆资源的名字
     keepRoot = false
+    // 打开这个开关会合并所有哈希值相同的资源，但请不要过度依赖这个功能去除去冗余资源
+    mergeDuplicatedRes = true
     whiteList = [
         // for your icon
         "R.drawable.icon",
