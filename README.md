@@ -43,7 +43,7 @@ andResGuard {
     useSign = true
     // It will keep the origin path of your resources when it's true
     keepRoot = false
-    // It will merge the duplicated resources, but don't rrely on this feature too much.
+    // It will merge the duplicated resources, but don't rely on this feature too much.
     // it's always better to remove duplicated resource from repo
     mergeDuplicatedRes = true
     whiteList = [
