@@ -60,5 +60,20 @@ R.string.project_id
 
 ### Huawei push
 ```
-R.string.hms_update_title
+"R.string.hms_*",
+"R.string.connect_server_fail_prompt_toast",
+"R.string.getting_message_fail_prompt_toast",
+"R.string.no_available_network_prompt_toast",
+"R.string.third_app_*",
+"R.string.upsdk_*",
+"R.style.upsdkDlDialog",
+"R.style.AppTheme",
+"R.style.AppBaseTheme",
+"R.dimen.upsdk_dialog_*",
+"R.color.upsdk_*",
+"R.layout.upsdk_*",
+"R.drawable.upsdk_*",
+"R.drawable.hms_*",
+"R.layout.hms_*",
+"R.id.hms_*"
 ```
