@@ -608,7 +608,7 @@ public class ARSCDecoder {
               System.out.printf("[match] matcher %s ,typeName %s, specName :%s\n", p.pattern(), typeName, specName);
             }
             mPkg.putSpecNamesReplace(mResId, specName);
-            mPkg.putSpecNamesblock(specName);
+            mPkg.putSpecNamesblock(specName, specName);
             mResguardBuilder.setInWhiteList(mCurEntryID);
 
             mType.putSpecResguardName(specName);
@@ -649,7 +649,10 @@ public class ARSCDecoder {
     }
     generalResIDMapping(mPkg.getName(), mType.getName(), mSpecNames.get(specNamesId).toString(), replaceString);
     mPkg.putSpecNamesReplace(mResId, replaceString);
-    mPkg.putSpecNamesblock(replaceString);
+    // arsc name列混淆成固定名字, 减少string pool大小
+    boolean useFixedName = config.mFixedResName != null && config.mFixedResName.length() > 0;
+    String fixedName = useFixedName ? config.mFixedResName : replaceString;
+    mPkg.putSpecNamesblock(fixedName, replaceString);
     mType.putSpecResguardName(replaceString);
   }
 

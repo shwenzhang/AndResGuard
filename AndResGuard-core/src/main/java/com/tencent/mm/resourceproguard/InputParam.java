@@ -11,6 +11,7 @@ public class InputParam {
   public final boolean mergeDuplicatedRes;
   public final boolean useSign;
   public final String metaName;
+  public final String fixedResName;
   public final ArrayList<String> whiteList;
   public final ArrayList<String> compressFilePattern;
   public final String apkPath;
@@ -41,6 +42,7 @@ public class InputParam {
       String storealias,
       String storepass,
       String metaName,
+      String fixedResName,
       String zipAlignPath,
       String sevenZipPath,
       SignatureType signatureType,
@@ -62,6 +64,7 @@ public class InputParam {
     this.storealias = storealias;
     this.storepass = storepass;
     this.metaName = metaName;
+    this.fixedResName = fixedResName;
     this.zipAlignPath = zipAlignPath;
     this.sevenZipPath = sevenZipPath;
     this.signatureType = signatureType;
@@ -89,6 +92,7 @@ public class InputParam {
     private String storealias;
     private String storepass;
     private String metaName;
+    private String fixedResName;
     private String zipAlignPath;
     private String sevenZipPath;
     private SignatureType signatureType;
@@ -175,6 +179,11 @@ public class InputParam {
       return this;
     }
 
+    public Builder setFixedResName(String fixedResName) {
+      this.fixedResName = fixedResName;
+      return this;
+    }
+
     public Builder setZipAlign(String zipAlignPath) {
       this.zipAlignPath = zipAlignPath;
       return this;
@@ -225,6 +234,7 @@ public class InputParam {
           storealias,
           storepass,
           metaName,
+          fixedResName,
           zipAlignPath,
           sevenZipPath,
           signatureType,

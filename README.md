@@ -43,6 +43,8 @@ andResGuard {
     useSign = true
     // It will keep the origin path of your resources when it's true
     keepRoot = false
+    // If set, name column in arsc those need to proguard will be kept to this value
+    fixedResName = "tencent"
     // It will merge the duplicated resources, but don't rely on this feature too much.
     // it's always better to remove duplicated resource from repo
     mergeDuplicatedRes = true

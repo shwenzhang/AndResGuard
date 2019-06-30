@@ -26,9 +26,9 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -104,7 +104,7 @@ public class StringBlock {
   }
 
   public static int writeSpecNameStringBlock(
-      ExtDataInput reader, ExtDataOutput out, HashSet<String> specNames, Map<String, Integer> curSpecNameToPos)
+          ExtDataInput reader, ExtDataOutput out, Map<String, Set<String>> specNames, Map<String, Integer> curSpecNameToPos)
       throws IOException, AndrolibException {
     int type = reader.readInt();
     int chunkSize = reader.readInt();
@@ -132,7 +132,8 @@ public class StringBlock {
     int totalSize = 0;
     out.writeCheckInt(type, CHUNK_STRINGPOOL_TYPE);
     totalSize += 4;
-    stringCount = specNames.size();
+    stringCount = specNames.keySet().size();
+    System.out.println("String pool size: " + stringCount);
 
     totalSize += 6 * 4 + 4 * stringCount;
     stringsOffset = totalSize;
@@ -144,10 +145,13 @@ public class StringBlock {
     int i = 0;
     curSpecNameToPos.clear();
 
-    for (Iterator<String> it = specNames.iterator(); it.hasNext(); ) {
+    for (Iterator<String> it = specNames.keySet().iterator(); it.hasNext(); ) {
       stringOffsets[i] = offset;
       String name = it.next();
-      curSpecNameToPos.put(name, i);
+      for (String specName : specNames.get(name)) {
+        // N res entry item point to one string constant
+        curSpecNameToPos.put(specName, i);
+      }
       if (isUTF8) {
         stringBytes[offset++] = (byte) name.length();
         stringBytes[offset++] = (byte) name.length();
