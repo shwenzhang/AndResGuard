@@ -134,6 +134,7 @@ class AndResGuardTask extends DefaultTask {
         .setWhiteList(whiteListFullName)
         .setUse7zip(configuration.use7zip)
         .setMetaName(configuration.metaName)
+        .setFixedResName(configuration.fixedResName)
         .setKeepRoot(configuration.keepRoot)
         .setMergeDuplicatedRes(configuration.mergeDuplicatedRes)
         .setCompressFilePattern(configuration.compressFilePattern)

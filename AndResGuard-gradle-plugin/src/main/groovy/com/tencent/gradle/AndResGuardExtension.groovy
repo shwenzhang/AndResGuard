@@ -12,6 +12,7 @@ class AndResGuardExtension {
   boolean use7zip
   boolean useSign
   String metaName
+  String fixedResName
   boolean keepRoot
   boolean mergeDuplicatedRes
   Iterable<String> whiteList
@@ -26,6 +27,7 @@ class AndResGuardExtension {
     use7zip = false
     useSign = false
     metaName = "META-INF"
+    fixedResName = null
     keepRoot = false
     mergeDuplicatedRes = false
     whiteList = []
@@ -56,6 +58,10 @@ class AndResGuardExtension {
 
   String getMetaName() {
     return metaName
+  }
+
+  String getFixedResName() {
+    return fixedResName
   }
 
   boolean getKeepRoot() {
@@ -95,6 +101,7 @@ class AndResGuardExtension {
     """| use7zip = ${use7zip}
            | useSign = ${useSign}
            | metaName = ${metaName}
+           | fixedResName = ${fixedResName}
            | keepRoot = ${keepRoot}
            | mergeDuplicatedRes = ${mergeDuplicatedRes}
            | whiteList = ${whiteList}

@@ -56,6 +56,7 @@ public class Configuration {
   public boolean mKeepRoot = false;
   public boolean mMergeDuplicatedRes = false;
   public String mMetaName = "META-INF";
+  public String mFixedResName = null;
   public boolean mUseSignAPK = false;
   public boolean mUseKeepMapping = false;
   public File mSignatureFile;
@@ -136,6 +137,7 @@ public class Configuration {
     mKeepRoot = param.keepRoot;
     mMergeDuplicatedRes = param.mergeDuplicatedRes;
     mMetaName = param.metaName;
+    mFixedResName = param.fixedResName;
     for (String item : param.compressFilePattern) {
       mUseCompress = true;
       addToCompressPatterns(item);

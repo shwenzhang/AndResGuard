@@ -20,18 +20,19 @@ package com.tencent.mm.androlib.res.data;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ResPackage {
   private final String mName;
 
   private final Map<Integer, String> mSpecNamesReplace;
-  private final HashSet<String> mSpecNamesBlock;
+  private final Map<String, Set<String>> mSpecNamesBlock;
   private boolean mCanProguard = false;
 
   public ResPackage(int id, String name) {
     this.mName = name;
     mSpecNamesReplace = new LinkedHashMap<>();
-    mSpecNamesBlock = new HashSet<>();
+    mSpecNamesBlock = new LinkedHashMap<>();
   }
 
   public boolean isCanResguard() {
@@ -54,11 +55,16 @@ public class ResPackage {
     mSpecNamesReplace.put(resID, value);
   }
 
-  public void putSpecNamesblock(String value) {
-    mSpecNamesBlock.add(value);
+  public void putSpecNamesblock(String specName, String value) {
+    Set<String> values = mSpecNamesBlock.get(specName);
+    if (values == null) {
+      values = new HashSet<>();
+      mSpecNamesBlock.put(specName, values);
+    }
+    values.add(value);
   }
 
-  public HashSet<String> getSpecNamesBlock() {
+  public Map<String, Set<String>> getSpecNamesBlock() {
     return mSpecNamesBlock;
   }
 
