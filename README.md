@@ -32,7 +32,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.16'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.17'
     }
 }
 
@@ -44,7 +44,7 @@ andResGuard {
     // It will keep the origin path of your resources when it's true
     keepRoot = false
     // If set, name column in arsc those need to proguard will be kept to this value
-    fixedResName = "tencent"
+    fixedResName = "arg"
     // It will merge the duplicated resources, but don't rely on this feature too much.
     // it's always better to remove duplicated resource from repo
     mergeDuplicatedRes = true
@@ -69,7 +69,7 @@ andResGuard {
         "*.gif",
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.16'
+        artifact = 'com.tencent.mm:SevenZip:1.2.17'
         //path = "/usr/local/bin/7za"
     }
 

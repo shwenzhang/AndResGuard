@@ -25,7 +25,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.16'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.17'
     }
 }
 
@@ -38,7 +38,7 @@ andResGuard {
     // 打开这个开关，会keep住所有资源的原始路径，只混淆资源的名字
     keepRoot = false
     // 设置这个值，会把arsc name列混淆成相同的名字，减少string常量池的大小
-    fixedResName = "tencent"
+    fixedResName = "arg"
     // 打开这个开关会合并所有哈希值相同的资源，但请不要过度依赖这个功能去除去冗余资源
     mergeDuplicatedRes = true
     whiteList = [
@@ -62,7 +62,7 @@ andResGuard {
         "*.gif",
     ]
     sevenzip {
-         artifact = 'com.tencent.mm:SevenZip:1.2.16'
+         artifact = 'com.tencent.mm:SevenZip:1.2.17'
          //path = "/usr/local/bin/7za"
     }
 
