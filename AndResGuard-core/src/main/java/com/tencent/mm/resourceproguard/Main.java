@@ -68,6 +68,7 @@ public class Main {
   protected void clean() {
     config = null;
     ARSCDecoder.mTableStringsResguard.clear();
+    ARSCDecoder.mMergeDuplicatedResCount = 0;
   }
 
   private void loadConfigFromGradle(InputParam inputParam) {
