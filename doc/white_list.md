@@ -77,3 +77,18 @@ R.string.project_id
 "R.layout.hms_*",
 "R.id.hms_*"
 ```
+
+### shareSDK
+ 
+```
+"R.id.ssdk*",
+"R.string.mobcommon*",
+"R.string.ssdk*",
+"R.string.mobdemo*",
+"R.drawable.mobcommon*",
+"R.drawable.ssdk*",
+"R.layout.mob*",
+"R.style.mobcommon*",
+        
+```
+
