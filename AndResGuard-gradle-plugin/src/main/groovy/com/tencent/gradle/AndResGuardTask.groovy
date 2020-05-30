@@ -48,10 +48,17 @@ class AndResGuardTask extends DefaultTask {
             outputFile = outputFile ?: output.outputFile
           }
 
+          def variantInfo = null
+          if (variant.variantData.hasProperty("variantConfiguration")) {
+            variantInfo = variant.variantData.variantConfiguration
+          } else {
+            variantInfo = variant.variantData.variantDslInfo
+          }
+
           buildConfigs << new BuildInfo(
               outputFile,
-              variant.variantData.variantConfiguration.signingConfig,
-              variant.variantData.variantConfiguration.applicationId,
+              variantInfo.signingConfig,
+              variantInfo.applicationId,
               variant.buildType.name,
               variant.productFlavors,
               variantName,

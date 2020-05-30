@@ -77,6 +77,7 @@ R.string.project_id
 "R.layout.hms_*",
 "R.id.hms_*"
 ```
+
 ### Firebase Crashlytics
 ```
 "R.bool.com.crashlytics.useFirebaseAppId",
@@ -96,4 +97,18 @@ R.string.project_id
 "R.bool.com.crashlytics.Trace",
 "R.string.com.crashlytics.Trace",
 "R.string.com.crashlytics.CollectCustomKeys"
+```
+
+### shareSDK
+ 
+```
+"R.id.ssdk*",
+"R.string.mobcommon*",
+"R.string.ssdk*",
+"R.string.mobdemo*",
+"R.drawable.mobcommon*",
+"R.drawable.ssdk*",
+"R.layout.mob*",
+"R.style.mobcommon*",
+        
 ```
