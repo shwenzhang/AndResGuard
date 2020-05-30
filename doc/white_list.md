@@ -78,6 +78,27 @@ R.string.project_id
 "R.id.hms_*"
 ```
 
+### Firebase Crashlytics
+```
+"R.bool.com.crashlytics.useFirebaseAppId",
+"R.string.com.crashlytics.useFirebaseAppId",
+"R.string.google_app_id",
+"R.bool.com.crashlytics.CollectDeviceIdentifiers",
+"R.string.com.crashlytics.CollectDeviceIdentifiers",
+"R.bool.com.crashlytics.CollectUserIdentifiers",
+"R.string.com.crashlytics.CollectUserIdentifiers",
+"R.string.com.crashlytics.ApiEndpoint",
+"R.string.io.fabric.android.build_id",
+"R.string.com.crashlytics.android.build_id",
+"R.bool.com.crashlytics.RequireBuildId",
+"R.string.com.crashlytics.RequireBuildId",
+"R.bool.com.crashlytics.CollectCustomLogs",
+"R.string.com.crashlytics.CollectCustomLogs",
+"R.bool.com.crashlytics.Trace",
+"R.string.com.crashlytics.Trace",
+"R.string.com.crashlytics.CollectCustomKeys"
+```
+
 ### shareSDK
  
 ```
@@ -91,4 +112,3 @@ R.string.project_id
 "R.style.mobcommon*",
         
 ```
-
