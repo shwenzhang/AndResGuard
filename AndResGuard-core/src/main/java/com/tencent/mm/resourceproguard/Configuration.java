@@ -324,22 +324,20 @@ public class Configuration {
             case ATTR_SIGNFILE_PATH:
               char ch = vaule.charAt(0);
               switch (ch) {
-                //支持形如~/.android/debug.keystore的写法
+                // supports the writting style like ~/.android/debug.keystore. the symbol ~ represent the home directory of the current user.
                 case '~':
                   mSignatureFile = new File(String.format("%s%s", System.getProperty("user.home"), vaule.substring(1)));
                   break;
-                //相对于xmlConfigFile
+                // relative to the directory of the xml config file.
                 case '.':
                   mSignatureFile = new File(xmlConfigFileParentFile, vaule);
                   break;
-                //其他情形与原来保持一致，不破坏原来的逻辑
-                //没有写明相对于谁的情形，就相对于当前目录
-                //TODO:暂不支持其他复杂的情形，譬如：环境变量语法：$HOME等
+                // keep the origin logical.
                 default:
                   mSignatureFile = new File(vaule);
               }
               if (!mSignatureFile.isFile()) {
-                throw new IOException(String.format("the signature file is not a normal file, it may be not exist or a directory or something else. raw path= %s\n",
+                throw new IOException(String.format("the signature file do not exit. raw path= %s\n",
                     mSignatureFile.getAbsolutePath()
                 ));
               }
