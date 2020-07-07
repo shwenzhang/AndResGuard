@@ -220,7 +220,7 @@ public class Configuration {
           case SIGN_ISSUE:
             mUseSignAPK |= active;
             if (mUseSignAPK) {
-              readSignFromXml(node);
+              readSignFromXml(node, xmlConfigFile.getParentFile());
             }
             break;
           case MAPPING_ISSUE:
@@ -301,7 +301,7 @@ public class Configuration {
     mWhiteList.put(packageName, typeMap);
   }
 
-  private void readSignFromXml(Node node) throws IOException {
+  private void readSignFromXml(Node node, File xmlConfigFileParentFile) throws IOException {
     if (mSignatureFile != null) {
       System.err.println("already set the sign info from command line, ignore this");
       return;
@@ -322,9 +322,24 @@ public class Configuration {
 
           switch (tagName) {
             case ATTR_SIGNFILE_PATH:
-              mSignatureFile = new File(vaule);
-              if (!mSignatureFile.exists()) {
-                throw new IOException(String.format("the signature file do not exit, raw path= %s\n",
+              char ch = vaule.charAt(0);
+              switch (ch) {
+                //支持形如~/.android/debug.keystore的写法
+                case '~':
+                  mSignatureFile = new File(String.format("%s%s", System.getProperty("user.home"), vaule.substring(1)));
+                  break;
+                //相对于xmlConfigFile
+                case '.':
+                  mSignatureFile = new File(xmlConfigFileParentFile, vaule);
+                  break;
+                //其他情形与原来保持一致，不破坏原来的逻辑
+                //没有写明相对于谁的情形，就相对于当前目录
+                //TODO:暂不支持其他复杂的情形，譬如：环境变量语法：$HOME等
+                default:
+                  mSignatureFile = new File(vaule);
+              }
+              if (!mSignatureFile.isFile()) {
+                throw new IOException(String.format("the signature file is not a normal file, it may be not exist or a directory or something else. raw path= %s\n",
                     mSignatureFile.getAbsolutePath()
                 ));
               }
