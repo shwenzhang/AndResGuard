@@ -220,7 +220,7 @@ public class Configuration {
           case SIGN_ISSUE:
             mUseSignAPK |= active;
             if (mUseSignAPK) {
-              readSignFromXml(node);
+              readSignFromXml(node, xmlConfigFile.getParentFile());
             }
             break;
           case MAPPING_ISSUE:
@@ -301,7 +301,7 @@ public class Configuration {
     mWhiteList.put(packageName, typeMap);
   }
 
-  private void readSignFromXml(Node node) throws IOException {
+  private void readSignFromXml(Node node, File xmlConfigFileParentFile) throws IOException {
     if (mSignatureFile != null) {
       System.err.println("already set the sign info from command line, ignore this");
       return;
@@ -322,9 +322,22 @@ public class Configuration {
 
           switch (tagName) {
             case ATTR_SIGNFILE_PATH:
-              mSignatureFile = new File(vaule);
-              if (!mSignatureFile.exists()) {
-                throw new IOException(String.format("the signature file do not exit, raw path= %s\n",
+              char ch = vaule.charAt(0);
+              switch (ch) {
+                // supports the writting style like ~/.android/debug.keystore. the symbol ~ represent the home directory of the current user.
+                case '~':
+                  mSignatureFile = new File(String.format("%s%s", System.getProperty("user.home"), vaule.substring(1)));
+                  break;
+                // relative to the directory of the xml config file.
+                case '.':
+                  mSignatureFile = new File(xmlConfigFileParentFile, vaule);
+                  break;
+                // keep the origin logical.
+                default:
+                  mSignatureFile = new File(vaule);
+              }
+              if (!mSignatureFile.isFile()) {
+                throw new IOException(String.format("the signature file do not exit. raw path= %s\n",
                     mSignatureFile.getAbsolutePath()
                 ));
               }
