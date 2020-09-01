@@ -62,7 +62,9 @@ class AndResGuardTask extends DefaultTask {
               variant.buildType.name,
               variant.productFlavors,
               variantName,
-              variant.mergedFlavor.minSdkVersion.apiLevel)
+              variant.mergedFlavor.minSdkVersion.apiLevel,
+              variant.mergedFlavor.targetSdkVersion.apiLevel,
+          )
         }
       }
     }
@@ -74,7 +76,7 @@ class AndResGuardTask extends DefaultTask {
   static isTargetFlavor(variantName, flavors, buildType) {
     if (flavors.size() > 0) {
       String flavor = flavors.get(0).name
-      return variantName.equalsIgnoreCase(flavor) || variantName.equalsIgnoreCase([flavors.collect {it.name}.join(""), buildType].join(""))
+      return variantName.equalsIgnoreCase(flavor) || variantName.equalsIgnoreCase([flavors.collect { it.name }.join(""), buildType].join(""))
     }
     return false
   }
@@ -111,19 +113,19 @@ class AndResGuardTask extends DefaultTask {
               0 &&
               config.flavors.get(0).name ==
               configuration.sourceFlavor)) {
-            RunGradleTask(config, configuration.sourceApk, config.minSDKVersion)
+            RunGradleTask(config, configuration.sourceApk, config.minSDKVersion, config.targetSDKVersion)
           }
         }
       } else {
         if (config.file == null || !config.file.exists()) {
           throw new PathNotExist("Original APK not existed")
         }
-        RunGradleTask(config, config.file.getAbsolutePath(), config.minSDKVersion)
+        RunGradleTask(config, config.file.getAbsolutePath(), config.minSDKVersion, config.targetSDKVersion)
       }
     }
   }
 
-  def RunGradleTask(config, String absPath, int minSDKVersion) {
+  def RunGradleTask(config, String absPath, int minSDKVersion, int targetSDKVersion) {
     def signConfig = config.signConfig
     String packageName = config.packageName
     ArrayList<String> whiteListFullName = new ArrayList<>()
@@ -152,6 +154,7 @@ class AndResGuardTask extends DefaultTask {
         .setUseSign(configuration.useSign)
         .setDigestAlg(configuration.digestalg)
         .setMinSDKVersion(minSDKVersion)
+        .setTargetSDKVersion(targetSDKVersion)
 
     if (configuration.finalApkBackupPath != null && configuration.finalApkBackupPath.length() > 0) {
       builder.setFinalApkBackupPath(configuration.finalApkBackupPath)

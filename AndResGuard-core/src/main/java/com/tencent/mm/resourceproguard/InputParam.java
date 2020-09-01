@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class InputParam {
+
   public final File mappingFile;
   public final boolean use7zip;
   public final boolean keepRoot;
@@ -26,6 +27,7 @@ public class InputParam {
   public final String finalApkBackupPath;
   public final String digestAlg;
   public final int minSDKVersion;
+  public final int targetSDKVersion;
 
   private InputParam(
       File mappingFile,
@@ -48,7 +50,8 @@ public class InputParam {
       SignatureType signatureType,
       String finalApkBackupPath,
       String digestAlg,
-      int minSDKVersion) {
+      int minSDKVersion,
+      int targetSDKVersion) {
 
     this.mappingFile = mappingFile;
     this.use7zip = use7zip;
@@ -71,6 +74,7 @@ public class InputParam {
     this.finalApkBackupPath = finalApkBackupPath;
     this.digestAlg = digestAlg;
     this.minSDKVersion = minSDKVersion;
+    this.targetSDKVersion = targetSDKVersion;
   }
 
   public enum SignatureType {
@@ -78,6 +82,7 @@ public class InputParam {
   }
 
   public static class Builder {
+
     private File mappingFile;
     private boolean use7zip;
     private boolean useSign;
@@ -99,6 +104,7 @@ public class InputParam {
     private String finalApkBackupPath;
     private String digestAlg;
     private int minSDKVersion;
+    private int targetSDKVersion;
 
     public Builder() {
       use7zip = false;
@@ -138,7 +144,8 @@ public class InputParam {
 
     public Builder setCompressFilePattern(ArrayList<String> compressFilePattern) {
       if (compressFilePattern.contains(Configuration.ASRC_FILE)) {
-        System.out.printf("[Warning] compress %s will prevent optimization at runtime", Configuration.ASRC_FILE);
+        System.out.printf("[Warning] compress %s will prevent optimization at runtime",
+            Configuration.ASRC_FILE);
       }
       this.compressFilePattern = compressFilePattern;
       return this;
@@ -219,7 +226,20 @@ public class InputParam {
       return this;
     }
 
+    public Builder setTargetSDKVersion(int targetSDKVersion) {
+      this.targetSDKVersion = targetSDKVersion;
+      return this;
+    }
+
     public InputParam create() {
+      if (targetSDKVersion >= 30) {
+        // Targeting R+ (version 30 and above) requires the resources.arsc of installed APKs
+        // to be stored uncompressed and aligned on a 4-byte boundary
+        this.compressFilePattern.remove(Configuration.ASRC_FILE);
+        System.out.printf("[Warning] Remove resources.arsc from the compressPattern. (%s)\n",
+            this.compressFilePattern);
+      }
+
       return new InputParam(mappingFile,
           use7zip,
           useSign,
@@ -240,7 +260,8 @@ public class InputParam {
           signatureType,
           finalApkBackupPath,
           digestAlg,
-          minSDKVersion
+          minSDKVersion,
+          targetSDKVersion
       );
     }
   }

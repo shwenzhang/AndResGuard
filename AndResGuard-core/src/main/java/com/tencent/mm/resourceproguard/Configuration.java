@@ -28,7 +28,7 @@ import org.xml.sax.SAXException;
 public class Configuration {
 
   public static final String DEFAULT_DIGEST_ALG = "SHA1";
-  public static final String ASRC_FILE = "resource.asrc";
+  public static final String ASRC_FILE = "resources.arsc";
   private static final String TAG_ISSUE = "issue";
   private static final String ATTR_VALUE = "value";
   private static final String ATTR_ID = "id";

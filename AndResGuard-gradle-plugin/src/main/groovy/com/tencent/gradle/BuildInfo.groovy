@@ -10,9 +10,11 @@ class BuildInfo {
   def buildType
   def flavors
   def taskName
-  def minSDKVersion
+  int minSDKVersion
+  int targetSDKVersion
 
-  BuildInfo(file, sign, packageName, buildType, flavors, taskName, minSDKVersion) {
+
+  BuildInfo(file, sign, packageName, buildType, flavors, taskName, minSDKVersion, targetSDKVersion) {
     this.file = file
     this.signConfig = sign
     this.packageName = packageName
@@ -20,6 +22,7 @@ class BuildInfo {
     this.flavors = flavors
     this.taskName = taskName
     this.minSDKVersion = minSDKVersion
+    this.targetSDKVersion = targetSDKVersion
   }
 
   @Override
@@ -30,6 +33,7 @@ class BuildInfo {
        | flavors = ${flavors}
        | taskname = ${taskName}
        | minSDKVersion = ${minSDKVersion}
+       | targetSDKVersion = ${targetSDKVersion}
     """.stripMargin()
   }
 }
