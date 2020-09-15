@@ -32,7 +32,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.18'
+        classpath 'com.tencent.mm:AndResGuard-gradle-plugin:1.2.19'
     }
 }
 
@@ -70,7 +70,7 @@ andResGuard {
         "*.gif",
     ]
     sevenzip {
-        artifact = 'com.tencent.mm:SevenZip:1.2.18'
+        artifact = 'com.tencent.mm:SevenZip:1.2.19'
         //path = "/usr/local/bin/7za"
     }
 
