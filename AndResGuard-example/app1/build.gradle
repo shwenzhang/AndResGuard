@@ -1,18 +1,13 @@
 apply plugin: 'AndResGuard'
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
 
 buildscript {
   repositories {
     mavenLocal()
     jcenter()
     google()
-    maven { url 'https://maven.fabric.io/public' }
   }
   dependencies {
-    // The Fabric Gradle plugin uses an open ended version to react
-    // quickly to Android tooling updates
-    classpath 'io.fabric.tools:gradle:latest.integration'
     classpath("com.tencent.mm:AndResGuard-gradle-plugin:${ANDRESGUARD_VERSION}") {
       changing = true
     }
@@ -31,7 +26,8 @@ andResGuard {
                //https://docs.fabric.io/android/crashlytics/build-tools.html
                "R.string.com.crashlytics.*",
                "R.id.*",
-               "R.drawable.a",]
+               "R.drawable.*",
+               "R.layout.*"]
   compressFilePattern = ["*.png",
                          "*.jpg",
                          "*.jpeg",
@@ -47,13 +43,6 @@ repositories {
   jcenter()
   maven { url 'https://maven.fabric.io/public' }
 }
-
-crashlytics {
-  enableNdk true
-  androidNdkOut 'src/main/obj'
-  androidNdkLibsOut 'src/main/libs'
-}
-
 
 android {
   compileSdkVersion 26
@@ -137,10 +126,6 @@ dependencies {
   implementation 'com.android.support:design:26.1.0'
   // Crashlytics Kit
   implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
-    transitive = true
-  }
-  // NDK Kit
-  implementation('com.crashlytics.sdk.android:crashlytics-ndk:1.1.6@aar') {
     transitive = true
   }
   // NDK Kit

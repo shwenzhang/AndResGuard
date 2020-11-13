@@ -1,18 +1,15 @@
 apply plugin: 'AndResGuard'
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
 
 buildscript {
   repositories {
     mavenLocal()
     google()
     jcenter()
-    maven { url 'https://maven.fabric.io/public' }
   }
   dependencies {
     // The Fabric Gradle plugin uses an open ended version to react
     // quickly to Android tooling updates
-    classpath 'io.fabric.tools:gradle:latest.integration'
     classpath("com.tencent.mm:AndResGuard-gradle-plugin:${ANDRESGUARD_VERSION}") { changing = true }
   }
 }
@@ -49,12 +46,6 @@ andResGuard {
 repositories {
   jcenter()
   maven { url 'https://maven.fabric.io/public' }
-}
-
-crashlytics {
-  enableNdk true
-  androidNdkOut 'src/main/obj'
-  androidNdkLibsOut 'src/main/libs'
 }
 
 
