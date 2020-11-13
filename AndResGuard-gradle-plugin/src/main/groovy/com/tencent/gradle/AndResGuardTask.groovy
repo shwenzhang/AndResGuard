@@ -6,6 +6,7 @@ import com.tencent.mm.resourceproguard.InputParam
 import com.tencent.mm.resourceproguard.Main
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -48,17 +49,21 @@ class AndResGuardTask extends DefaultTask {
             outputFile = outputFile ?: output.outputFile
           }
 
-          def variantInfo = null
+          def variantInfo
           if (variant.variantData.hasProperty("variantConfiguration")) {
             variantInfo = variant.variantData.variantConfiguration
           } else {
             variantInfo = variant.variantData.variantDslInfo
           }
 
+          def applicationId = variantInfo.applicationId instanceof Property
+              ? variantInfo.applicationId.get()
+              : variantInfo.applicationId
+
           buildConfigs << new BuildInfo(
               outputFile,
               variantInfo.signingConfig,
-              variantInfo.applicationId,
+              applicationId,
               variant.buildType.name,
               variant.productFlavors,
               variantName,
