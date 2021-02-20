@@ -100,7 +100,7 @@ R.string.project_id
 ```
 
 ### shareSDK
- 
+
 ```
 "R.id.ssdk*",
 "R.string.mobcommon*",
@@ -112,3 +112,19 @@ R.string.project_id
 "R.style.mobcommon*",
         
 ```
+
+### 穿山甲广告SDK
+
+```
+  "R.string.tt_*",
+  "R.integer.tt_*",
+  "R.layout.tt_*",
+  "R.drawable.tt_*",
+  "R.style.tt_*",
+  "R.dimen.tt_*",
+  "R.anim.tt_*",
+  "R.color.tt_*",
+  "R.id.tt_*"
+        
+```
+
