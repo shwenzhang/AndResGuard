@@ -116,7 +116,7 @@ public class ApkSignerTool {
     boolean verbose = false;
     boolean v1SigningEnabled = true;
     boolean v2SigningEnabled = true;
-    boolean v3SigningEnabled = true;
+    boolean v3SigningEnabled = false;
     int minSdkVersion = 1;
     boolean minSdkVersionSpecified = false;
     int maxSdkVersion = Integer.MAX_VALUE;
