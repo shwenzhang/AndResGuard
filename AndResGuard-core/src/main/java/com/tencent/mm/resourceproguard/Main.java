@@ -127,7 +127,8 @@ public class Main {
         builder.buildApkWithV1sign(decoder.getCompressData());
         break;
       case SchemaV2:
-        builder.buildApkWithV2sign(decoder.getCompressData(), minSDKVersion);
+      case SchemaV3:
+        builder.buildApkWithV2V3Sign(decoder.getCompressData(), minSDKVersion, signatureType);
         break;
     }
   }
