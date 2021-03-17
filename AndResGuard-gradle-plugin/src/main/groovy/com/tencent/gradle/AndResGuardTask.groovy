@@ -175,7 +175,9 @@ class AndResGuardTask extends DefaultTask {
           .setKeypass(signConfig.keyPassword)
           .setStorealias(signConfig.keyAlias)
           .setStorepass(signConfig.storePassword)
-      if (signConfig.hasProperty('v2SigningEnabled') && signConfig.v2SigningEnabled) {
+      if (signConfig.hasProperty('v3SigningEnabled') && signConfig.v3SigningEnabled) {
+        builder.setSignatureType(InputParam.SignatureType.SchemaV3)
+      } else if (signConfig.hasProperty('v2SigningEnabled') && signConfig.v2SigningEnabled) {
         builder.setSignatureType(InputParam.SignatureType.SchemaV2)
       }
     }

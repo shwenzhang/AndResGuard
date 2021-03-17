@@ -78,7 +78,7 @@ public class InputParam {
   }
 
   public enum SignatureType {
-    SchemaV1, SchemaV2
+    SchemaV1, SchemaV2, SchemaV3
   }
 
   public static class Builder {
