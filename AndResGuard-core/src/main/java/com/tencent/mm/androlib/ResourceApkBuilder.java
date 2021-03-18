@@ -209,14 +209,14 @@ public class ResourceApkBuilder {
   private void signApkV2V3(File unSignedApk, File signedApk, int minSDKVersion, InputParam.SignatureType signatureType) throws Exception {
     if (config.mUseSignAPK) {
       System.out.printf("signing apk: %s\n", signedApk.getName());
-      signWithV2sign(unSignedApk, signedApk, minSDKVersion, signatureType);
+      signWithV2V3Sign(unSignedApk, signedApk, minSDKVersion, signatureType);
       if (!signedApk.exists()) {
         throw new IOException("Can't Generate signed APK v2. Plz check your v2sign info is correct.");
       }
     }
   }
 
-  private void signWithV2sign(File unSignedApk, File signedApk, int minSDKVersion, InputParam.SignatureType signatureType) throws Exception {
+  private void signWithV2V3Sign(File unSignedApk, File signedApk, int minSDKVersion, InputParam.SignatureType signatureType) throws Exception {
     String[] params = new String[] {
         "sign",
         "--ks",
