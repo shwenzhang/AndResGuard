@@ -117,11 +117,13 @@ public class RawARSCDecoder {
     mResId = id << 24;
     mPkg = new ResPackage(id, name);
     nextChunk();
-    while (mHeader.type == Header.TYPE_LIBRARY) {
-      readLibraryType();
-    }
-    while (mHeader.type == Header.TYPE_SPEC_TYPE) {
-      readTableTypeSpec();
+    while (mHeader.type == ARSCDecoder.Header.TYPE_LIBRARY || mHeader.type == ARSCDecoder.Header.TYPE_SPEC_TYPE) {
+      if (mHeader.type == ARSCDecoder.Header.TYPE_LIBRARY) {
+        readLibraryType();
+      }
+      if (mHeader.type == ARSCDecoder.Header.TYPE_SPEC_TYPE) {
+        readTableTypeSpec();
+      }
     }
 
     return mPkg;
