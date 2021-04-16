@@ -354,11 +354,28 @@ public class ARSCDecoder {
       mPkg.setCanResguard(true);
     }
     nextChunk();
-    while (mHeader.type == Header.TYPE_LIBRARY) {
-      readLibraryType();
-    }
-    while (mHeader.type == Header.TYPE_SPEC_TYPE) {
-      readTableTypeSpec();
+    // PROBLEM DESCRIPTION: In an Android application that contains multiple Dynamic Feature modules,
+    // AndResGuard will report an error,
+    // corresponding to the error stack: https://user-images.githubusercontent.com/7645818/115002599-861ae980-9ed7-11eb-90a6-d22d8576730a.png
+    //
+    // PROBLEM ANALYSIS: By analyzing the resources.arsc binary file, it is found that in the binary block
+    // of the chunk type of RES_TABLE_TYPE of the ordinary application, the data distribution first exists
+    // in TYPE_LIBRARY, and then there is the data block of TYPE_SPEC_TYPE.
+    // In applications that include Dynamic Feature, TYPE_LIBRARY data blocks and TYPE_SPEC_TYPE data blocks
+    // will alternate, and the existing chunk parsing logic will throw an exception.
+    //
+    // FIX PLAN: rewrite the parsing logic of TYPE_LIBRARY, TYPE_SPEC_TYPE data blocks into the form of
+    // a **while** loop to support the scene where two types of data blocks are mixed
+    //
+    // VERIFICATION SITUATION: The resource confusion is normal, and it has been running normally on
+    // the mobile QQ pipeline for a long time, and the release version is also running stable
+    while (mHeader.type == Header.TYPE_LIBRARY || mHeader.type == Header.TYPE_SPEC_TYPE) {
+      if (mHeader.type == Header.TYPE_LIBRARY) {
+        readLibraryType();
+      }
+      if (mHeader.type == Header.TYPE_SPEC_TYPE) {
+        readTableTypeSpec();
+      }
     }
     return mPkg;
   }
@@ -392,11 +409,13 @@ public class ARSCDecoder {
       StringBlock.writeAll(mIn, mOut);
     }
     writeNextChunk(0);
-    while (mHeader.type == Header.TYPE_LIBRARY) {
-      writeLibraryType();
-    }
-    while (mHeader.type == Header.TYPE_SPEC_TYPE) {
-      writeTableTypeSpec();
+    while (mHeader.type == Header.TYPE_LIBRARY || mHeader.type == Header.TYPE_SPEC_TYPE) {
+      if (mHeader.type == Header.TYPE_LIBRARY) {
+        writeLibraryType();
+      }
+      if (mHeader.type == Header.TYPE_SPEC_TYPE) {
+        writeTableTypeSpec();
+      }
     }
   }
 
