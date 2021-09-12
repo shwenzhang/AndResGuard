@@ -46,6 +46,10 @@ publishing {
         classifier "osx-x86_64"
         extension "exe"
       }
+      artifact("executable/SevenZip-osx-aarch_64.exe") {
+        classifier "osx-aarch_64"
+        extension "exe"
+      }
     }
   }
 }
