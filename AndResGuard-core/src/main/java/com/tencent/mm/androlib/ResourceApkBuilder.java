@@ -289,7 +289,7 @@ public class ResourceApkBuilder {
       ));
     }
     String cmd = Utils.isPresent(config.mZipalignPath) ? config.mZipalignPath : TypedValue.COMMAND_ZIPALIGIN;
-    Utils.runCmd(cmd, "4", before.getAbsolutePath(), after.getAbsolutePath());
+    Utils.runCmd(cmd,"-f","-p", "4", before.getAbsolutePath(), after.getAbsolutePath());
     if (!after.exists()) {
       throw new IOException(String.format("can not found the aligned apk file, the ZipAlign path is correct? path=%s",
           mAlignedApk.getAbsolutePath()
