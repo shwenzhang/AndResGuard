@@ -7,9 +7,9 @@ group rootProject.ext.GROUP
 
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 dependencies {
-  compile fileTree(dir: 'libs', include: ['*.jar'])
-  compile 'com.android.tools.build:gradle:4.1.2'
-  compile 'commons-io:commons-io:2.6'
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation 'com.android.tools.build:gradle:7.0.3'
+  implementation 'commons-io:commons-io:2.6'
 }
 
 sourceSets {
@@ -22,4 +22,4 @@ sourceSets {
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 apply from: rootProject.file('gradle/java-artifacts.gradle')
-apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
+//apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
