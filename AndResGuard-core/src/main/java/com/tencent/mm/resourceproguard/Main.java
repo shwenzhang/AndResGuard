@@ -37,6 +37,7 @@ public class Main {
   public static void gradleRun(InputParam inputParam) {
     Main m = new Main();
     m.run(inputParam);
+
   }
 
   private void run(InputParam inputParam) {
