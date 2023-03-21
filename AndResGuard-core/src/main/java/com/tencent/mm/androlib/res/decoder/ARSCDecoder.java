@@ -360,6 +360,9 @@ public class ARSCDecoder {
     while (mHeader.type == Header.TYPE_SPEC_TYPE) {
       readTableTypeSpec();
     }
+    while (mHeader.type == Header.TYPE_LIBRARY) {
+      readLibraryType();
+    }
     return mPkg;
   }
 
@@ -397,6 +400,9 @@ public class ARSCDecoder {
     }
     while (mHeader.type == Header.TYPE_SPEC_TYPE) {
       writeTableTypeSpec();
+    }
+    while (mHeader.type == Header.TYPE_LIBRARY) {
+      writeLibraryType();
     }
   }
 
