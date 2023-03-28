@@ -160,7 +160,11 @@ public class FileOperation {
         }
         BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(entry));
 
-        File file = new File(filePath + File.separator + entry.getName());
+        File file = new File(filePath, entry.getName());
+
+        if (!file.toPath().normalize().startsWith(filePath)) {
+          throw new IOException("Bad zip entry");
+        }
 
         File parent = file.getParentFile();
         if (parent != null && (!parent.exists())) {
