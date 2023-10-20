@@ -80,6 +80,7 @@ R.string.project_id
 
 ### Firebase Crashlytics
 ```
+"R.string.com.google.firebase.crashlytics.mapping_file_id",
 "R.bool.com.crashlytics.useFirebaseAppId",
 "R.string.com.crashlytics.useFirebaseAppId",
 "R.string.google_app_id",
