@@ -1,1 +1,0 @@
-include ':app', ':libres', ':app1', ':app2'
