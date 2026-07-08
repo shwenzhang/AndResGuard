@@ -1,8 +1,8 @@
-set jdkpath=D:\Program Files\Java\jdk1.7.0_79\bin\java.exe
+set jdkpath=C:\Program Files\Java\jdk-17\bin\java.exe
 set storepath=release.keystore
 set storepass=testres
 set keypass=testres
 set alias=testres
-set zipalign=D:\soft\dev\android\sdk\build-tools\23.0.2\zipalign.exe
+set zipalign=C:\Users\zhou0\AppData\Local\Android\Sdk\build-tools\37.0.0\zipalign.exe
 "%jdkpath%" -jar AndResGuard-cli-1.2.15.jar input.apk -config config.xml -out outapk -signature "%storepath%" "%storepass%" "%keypass%" "%alias%" -zipalign "%zipalign%"
 pause
