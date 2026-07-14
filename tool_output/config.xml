@@ -10,7 +10,7 @@
     <!--generally, you do not need to change it if you dont change the meta file name in your apk-->
     <metaname value="META-INF"/>
     <!--if keep root, res/drawable will be kept, it won't be changed to such as r/s-->
-    <keeproot value="false"/>
+    <keeproot value="true"/>
 	<!--filter duplicate resource files-->
 	<mergeDuplicatedRes value="true"/>
   </issue>
@@ -21,7 +21,11 @@
     <!--you must write the full package name, such as com.tencent.mm.R -->
     <!--for some reason, we should keep our icon better-->
     <!--and it support *, ?, such as com.tencent.mm.R.drawable.emoji_*, com.tencent.mm.R.drawable.emoji_?-->
-    <!--<path value="<your_package_name>.R.drawable.icon"/>-->
+    <path value="com.example.trailer.R.mipmap.icon_logo"/>
+    <path value="com.example.trailer.R.mipmap.ic_launcher"/>
+    <path value="com.example.trailer.R.mipmap.ic_launcher_round"/>
+    <path value="com.example.trailer.R.drawable.ic_launcher_foreground"/>
+    <path value="com.example.trailer.R.drawable.ic_launcher_background"/>
     <!--<path value="<your_package_name>.R.string.com.crashlytics.*"/>-->
     <!--<path value="<your_package_name>.R.string.umeng*"/>-->
     <!--<path value="<your_package_name>.R.layout.umeng*"/>-->
